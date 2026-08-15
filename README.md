@@ -100,31 +100,36 @@ Lodge Grievance form, so it isn't included here.
 Most Indian districts run the same government (NIC) website template, which
 publishes a per-department contact directory: police, water board, development
 authority, municipal corporation, zilla panchayat, revenue officers — each with
-a name, designation, and often an email. This is the layer CPGRAMS doesn't
-have. Piloted on 5 Karnataka districts so far — **72 contacts, 46 with an
-email**:
+a name and/or designation, and often an email. This is the layer CPGRAMS
+doesn't have. One representative district piloted per state so far —
+**163 contacts across 7 states / 11 districts, 107 with an email**:
 
-| District | Department | Name | Designation | Email |
+| State | District | Department | Name / Designation | Email |
 |---|---|---|---|---|
-| BENGALURU URBAN | Bangalore Water Supply and Sewerage Board | (Chairman) | Chairman | chairman@bwssb.gov.in |
-| BENGALURU URBAN | Bruhat Bengaluru Mahanagara Palike | Addl. Commissioner (Administration) | Additional Commissioner | addcomm.ad@gmail.com |
-| BENGALURU URBAN | Bangalore Development Authority | Commissioner | Commissioner | com@bdabangalore.org |
-| BENGALURU URBAN | Police Department | DCP Central | DCP | acpcentraltrafficbcp@ksp.gov.in |
-| MYSURU | — (DC office) | Shri.Lakshmikanth Reddy.G, I.A.S | Deputy Commissioner & District Magistrate | dcmys-ka@nic.in |
-| MYSURU | Tahasildar Mysuru | Mohana kumari | TAHASILDAR – SARGURU | mohana.kumari1980@ka.gov.in |
-| MYSURU | Zilla Panchayath Mysuru | Shri. S UKESH KUMAR, I.A.S | Chief Executive Officer | ceo_zp_mys@nic.in |
-| TUMAKURU | — (DC office) | Smt. Subha Kalyan, I.A.S | Deputy Commissioner & District Magistrate | dctumkur-ka@nic.in |
+| KARNATAKA | BENGALURU URBAN | Bangalore Water Supply and Sewerage Board | Chairman | chairman@bwssb.gov.in |
+| KARNATAKA | BENGALURU URBAN | Bruhat Bengaluru Mahanagara Palike | Addl. Commissioner (Administration) | addcomm.ad@gmail.com |
+| KARNATAKA | MYSURU | Zilla Panchayath Mysuru | Chief Executive Officer | ceo_zp_mys@nic.in |
+| BIHAR | PATNA | — | District Magistrate, Patna | dm-patna.bih@nic.in |
+| BIHAR | PATNA | — | Civil Surgeon | (no email published) |
+| TAMIL NADU | CHENNAI | — | (Contact Directory entry) | *see CSV* |
+| MADHYA PRADESH | BHOPAL | — | Collector and District Magistrate | dmbhopal@nic.in |
+| MAHARASHTRA | PUNE | — | (Contact Directory entry) | *see CSV* |
+| UTTAR PRADESH | LUCKNOW | — | District Magistrate | dmluc@nic.in |
 
-Full table: `data/departments/karnataka_district_contacts.csv`
+Full table: `data/departments/india_district_contacts.csv`
 
-**Coverage and caveats, honestly:** 5 of Karnataka's 31 districts, not all 31 —
-each remaining district's site hostname has to be found individually (no
-central lookup table for them). Belagavi's page had almost nothing usable
-(1 row) and even had a literal "Sample Department" placeholder left in by
-whoever built that page — a data-quality issue on the government's own site,
-left as-is rather than papered over. This same NIC template is used well
-beyond Karnataka — likely the biggest lever for scaling this table to the rest
-of India, one state's district hostnames at a time.
+**Coverage and caveats, honestly:** this is 1 district per state (11 total),
+not comprehensive — real breadth-first coverage of all ~766 Indian districts
+means repeating this same per-hostname search for every remaining district,
+which wasn't attempted here. Two states looked for (Rajasthan/Jaipur, West
+Bengal/Kolkata) don't appear to run this template under a findable hostname
+and were left out rather than guessed at. Belagavi (Karnataka) had almost
+nothing usable and even had a literal "Sample Department" placeholder left in
+by whoever built that government page — a data-quality issue on their end,
+left as-is rather than papered over. Page structure also varies by site: some
+list Name + Designation + Email as separate columns, others (like Patna) only
+publish Designation + Email with no separate name field — both are captured,
+neither is invented to fill the gap.
 
 ## State utility boards — water + electricity, all 36 states/UTs
 
