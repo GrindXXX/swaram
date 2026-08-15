@@ -5,7 +5,15 @@ import { FAB } from '../components/layout/FAB';
 import { IssueCard } from '../components/feed/IssueCard';
 import { Avatar } from '../components/ui/Avatar';
 import { FlameIcon, SearchIcon, TrendUpIcon, ClockIcon } from '../components/ui/Icons';
-import { getIssues, isSupabaseConfigured, trendingHeatingUp, trendingMomentum, trendingWaitingLongest, currentUser } from '../lib/queries';
+import {
+  getIssues,
+  getTrending,
+  isSupabaseConfigured,
+  trendingHeatingUp,
+  trendingMomentum,
+  trendingWaitingLongest,
+  currentUser,
+} from '../lib/queries';
 import type { Issue } from '../lib/types';
 
 const TABS = ['For you', 'Near you', 'Trending', 'Following'] as const;
@@ -86,45 +94,87 @@ function FeedIssues({ issues, loading, error }: { issues: Issue[]; loading: bool
 }
 
 function TrendingContent({ onOpen }: { onOpen: (id: string) => void }) {
+  const [live, setLive] = useState<{ heating: { id: string; rank: number; title: string; rage: number; affected: number; posts: number }[]; waiting: { title: string; days: string }[] } | null>(null);
+  const [loading, setLoading] = useState(isSupabaseConfigured);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let active = true;
+    getTrending()
+      .then((loaded) => { if (active) setLive(loaded); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
+
+  const heating = isSupabaseConfigured ? live?.heating ?? [] : trendingHeatingUp;
+  const waiting = isSupabaseConfigured ? live?.waiting ?? [] : trendingWaitingLongest;
+
   return (
     <div className="pt-3.5">
-      <SectionLabel icon={<FlameIcon size={17} className="animate-sw-flick text-rage" />} label="Heating up" />
-      {trendingHeatingUp.map((t) => (
-        <button key={t.id} onClick={() => onOpen(t.id)} className="mb-3 block w-full rounded-card bg-paper-card2 p-3.5 text-left">
-          <div className="flex items-baseline justify-between font-mono text-[11px] text-muted">
-            <span>
-              {t.rank} · {t.place} · {t.category}
-            </span>
-            <span className="font-mono text-xl font-bold text-rage">{t.rage}</span>
-          </div>
-          <div className="mt-1 font-display text-lg leading-tight">{t.title}</div>
-          <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-rage/15">
-            <div className="h-full animate-sw-heat rounded-full" style={{ width: `${t.rage}%`, background: 'linear-gradient(90deg,#7c2915,#C4703A)' }} />
-          </div>
-          <div className="mt-2 font-mono text-[11.5px] text-muted">
-            {t.affected.toLocaleString()} affected · {t.posts.toLocaleString()} posts
-          </div>
-        </button>
-      ))}
+      {!isSupabaseConfigured && <p className="pb-3 text-center font-mono text-[10px] font-bold text-rage">DEMO DATA</p>}
 
-      <SectionLabel icon={<TrendUpIcon size={17} className="text-muted-strong" />} label="Gaining momentum" />
-      {trendingMomentum.map((t) => (
-        <div key={t.title} className="flex items-center justify-between border-b border-border-light py-2.5">
-          <div>
-            <div className="text-sm">{t.title}</div>
-            <div className="mt-0.5 font-mono text-[11px] text-muted">{t.detail}</div>
-          </div>
-          <span className="font-mono text-sm font-bold text-rage">▲ {t.delta}</span>
-        </div>
-      ))}
+      <SectionLabel icon={<FlameIcon size={17} className="animate-sw-flick text-rage" />} label="Heating up" />
+      {isSupabaseConfigured && loading ? (
+        <p className="py-4 text-center font-mono text-xs text-muted">Loading…</p>
+      ) : heating.length === 0 ? (
+        <p className="py-2 text-sm text-muted">Nothing on the record yet.</p>
+      ) : (
+        heating.map((t) => (
+          <button key={t.id} onClick={() => onOpen(t.id)} className="mb-3 block w-full rounded-card bg-paper-card2 p-3.5 text-left">
+            <div className="flex items-baseline justify-between font-mono text-[11px] text-muted">
+              <span>
+                {!isSupabaseConfigured
+                  ? (() => {
+                      const demo = t as unknown as (typeof trendingHeatingUp)[number];
+                      return `${demo.rank} · ${demo.place} · ${demo.category}`;
+                    })()
+                  : `#${t.rank}`}
+              </span>
+              <span className="font-mono text-xl font-bold text-rage">{t.rage}</span>
+            </div>
+            <div className="mt-1 font-display text-lg leading-tight">{t.title}</div>
+            <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-rage/15">
+              <div className="h-full animate-sw-heat rounded-full" style={{ width: `${t.rage}%`, background: 'linear-gradient(90deg,#7c2915,#C4703A)' }} />
+            </div>
+            <div className="mt-2 font-mono text-[11.5px] text-muted">
+              {t.affected.toLocaleString()} affected · {t.posts.toLocaleString()} posts
+            </div>
+          </button>
+        ))
+      )}
+
+      {!isSupabaseConfigured && (
+        <>
+          <SectionLabel icon={<TrendUpIcon size={17} className="text-muted-strong" />} label="Gaining momentum" />
+          {trendingMomentum.map((t) => (
+            <div key={t.title} className="flex items-center justify-between border-b border-border-light py-2.5">
+              <div>
+                <div className="text-sm">{t.title}</div>
+                <div className="mt-0.5 font-mono text-[11px] text-muted">{t.detail}</div>
+              </div>
+              <span className="font-mono text-sm font-bold text-rage">▲ {t.delta}</span>
+            </div>
+          ))}
+        </>
+      )}
 
       <SectionLabel icon={<ClockIcon size={17} className="text-muted-strong" />} label="Waiting longest" />
-      {trendingWaitingLongest.map((t) => (
-        <div key={t.title} className="flex justify-between border-b border-border-light py-2.5 text-sm">
-          <span>{t.title}</span>
-          <span className="font-mono text-xs font-bold">{t.days}</span>
-        </div>
-      ))}
+      {isSupabaseConfigured && loading ? null : waiting.length === 0 ? (
+        <p className="py-2 text-sm text-muted">Nothing waiting.</p>
+      ) : (
+        waiting.map((t) => (
+          <div key={t.title} className="flex justify-between border-b border-border-light py-2.5 text-sm">
+            <span>{t.title}</span>
+            <span className="font-mono text-xs font-bold">{t.days}</span>
+          </div>
+        ))
+      )}
+      {isSupabaseConfigured && (
+        <p className="mt-4 font-mono text-[10.5px] leading-relaxed text-muted-soft">
+          &ldquo;Gaining momentum&rdquo; needs a report-count delta over time this backend doesn't track yet — left
+          out rather than invented.
+        </p>
+      )}
     </div>
   );
 }

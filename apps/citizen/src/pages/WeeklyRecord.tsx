@@ -1,11 +1,22 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
-import { weeklyRecord as w } from '../lib/mock-data';
+import { weeklyRecord as fixture } from '../lib/mock-data';
+import { getWeeklyDigest, isSupabaseConfigured, type WeeklyDigest } from '../lib/queries';
 import { ShareIcon } from '../components/ui/Icons';
 
 export function WeeklyRecord() {
   const navigate = useNavigate();
-  const maxWeek = Math.max(...w.spotlightWeeks);
+  const [digest, setDigest] = useState<WeeklyDigest | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    getWeeklyDigest()
+      .then((loaded) => { if (active) setDigest(loaded); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   async function shareRecord() {
     if (navigator.share) await navigator.share({ title: 'Swaram Weekly Record', url: window.location.href });
@@ -30,65 +41,77 @@ export function WeeklyRecord() {
           <div className="font-mono text-[9px] tracking-[0.3em] text-muted">THE WEEKLY RECORD</div>
           <div className="mt-1.5 font-display text-[34px] tracking-[0.16em]">SWARAM</div>
           <div className="mt-1.5 font-mono text-[10px] tracking-wide text-muted">
-            Issue {w.issue} · {w.date}
+            {new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())}
           </div>
+          {!isSupabaseConfigured && <div className="mt-1 font-mono text-[9px] font-bold text-rage">DEMO DATA</div>}
         </div>
 
-        <div className="flex border-b border-border-strong py-3.5 text-center">
-          <Stat value={w.posted.toLocaleString()} label="posted" />
-          <Stat value={w.resolved.toLocaleString()} label="resolved" tone="text-resolved" />
-          <Stat value={w.waiting.toLocaleString()} label="waiting" tone="text-rage" />
-        </div>
-
-        <button onClick={() => navigate('/i/CIV-11290')} className="block w-full border-b border-border-strong py-3.5 text-left">
-          <div className="font-display text-xl leading-tight">{w.leadTitle}</div>
-          <div className="mt-1.5 font-mono text-[11px] text-muted">{w.leadDetail}</div>
-          <p className="mt-2 text-[13.5px] leading-relaxed">{w.leadBody}</p>
-        </button>
-
-        <div className="flex gap-3.5 border-b border-border-strong py-3.5">
-          <div className="flex-1">
-            <div className="font-mono text-[11px] font-bold text-rage">Hottest</div>
-            <div className="mt-2 font-mono text-[11.5px] leading-[2]">
-              {w.hottest.map((h) => (
-                <div key={h.label}>
-                  {h.rage} <span className="text-muted-strong">{h.label}</span>
-                </div>
-              ))}
+        {loading || !digest ? (
+          <p className="py-10 text-center font-mono text-xs text-muted">Loading this week's record…</p>
+        ) : (
+          <>
+            <div className="flex border-b border-border-strong py-3.5 text-center">
+              <Stat value={digest.posted.toLocaleString()} label="posted" />
+              <Stat value={digest.resolved.toLocaleString()} label="resolved" tone="text-resolved" />
+              <Stat value={digest.waiting.toLocaleString()} label="waiting" tone="text-rage" />
             </div>
-          </div>
-          <div className="flex-1 border-l border-border-strong pl-3.5">
-            <div className="font-mono text-[11px] font-bold text-resolved">Fastest fixed</div>
-            <div className="mt-2 font-mono text-[11.5px] leading-[2]">
-              {w.fastestFixed.map((f) => (
-                <div key={f.label}>
-                  {f.days} <span className="text-muted-strong">{f.label}</span>
+
+            <div className="border-b border-border-strong py-3.5">
+              <div className="font-mono text-[11px] font-bold text-rage">Hottest right now</div>
+              {digest.hottest.length === 0 ? (
+                <p className="mt-2 text-[13.5px] text-muted">Nothing on the record yet.</p>
+              ) : (
+                <div className="mt-2 flex flex-col gap-2.5">
+                  {digest.hottest.map((h) => (
+                    <button
+                      key={h.label}
+                      onClick={() => h.publicId && navigate(`/i/${h.publicId}`)}
+                      className="flex items-baseline justify-between text-left"
+                    >
+                      <span className="font-display text-lg leading-tight">{h.label}</span>
+                      <span className="font-mono text-sm font-bold text-rage">{h.rage}</span>
+                    </button>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        </div>
 
-        <div className="border-b border-border-strong py-3.5">
-          <div className="font-mono text-[11px] font-bold tracking-wide text-muted">TURNED DOWN BY THE PUBLIC</div>
-          <p className="mt-2 text-[13.5px] leading-relaxed">{w.turnedDown}</p>
-        </div>
+            {isSupabaseConfigured && (
+              <div className="border-b border-border-strong py-3.5">
+                <p className="font-mono text-[11px] leading-relaxed text-muted-soft">
+                  &ldquo;Fastest fixed&rdquo; and the district trend need resolution-time and weekly history this
+                  backend doesn't compute yet — not shown here rather than shown fabricated.
+                </p>
+              </div>
+            )}
 
-        <div className="py-3.5">
-          <div className="font-mono text-[11px] font-bold tracking-wide text-muted">
-            DISTRICT SPOTLIGHT · {w.spotlightWard.toUpperCase()}
-          </div>
-          <div className="mt-2.5 flex h-[30px] items-end gap-1.5">
-            {w.spotlightWeeks.map((v, i) => (
-              <div
-                key={i}
-                className={`flex-1 rounded-t ${v === maxWeek || v > 80 ? 'bg-resolved' : i === w.spotlightWeeks.length - 2 ? 'bg-[#a89b81]' : 'bg-border-strong'}`}
-                style={{ height: `${v}%` }}
-              />
-            ))}
-            <span className="ml-1.5 font-mono text-[10px] text-muted-soft">6 weeks</span>
-          </div>
-        </div>
+            {!isSupabaseConfigured && (
+              <>
+                <button onClick={() => navigate('/i/CIV-11290')} className="block w-full border-b border-border-strong py-3.5 text-left">
+                  <div className="font-display text-xl leading-tight">{fixture.leadTitle}</div>
+                  <div className="mt-1.5 font-mono text-[11px] text-muted">{fixture.leadDetail}</div>
+                  <p className="mt-2 text-[13.5px] leading-relaxed">{fixture.leadBody}</p>
+                </button>
+                <div className="flex gap-3.5 border-b border-border-strong py-3.5">
+                  <div className="flex-1 border-l border-border-strong pl-3.5">
+                    <div className="font-mono text-[11px] font-bold text-resolved">Fastest fixed</div>
+                    <div className="mt-2 font-mono text-[11.5px] leading-[2]">
+                      {fixture.fastestFixed.map((f) => (
+                        <div key={f.label}>
+                          {f.days} <span className="text-muted-strong">{f.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="border-b border-border-strong py-3.5">
+                  <div className="font-mono text-[11px] font-bold tracking-wide text-muted">TURNED DOWN BY THE PUBLIC</div>
+                  <p className="mt-2 text-[13.5px] leading-relaxed">{fixture.turnedDown}</p>
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
     </AppShell>
   );

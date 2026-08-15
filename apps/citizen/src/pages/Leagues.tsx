@@ -44,6 +44,9 @@ export function Leagues() {
       </header>
 
       <div className="px-4 py-3.5">
+        <div className="mb-3 rounded-card border border-rage/30 bg-rage/5 px-3.5 py-2.5 text-center font-mono text-[10.5px] leading-relaxed text-rage">
+          PREVIEW ONLY — there's no points, league or badge system in the backend yet. Everything below is illustrative.
+        </div>
         <div className="relative overflow-hidden rounded-card bg-ink-dark p-4 text-paper">
           <div
             className="pointer-events-none absolute inset-0 animate-sw-glow"

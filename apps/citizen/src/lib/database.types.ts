@@ -95,6 +95,21 @@ export interface Database {
         muted: boolean;
         created_at: string;
       }>;
+      // RLS: notifications_self (select where user_id = auth.uid()). Rows are
+      // written by the backend only — no INSERT policy for any client role.
+      notifications: Table<{
+        id: number;
+        user_id: string;
+        issue_id: string | null;
+        type: string;
+        title: string;
+        body: string | null;
+        url: string | null;
+        channel: 'PUSH' | 'IN_APP' | 'EMAIL' | 'SMS' | 'DIGEST';
+        is_read: boolean;
+        read_at: string | null;
+        created_at: string;
+      }>;
     };
     Views: Record<string, never>;
     Functions: {

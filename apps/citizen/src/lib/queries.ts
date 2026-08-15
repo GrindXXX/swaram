@@ -5,6 +5,7 @@ import {
   trendingHeatingUp,
   trendingMomentum,
   trendingWaitingLongest,
+  weeklyRecord as fixtureWeekly,
 } from './mock-data';
 import { isSupabaseConfigured, supabase } from './supabase';
 import type { Issue, Reply } from './types';
@@ -162,6 +163,179 @@ export async function getMyIssues(): Promise<{ created: Issue[]; following: Issu
   return {
     created: loaded.filter((issue) => issue.internalId && createdIds.includes(issue.internalId)),
     following: loaded.filter((issue) => issue.internalId && followingIds.includes(issue.internalId)),
+  };
+}
+
+export type NotificationItem = {
+  id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  meta: string;
+  to: string;
+  isRead: boolean;
+};
+
+/**
+ * Real notifications for the signed-in citizen (RLS: notifications_self).
+ * The backend team's own verification found this table has 0 rows and no
+ * delivery path wired up yet — so today this genuinely returns an empty
+ * list for a real account. That's correct, not a bug: showing nothing is
+ * more honest than the hand-authored engagement notifications this used to
+ * render unconditionally. Demo mode (no Supabase configured) keeps its own
+ * illustrative array, kept in Alerts.tsx rather than duplicated here.
+ */
+export async function getNotifications(): Promise<NotificationItem[]> {
+  if (!supabase) return [];
+  const session = await getSession();
+  if (!session) return [];
+
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('id,type,title,body,url,is_read,created_at')
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    type: row.type,
+    title: row.title,
+    body: row.body,
+    meta: relativeTime(row.created_at),
+    to: row.url ?? '/',
+    isRead: row.is_read,
+  }));
+}
+
+export type WeeklyDigest = {
+  posted: number;
+  resolved: number;
+  waiting: number;
+  hottest: { rage: number; label: string; publicId: string }[];
+};
+
+/**
+ * Real aggregate counts from `issues`, scoped by whatever RLS already lets
+ * this client see (published/public rows). There is no digest RPC or
+ * per-week bucketing in the schema yet, so this is deliberately narrower
+ * than the old mock: it covers "posted / resolved / waiting" and a real
+ * "hottest by pressure" list, and leaves out "fastest fixed" and the
+ * district-spotlight trend — those need resolution-time and weekly
+ * date-bucketed history this backend doesn't compute yet. Demo mode keeps
+ * the full illustrative record from mock-data.ts.
+ */
+export async function getWeeklyDigest(): Promise<WeeklyDigest> {
+  if (!supabase) {
+    return {
+      posted: fixtureWeekly.posted,
+      resolved: fixtureWeekly.resolved,
+      waiting: fixtureWeekly.waiting,
+      hottest: fixtureWeekly.hottest.map((h) => ({ ...h, publicId: '' })),
+    };
+  }
+
+  const [postedResult, resolvedResult, waitingResult, hottestResult] = await Promise.all([
+    supabase.from('issues').select('id', { count: 'exact', head: true }),
+    supabase.from('issues').select('id', { count: 'exact', head: true }).in('status', ['RESOLVED', 'CLOSED']),
+    supabase
+      .from('issues')
+      .select('id', { count: 'exact', head: true })
+      .not('status', 'in', '(RESOLVED,CLOSED,REJECTED,MERGED)'),
+    supabase.from('issues').select('public_id,title,civic_pressure').order('civic_pressure', { ascending: false }).limit(3),
+  ]);
+
+  const firstError = [postedResult.error, resolvedResult.error, waitingResult.error, hottestResult.error].find(Boolean);
+  if (firstError) throw firstError;
+
+  return {
+    posted: postedResult.count ?? 0,
+    resolved: resolvedResult.count ?? 0,
+    waiting: waitingResult.count ?? 0,
+    hottest: (hottestResult.data ?? []).map((row) => ({
+      rage: Math.round(Number(row.civic_pressure)),
+      label: row.title ?? row.public_id,
+      publicId: row.public_id,
+    })),
+  };
+}
+
+/**
+ * Real per-jurisdiction issue counts, keyed by jurisdiction name, for the
+ * civic-terrain map to use in place of its hash-fabricated numbers where a
+ * name actually matches. In practice the overlap with the topojson's
+ * official state/district names is thin right now — this repo's seeded
+ * jurisdictions are ward-level ("Ward 42 · Whitefield") — but the wiring is
+ * correct for when jurisdiction naming lines up with administrative
+ * boundaries. Unmatched regions keep the map's existing labelled-as-sample
+ * behaviour; this never claims polygon-grade precision either way.
+ */
+export async function getJurisdictionCounts(): Promise<Record<string, number>> {
+  if (!supabase) return {};
+
+  const { data: issueRows, error } = await supabase.from('issues').select('jurisdiction_id').not('jurisdiction_id', 'is', null);
+  if (error) throw error;
+
+  const counts = new Map<number, number>();
+  (issueRows ?? []).forEach((row) => {
+    if (row.jurisdiction_id != null) counts.set(row.jurisdiction_id, (counts.get(row.jurisdiction_id) ?? 0) + 1);
+  });
+  const ids = [...counts.keys()];
+  if (ids.length === 0) return {};
+
+  const { data: jurisdictionRows, error: jError } = await supabase.from('jurisdictions').select('id,name').in('id', ids);
+  if (jError) throw jError;
+
+  const byName: Record<string, number> = {};
+  (jurisdictionRows ?? []).forEach((row) => {
+    byName[row.name] = counts.get(row.id) ?? 0;
+  });
+  return byName;
+}
+
+export type TrendingHeating = { id: string; rank: number; title: string; rage: number; affected: number; posts: number };
+export type TrendingWaiting = { title: string; days: string };
+
+/**
+ * "Heating up" and "waiting longest" for the Feed's Trending tab, from real
+ * `issues` rows. "Gaining momentum" isn't included — it needs a delta over
+ * time (e.g. reports in the last 48h) this backend doesn't track, so making
+ * it up would be worse than leaving it out. Demo mode keeps all three from
+ * mock-data.ts, unchanged.
+ */
+export async function getTrending(): Promise<{ heating: TrendingHeating[]; waiting: TrendingWaiting[] }> {
+  if (!supabase) return { heating: [], waiting: [] };
+
+  const [heatingResult, waitingResult] = await Promise.all([
+    supabase
+      .from('issues')
+      .select('public_id,title,civic_pressure,estimated_people_affected,report_count')
+      .order('civic_pressure', { ascending: false })
+      .limit(5),
+    supabase
+      .from('issues')
+      .select('title,created_at')
+      .not('status', 'in', '(RESOLVED,CLOSED,REJECTED,MERGED)')
+      .order('created_at', { ascending: true })
+      .limit(5),
+  ]);
+
+  if (heatingResult.error) throw heatingResult.error;
+  if (waitingResult.error) throw waitingResult.error;
+
+  return {
+    heating: (heatingResult.data ?? []).map((row, i) => ({
+      id: row.public_id,
+      rank: i + 1,
+      title: row.title ?? row.public_id,
+      rage: Math.round(Number(row.civic_pressure)),
+      affected: row.estimated_people_affected ?? row.report_count,
+      posts: row.report_count,
+    })),
+    waiting: (waitingResult.data ?? []).map((row) => ({
+      title: row.title ?? 'Untitled report',
+      days: `${Math.max(0, Math.floor((Date.now() - new Date(row.created_at).getTime()) / 86_400_000))}d`,
+    })),
   };
 }
 

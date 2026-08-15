@@ -81,22 +81,34 @@ insert into authorities (
    '2026-08-01 09:00:00+00', '2026-08-01 09:00:00+00');
 
 -- Fixed auth IDs make issue authorship and officer scope stable after every reset.
+--
+-- The token columns below (confirmation_token, recovery_token, etc.) are set
+-- to '' explicitly rather than left to default to NULL. GoTrue's Go code
+-- scans them into plain strings, not sql.NullString, so a NULL here makes
+-- every seeded account 500 on sign-in ("converting NULL to string is
+-- unsupported") while a real signup — which GoTrue itself writes as '' —
+-- works fine. Found by trying to sign in as a seeded demo user locally.
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change,
+  email_change_token_current, phone_change, phone_change_token, reauthentication_token
 ) values
   ('00000000-0000-0000-0000-000000000000', '10000000-0000-0000-0000-000000000001',
    'authenticated', 'authenticated', 'asha.demo@example.com', '', '2026-08-01 09:00:00+00',
    '{"provider":"email","providers":["email"]}', '{"name":"Asha"}',
-   '2026-08-01 09:00:00+00', '2026-08-01 09:00:00+00'),
+   '2026-08-01 09:00:00+00', '2026-08-01 09:00:00+00',
+   '', '', '', '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '10000000-0000-0000-0000-000000000002',
    'authenticated', 'authenticated', 'ravi.demo@example.com', '', '2026-08-01 09:00:00+00',
    '{"provider":"email","providers":["email"]}', '{"name":"Ravi"}',
-   '2026-08-01 09:00:00+00', '2026-08-01 09:00:00+00'),
+   '2026-08-01 09:00:00+00', '2026-08-01 09:00:00+00',
+   '', '', '', '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '10000000-0000-0000-0000-000000000003',
    'authenticated', 'authenticated', 'officer.demo@example.gov.in', '', '2026-08-01 09:00:00+00',
    '{"provider":"email","providers":["email"]}', '{"name":"Officer Kiran"}',
-   '2026-08-01 09:00:00+00', '2026-08-01 09:00:00+00');
+   '2026-08-01 09:00:00+00', '2026-08-01 09:00:00+00',
+   '', '', '', '', '', '', '', '');
 
 update users
    set role = 'GOVERNMENT', home_jurisdiction_id = 102, full_name = 'Kiran Rao'
