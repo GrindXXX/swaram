@@ -1,0 +1,424 @@
+/*
+ * Ported from "Newspaper app design scope/civic-terrain.html" — the one file
+ * in that deck that was a real working D3 prototype rather than a static
+ * mock. Scoped under .civic-terrain so its own palette/ids don't leak into
+ * the rest of the app. Kept close to the original CSS on purpose: this is a
+ * port, not a redesign.
+ */
+.civic-terrain {
+  --ct-paper: #e8d8b8;
+  --ct-paper2: #d8c5a0;
+  --ct-paper3: #c5af87;
+  --ct-ink: #29251f;
+  --ct-faded: #62594b;
+  --ct-black: #171512;
+  --ct-rage: #9e351b;
+  --ct-gov: #304c50;
+  --ct-resolved: #52613a;
+  --ct-sepia: #6b5433;
+
+  /* This app never renders wider than ~480px (AppShell's phone-frame clamp),
+     so unlike the original file there's no desktop side-by-side layout to
+     fall back to and no @media breakpoint needed — it's the mobile-stacked
+     layout, unconditionally: map first (fixed height, since the SVG needs a
+     definite size to compute its projection), rail flowing naturally below
+     it as normal page content, so it scrolls with the page instead of being
+     capped and internally scrollable. */
+  position: relative;
+  color: var(--ct-ink);
+  font-family: 'Libre Baskerville', Georgia, serif;
+}
+
+.civic-terrain * {
+  box-sizing: border-box;
+}
+
+.civic-terrain #sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--ct-paper);
+  background-image: repeating-linear-gradient(0deg, rgba(41, 37, 31, 0.022) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(41, 37, 31, 0.018) 0 1px, transparent 1px 4px),
+    radial-gradient(ellipse at 20% 8%, rgba(197, 175, 135, 0.5), transparent 50%),
+    radial-gradient(ellipse at 85% 92%, rgba(160, 133, 90, 0.38), transparent 50%);
+}
+.civic-terrain #sheet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 160px rgba(90, 70, 40, 0.35);
+}
+.civic-terrain #stage {
+  position: relative;
+  overflow: hidden;
+  height: 460px;
+  flex: none;
+}
+.civic-terrain #rail {
+  border-top: 2px solid var(--ct-black);
+  padding: 18px 18px 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 3;
+}
+.civic-terrain .ct-masthead {
+  text-align: center;
+  border-bottom: 3px double var(--ct-black);
+  padding-bottom: 12px;
+}
+.civic-terrain .ct-masthead .t {
+  font-family: 'Special Elite', cursive;
+  font-size: 30px;
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  line-height: 1;
+}
+.civic-terrain .ct-masthead .s {
+  font: 400 8px 'Courier Prime', monospace;
+  letter-spacing: 0.36em;
+  color: var(--ct-faded);
+  margin-top: 8px;
+}
+.civic-terrain .ct-masthead .d {
+  font: 400 8px 'Courier Prime', monospace;
+  letter-spacing: 0.18em;
+  color: var(--ct-faded);
+  margin-top: 6px;
+}
+.civic-terrain .ct-lbl {
+  font: 400 8.5px 'Courier Prime', monospace;
+  letter-spacing: 0.24em;
+  color: var(--ct-faded);
+  margin: 16px 0 8px;
+}
+.civic-terrain .ct-pulse-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--ct-paper3);
+  border-left: 1px solid var(--ct-paper3);
+}
+.civic-terrain .ct-pulse-grid div {
+  border-right: 1px solid var(--ct-paper3);
+  border-bottom: 1px solid var(--ct-paper3);
+  padding: 8px 9px;
+}
+.civic-terrain .ct-pulse-grid .n {
+  font: 700 17px 'Courier Prime', monospace;
+  line-height: 1;
+}
+.civic-terrain .ct-pulse-grid .k {
+  font: 400 7.5px 'Courier Prime', monospace;
+  letter-spacing: 0.14em;
+  color: var(--ct-faded);
+  margin-top: 5px;
+}
+.civic-terrain .ct-modes {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--ct-paper3);
+}
+.civic-terrain .ct-mode {
+  all: unset;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 9px;
+  border-bottom: 1px solid var(--ct-paper3);
+  font: 400 9.5px 'Courier Prime', monospace;
+  letter-spacing: 0.14em;
+  color: var(--ct-ink);
+}
+.civic-terrain .ct-mode:hover {
+  background: rgba(41, 37, 31, 0.06);
+}
+.civic-terrain .ct-mode[aria-pressed='true'] {
+  background: var(--ct-ink);
+  color: var(--ct-paper);
+}
+.civic-terrain .ct-mode .m {
+  opacity: 0.55;
+  font-size: 8px;
+}
+.civic-terrain .ct-legend {
+  border: 1px solid var(--ct-ink);
+  padding: 10px 11px;
+  margin-top: 14px;
+  background: rgba(232, 216, 184, 0.55);
+}
+.civic-terrain .ct-legend .row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 8.5px 'Courier Prime', monospace;
+  color: #4a4237;
+  margin-top: 7px;
+}
+.civic-terrain .ct-ramp {
+  height: 9px;
+  flex: 1;
+  border: 1px solid var(--ct-ink);
+  background: linear-gradient(90deg, #7a6a4e, #c4703a, #9e351b);
+}
+.civic-terrain .ct-rank {
+  border-top: 1px solid var(--ct-paper3);
+  padding: 8px 0;
+  display: flex;
+  gap: 9px;
+  align-items: baseline;
+  cursor: pointer;
+}
+.civic-terrain .ct-rank:hover .rn {
+  text-decoration: underline;
+}
+.civic-terrain .ct-rank .ri {
+  font: 700 9px 'Courier Prime', monospace;
+  color: var(--ct-faded);
+  width: 16px;
+  flex: none;
+}
+.civic-terrain .ct-rank .rn {
+  font-family: 'Special Elite', cursive;
+  font-size: 12.5px;
+  flex: 1;
+  line-height: 1.2;
+}
+.civic-terrain .ct-rank .rv {
+  font: 700 13px 'Courier Prime', monospace;
+  color: var(--ct-rage);
+}
+.civic-terrain .ct-colophon {
+  margin-top: auto;
+  padding: 14px 0 18px;
+  font: 400 7.5px/1.7 'Courier Prime', monospace;
+  color: #8a8069;
+  border-top: 1px solid var(--ct-paper3);
+}
+.civic-terrain #map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+.civic-terrain #map:active {
+  cursor: grabbing;
+}
+.civic-terrain .reg {
+  cursor: pointer;
+}
+.civic-terrain .reg path {
+  stroke: #6b5433;
+  stroke-width: 0.85;
+  stroke-linejoin: round;
+  transition: fill 0.45s ease;
+}
+.civic-terrain .reg.on path {
+  stroke: var(--ct-black);
+  stroke-width: 1.4;
+}
+.civic-terrain .barGroup {
+  pointer-events: none;
+}
+.civic-terrain .stem {
+  stroke: #4a3a22;
+  stroke-width: 0.6;
+}
+.civic-terrain .ct-crumb {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 4;
+  white-space: nowrap;
+  font: 400 9.5px 'Courier Prime', monospace;
+  letter-spacing: 0.18em;
+  color: var(--ct-faded);
+}
+.civic-terrain .ct-crumb b {
+  color: var(--ct-ink);
+}
+.civic-terrain .ct-crumb button {
+  all: unset;
+  cursor: pointer;
+  border: 1px solid var(--ct-ink);
+  padding: 5px 9px;
+  font: 400 9px 'Courier Prime', monospace;
+  letter-spacing: 0.14em;
+  background: rgba(232, 216, 184, 0.85);
+}
+.civic-terrain .ct-crumb button:hover {
+  background: var(--ct-ink);
+  color: var(--ct-paper);
+}
+.civic-terrain #ct-title {
+  position: absolute;
+  bottom: 18px;
+  left: 20px;
+  z-index: 4;
+  pointer-events: none;
+  max-width: 340px;
+}
+.civic-terrain #ct-title .h {
+  font-family: 'Special Elite', cursive;
+  font-size: 22px;
+  line-height: 1.1;
+}
+.civic-terrain #ct-title .k {
+  font: 400 8.5px 'Courier Prime', monospace;
+  letter-spacing: 0.24em;
+  color: var(--ct-faded);
+  margin-top: 8px;
+}
+.civic-terrain #ct-tip {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.14s;
+  min-width: 200px;
+  background: var(--ct-paper);
+  border: 1.5px solid var(--ct-black);
+  box-shadow: 5px 5px 0 rgba(23, 21, 18, 0.28);
+  padding: 11px 13px 12px;
+}
+.civic-terrain #ct-tip .n {
+  font-family: 'Special Elite', cursive;
+  font-size: 16px;
+  line-height: 1.15;
+}
+.civic-terrain #ct-tip .sub {
+  font: 400 8px 'Courier Prime', monospace;
+  letter-spacing: 0.16em;
+  color: var(--ct-faded);
+  margin-top: 4px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--ct-paper3);
+}
+.civic-terrain #ct-tip .r {
+  display: flex;
+  justify-content: space-between;
+  font: 400 9.5px/1.85 'Courier Prime', monospace;
+}
+.civic-terrain #ct-tip .r span:first-child {
+  color: var(--ct-faded);
+}
+.civic-terrain #ct-tip .hi {
+  background: rgba(158, 53, 27, 0.1);
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+.civic-terrain #ct-tip .bar {
+  height: 9px;
+  border: 1px solid var(--ct-ink);
+  padding: 1px;
+  margin-top: 8px;
+  background: repeating-linear-gradient(90deg, rgba(41, 37, 31, 0.13) 0 7px, transparent 7px 10px);
+}
+.civic-terrain #ct-tip .bar i {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--ct-rage) 0 7px, transparent 7px 10px);
+}
+.civic-terrain #ct-scalestamp {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  transform: rotate(-8deg);
+  z-index: 4;
+  border: 2px double #5a4620;
+  padding: 5px 10px;
+  color: #5a4620;
+  background: rgba(232, 216, 184, 0.45);
+  font: 400 8px 'Courier Prime', monospace;
+  letter-spacing: 0.2em;
+}
+.civic-terrain #ct-sample {
+  position: absolute;
+  right: 18px;
+  top: 16px;
+  transform: rotate(6deg);
+  z-index: 4;
+  border: 2px solid var(--ct-rage);
+  color: var(--ct-rage);
+  padding: 4px 10px;
+  opacity: 0.7;
+  font: 700 9px 'Courier Prime', monospace;
+  letter-spacing: 0.18em;
+  background: rgba(232, 216, 184, 0.35);
+}
+.civic-terrain #ct-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+  font: 400 10px 'Courier Prime', monospace;
+  letter-spacing: 0.3em;
+  color: var(--ct-faded);
+  background: rgba(232, 216, 184, 0.9);
+  transition: opacity 0.5s;
+  text-align: center;
+  padding: 0 24px;
+}
+.civic-terrain #ct-ward {
+  position: absolute;
+  right: 16px;
+  bottom: 66px;
+  width: 240px;
+  z-index: 5;
+  background: var(--ct-paper);
+  border: 1.5px solid var(--ct-black);
+  box-shadow: 6px 6px 0 rgba(23, 21, 18, 0.3);
+  padding: 13px 14px 14px;
+  transform: translateY(14px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+.civic-terrain #ct-ward.on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.civic-terrain #ct-ward .close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  cursor: pointer;
+  font: 400 11px 'Courier Prime', monospace;
+  color: var(--ct-faded);
+}
+.civic-terrain #ct-ward .n {
+  font-family: 'Special Elite', cursive;
+  font-size: 17px;
+  line-height: 1.15;
+  padding-right: 16px;
+}
+.civic-terrain #ct-ward .k {
+  font: 400 8px 'Courier Prime', monospace;
+  letter-spacing: 0.18em;
+  color: var(--ct-faded);
+  margin-top: 4px;
+  border-bottom: 1px solid var(--ct-paper3);
+  padding-bottom: 8px;
+}
+.civic-terrain #ct-ward .row {
+  display: flex;
+  justify-content: space-between;
+  font: 400 9.5px 'Courier Prime', monospace;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(197, 175, 135, 0.6);
+}
+.civic-terrain #ct-ward .row span:first-child {
+  color: var(--ct-faded);
+}

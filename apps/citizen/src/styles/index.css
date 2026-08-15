@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper text-ink font-serif antialiased;
+    /* faint paper grain, lifted from every screen in the source deck */
+    background-image: repeating-linear-gradient(0deg, rgba(41, 37, 31, 0.016) 0 1px, transparent 1px 3px);
+  }
+
+  button {
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

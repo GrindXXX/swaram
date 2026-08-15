@@ -1,0 +1,205 @@
+import type { Issue } from './types';
+
+// Fixture data lifted straight from the copy in the design deck (pothole on
+// Whitefield Main Road, Mysuru's four-day dry spell, etc.) so the screens
+// read exactly as they did in the mockups. Swap for real Supabase queries
+// once apps/citizen talks to backend/core.
+
+export const currentUser = {
+  handle: 'Citizen #A82F',
+  initials: 'A82F',
+  ward: 'Ward 42',
+  city: 'Bengaluru',
+  verifiedSince: 'Mar 2026',
+  smokePoints: 3480,
+  smokeThisWeek: 310,
+  league: 'KINDLING',
+  leagueRank: 2,
+  smokeToNextLeague: 620,
+  wardRank: 12,
+  wardTotal: 1204,
+};
+
+export const issues: Issue[] = [
+  {
+    id: 'CIV-10482',
+    title: "The pothole that won't go away",
+    body: 'Twelve days now on Whitefield Main Road. Bikes swerve into the next lane every evening.',
+    category: 'Roads',
+    ward: 'Ward 42',
+    city: 'Whitefield',
+    status: 'AWAITING_VERIFICATION',
+    authorHandle: 'Citizen #A82F',
+    timeAgo: '12m',
+    filedOn: '3 Aug',
+    rage: 87,
+    rageDelta7d: 14,
+    affected: 1482,
+    reportCount: 82,
+    standingWithCount: 347,
+    photoCount: 27,
+    overdueDays: 12,
+    history: ['Reported', 'Routed', 'Rage', 'Response', 'Evidence', 'Verifying'],
+    replies: [
+      {
+        id: 'r1',
+        authorKind: 'citizen',
+        authorLabel: '#B72D',
+        timeAgo: '9d',
+        body: 'Nearly went under a bus here yesterday.',
+      },
+      {
+        id: 'r2',
+        authorKind: 'government',
+        authorLabel: 'Roads Department',
+        timeAgo: '5d',
+        body: 'Inspected on 8 August. Resurfacing scheduled 18 August, work order BBMP/RD/8842.',
+        workOrder: 'BBMP/RD/8842',
+      },
+    ],
+  },
+  {
+    id: 'CIV-10981',
+    title: 'Streetlights out for three weeks in Sector 4',
+    body: 'Entire stretch dark after 7pm. Residents avoiding the footpath.',
+    category: 'Electricity',
+    ward: 'Ward 42',
+    city: 'Whitefield',
+    status: 'ASSIGNED',
+    authorHandle: 'Citizen #C11A',
+    timeAgo: '1d',
+    filedOn: '20 Jul',
+    rage: 61,
+    affected: 340,
+    reportCount: 24,
+    standingWithCount: 61,
+    photoCount: 9,
+    history: ['Reported', 'Routed', 'Response'],
+    replies: [],
+  },
+  {
+    id: 'CIV-10077',
+    title: 'Garbage pile cleared at park gate',
+    body: 'Reported build-up at the main gate; cleared within three days.',
+    category: 'Sanitation',
+    ward: 'Ward 42',
+    city: 'Whitefield',
+    status: 'RESOLVED',
+    authorHandle: 'Citizen #F40C',
+    timeAgo: '3d',
+    filedOn: '28 Jul',
+    rage: 0,
+    affected: 91,
+    reportCount: 6,
+    standingWithCount: 14,
+    photoCount: 4,
+    history: ['Reported', 'Routed', 'Response', 'Evidence', 'Verified', 'Burned'],
+    replies: [],
+  },
+  {
+    id: 'CIV-11290',
+    title: 'Fourth day without supply in Kuvempunagar',
+    body: 'Whole block dry since Monday. Tankers not showing up on schedule.',
+    category: 'Water',
+    ward: 'Ward 8',
+    city: 'Mysuru',
+    status: 'AWAITING_VERIFICATION',
+    authorHandle: 'Citizen #D02E',
+    timeAgo: '4h',
+    filedOn: '11 Aug',
+    rage: 94,
+    affected: 28400,
+    reportCount: 1204,
+    standingWithCount: 5100,
+    photoCount: 63,
+    history: ['Reported', 'Routed', 'Response'],
+    replies: [],
+  },
+  {
+    id: 'CIV-11304',
+    title: 'Supply cut without notice, 3rd Block',
+    body: 'No prior intimation, sixth day of intermittent supply.',
+    category: 'Water',
+    ward: 'Ward 42',
+    city: 'Whitefield',
+    status: 'ASSIGNED',
+    authorHandle: 'Citizen #A82F',
+    timeAgo: '6d',
+    filedOn: '9 Aug',
+    rage: 54,
+    affected: 620,
+    reportCount: 19,
+    standingWithCount: 88,
+    photoCount: 7,
+    history: ['Reported', 'Routed'],
+    replies: [],
+  },
+  {
+    id: 'CIV-11311',
+    title: 'Drain overflow at 9th Cross',
+    body: 'Repair submitted by BWSSB, verification pending from the neighbourhood.',
+    category: 'Sanitation',
+    ward: 'Ward 42',
+    city: 'Whitefield',
+    status: 'AWAITING_VERIFICATION',
+    authorHandle: 'Citizen #A82F',
+    timeAgo: '2d',
+    filedOn: '30 Jul',
+    rage: 22,
+    affected: 210,
+    reportCount: 11,
+    standingWithCount: 40,
+    photoCount: 5,
+    history: ['Reported', 'Routed', 'Rage', 'Response', 'Evidence', 'Verifying'],
+    replies: [],
+  },
+];
+
+export const trendingHeatingUp = [
+  { id: 'CIV-11290', rank: 1, place: 'Mysuru', category: 'Water', title: 'Fourth day without supply in Kuvempunagar', rage: 94, affected: 28400, posts: 1204 },
+  { id: 'CIV-10482', rank: 2, place: 'Bengaluru', category: 'Roads', title: "The pothole that won't go away", rage: 87, affected: 1482, posts: 347 },
+];
+
+export const trendingMomentum = [
+  { title: 'Drainage overflow, Kochi', detail: '+1,120 affected in 48h', delta: 62 },
+  { title: 'Exam centre irregularities, Patna', detail: '+890 posts in 24h', delta: 58 },
+];
+
+export const trendingWaitingLongest = [
+  { title: 'Garbage collection, Ward 12', days: '47d' },
+  { title: 'Drainage, Chembur', days: '42d' },
+  { title: 'Road repair, Ward 42', days: '39d' },
+];
+
+export const badges = [
+  { id: 'eyes-open', name: 'EYES OPEN', color: 'resolved' as const, earned: true },
+  { id: 'pathfinder', name: 'PATHFINDER', color: 'gov' as const, earned: true },
+  { id: 'the-voice', name: 'THE VOICE', color: 'rage' as const, earned: true },
+  { id: 'guardian', name: 'GUARDIAN', color: 'locked' as const, earned: false },
+];
+
+export const weeklyRecord = {
+  issue: 33,
+  date: '15 August 2026',
+  posted: 12482,
+  resolved: 8921,
+  waiting: 3210,
+  leadTitle: 'Mysuru goes four days dry',
+  leadDetail: '28,400 affected · rage 94 · 1,204 posts',
+  leadBody:
+    "The week's largest thread began with one post from Kuvempunagar on Monday. By Thursday the board had answered — a tanker schedule, and a promise.",
+  hottest: [
+    { rage: 94, label: 'Mysuru water' },
+    { rage: 87, label: 'Whitefield road' },
+    { rage: 85, label: 'Hyderabad lights' },
+  ],
+  fastestFixed: [
+    { days: '2.4d', label: 'Mysuru' },
+    { days: '3.1d', label: 'Surat' },
+    { days: '3.8d', label: 'Kochi' },
+  ],
+  turnedDown:
+    'Four repairs were rejected this week. In Pune, 63% of verifiers said the drain overflow returned within nine days.',
+  spotlightWard: 'Mysuru',
+  spotlightWeeks: [40, 55, 48, 70, 86, 100],
+};

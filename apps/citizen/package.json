@@ -1,0 +1,41 @@
+{
+  "name": "@swaram/citizen",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Swaram citizen app — the newspaper-styled civic social surface, packaged for iOS/Android via Capacitor. apps/web (Next.js) covers gov/admin; this app covers the citizen route group only.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "cap:sync": "cap sync",
+    "cap:ios": "cap open ios",
+    "cap:android": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.1.2",
+    "d3": "^7.9.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "topojson-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
+    "@types/d3": "^7.4.3",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@types/topojson-client": "^3.1.5",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
