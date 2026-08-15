@@ -275,7 +275,9 @@ export const FEED_WEIGHTS = {
   staleness: 0.05,
 } as const;
 
-export type FeedWeights = typeof FEED_WEIGHTS;
+export type FeedWeights = {
+  readonly [K in keyof typeof FEED_WEIGHTS]: number;
+};
 
 export interface FeedRankInput {
   /** Distance from the viewer, kilometres. */

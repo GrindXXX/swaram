@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const ITEMS = [
+  { href: '/gov', label: 'Live queue' },
   { href: '/gov/dashboard', label: 'Dashboard' },
-  { href: '/gov/queue', label: 'Queue' },
+  { href: '/gov/queue', label: 'Saved views' },
 ];
 
 /** Sidebar nav for the gov shell. Client component only because
@@ -23,7 +24,7 @@ export function GovNav({ officerName, jurisdiction }: { officerName: string; jur
       </div>
       <nav className="sw-navgroup">
         {ITEMS.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(item.href + '/');
+          const active = item.href === '/gov' ? pathname === '/gov' : pathname.startsWith(item.href);
           return (
             <Link key={item.href} href={item.href} className="sw-navitem" aria-current={active ? 'page' : undefined}>
               <span>{item.label}</span>

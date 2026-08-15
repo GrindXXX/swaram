@@ -1,5 +1,6 @@
 import { getGovKpis, getCoverage, getDeptPerformance, getTrend } from '@/lib/queries/dashboard';
 import { OFFICER } from '@/components/gov/fixtures';
+import { GovNav } from '../_components/GovNav';
 
 export const metadata = { title: 'Dashboard — Swaram Gov' };
 
@@ -23,7 +24,9 @@ export default async function DashboardPage() {
   const totalIssues = coverage.reduce((a, c) => a + c.issues, 0);
 
   return (
-    <>
+    <div className="sw-shell" data-panes="2">
+      <GovNav officerName={OFFICER.name} jurisdiction={OFFICER.jurisdiction} />
+      <main className="sw-pane sw-scroll">
       <div className="sw-head">
         <div>
           <h1>Dashboard</h1>
@@ -137,7 +140,8 @@ export default async function DashboardPage() {
         <div className="sw-label" style={{ marginBottom: 8 }}>14-DAY TREND · CREATED VS RESOLVED</div>
         <TrendChart points={trend} />
       </section>
-    </>
+      </main>
+    </div>
   );
 }
 

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { getQueue } from '@/lib/queries/queue';
-import { VIEWS, FIXTURE_NOW } from '@/components/gov/fixtures';
+import { VIEWS, FIXTURE_NOW, OFFICER } from '@/components/gov/fixtures';
 import type { QueueIssue, SavedView } from '@/components/gov/types';
+import { GovNav } from '../_components/GovNav';
 
 export const metadata = { title: 'Queue — Swaram Gov' };
 
@@ -24,7 +25,9 @@ export default async function QueuePage({
   const activeSpec = VIEWS.find((v) => v.slug === view)!;
 
   return (
-    <>
+    <div className="sw-shell" data-panes="2">
+      <GovNav officerName={OFFICER.name} jurisdiction={OFFICER.jurisdiction} />
+      <main className="sw-pane sw-scroll">
       <div className="sw-head">
         <div>
           <h1>Queue</h1>
@@ -74,7 +77,8 @@ export default async function QueuePage({
         </table>
       )}
       <div className="sw-hint">Sorted {activeSpec.sort.replace('-', ' · ')} · RLS-scoped to your jurisdiction, not filtered client-side.</div>
-    </>
+      </main>
+    </div>
   );
 }
 

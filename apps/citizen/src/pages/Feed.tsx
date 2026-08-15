@@ -1,19 +1,40 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { FAB } from '../components/layout/FAB';
 import { IssueCard } from '../components/feed/IssueCard';
-import { GovReplyCard } from '../components/feed/GovReplyCard';
 import { Avatar } from '../components/ui/Avatar';
 import { FlameIcon, SearchIcon, TrendUpIcon, ClockIcon } from '../components/ui/Icons';
-import { issues, trendingHeatingUp, trendingMomentum, trendingWaitingLongest, currentUser } from '../lib/mock-data';
+import { getIssues, isSupabaseConfigured, trendingHeatingUp, trendingMomentum, trendingWaitingLongest, currentUser } from '../lib/queries';
+import type { Issue } from '../lib/types';
 
 const TABS = ['For you', 'Near you', 'Trending', 'Following'] as const;
 type Tab = (typeof TABS)[number];
 
 export function Feed() {
   const [tab, setTab] = useState<Tab>('For you');
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    getIssues()
+      .then((loaded) => {
+        if (active) setIssues(loaded);
+      })
+      .catch((loadError: unknown) => {
+        if (active) setError(loadError instanceof Error ? loadError.message : 'Could not load the civic feed.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <AppShell>
@@ -41,17 +62,11 @@ export function Feed() {
 
       <div className="px-3.5 pb-28">
         {tab === 'Trending' ? (
-          <TrendingContent onOpen={(id) => navigate(`/thread/${id}`)} />
+          <TrendingContent onOpen={(id) => navigate(`/i/${id}`)} />
         ) : (
           <>
-            <IssueCard issue={issues[0]} />
-            <GovReplyCard
-              department="Roads Department"
-              timeAgo="2h"
-              body="Resurfacing of the ITPL stretch is scheduled for 18 August. Work order raised this morning."
-            />
-            <IssueCard issue={issues[1]} />
-            <IssueCard issue={issues[2]} />
+            {!isSupabaseConfigured && <p className="pt-3 text-center font-mono text-[10px] font-bold text-rage">DEMO DATA · LIVE ACTIONS DISABLED</p>}
+            <FeedIssues issues={issues} loading={loading} error={error} />
           </>
         )}
       </div>
@@ -59,6 +74,15 @@ export function Feed() {
       <FAB />
     </AppShell>
   );
+}
+
+function FeedIssues({ issues, loading, error }: { issues: Issue[]; loading: boolean; error: string | null }) {
+  if (loading) return <p className="py-10 text-center font-mono text-xs text-muted">Loading civic record…</p>;
+  if (error) return <p className="py-10 text-center text-sm text-rage">{error}</p>;
+  if (issues.length === 0) {
+    return <p className="py-10 text-center text-sm text-muted">No issues are visible in this feed yet.</p>;
+  }
+  return <>{issues.map((issue) => <IssueCard key={issue.id} issue={issue} />)}</>;
 }
 
 function TrendingContent({ onOpen }: { onOpen: (id: string) => void }) {

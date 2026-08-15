@@ -13,7 +13,7 @@ const alerts = [
       </>
     ),
     meta: 'Rage rose to 87 · 2h',
-    to: '/thread/CIV-10482',
+    to: '/i/CIV-10482',
   },
   {
     icon: <GovBuildingIcon size={24} className="text-gov" />,
@@ -25,7 +25,7 @@ const alerts = [
     ),
     quote: '"Resurfacing scheduled for 18 August."',
     meta: '2h',
-    to: '/thread/CIV-10482',
+    to: '/i/CIV-10482',
   },
   {
     icon: <ShieldCheckIcon size={24} className="text-resolved" />,
@@ -36,7 +36,7 @@ const alerts = [
       </>
     ),
     cta: "Tap to say if it's actually fixed →",
-    to: '/thread/CIV-11311/verify',
+    to: '/i/CIV-11311/verify',
   },
   {
     icon: <ChatIcon size={24} className="text-muted" />,
@@ -46,7 +46,7 @@ const alerts = [
       </>
     ),
     meta: '9h',
-    to: '/thread/CIV-10482',
+    to: '/i/CIV-10482',
   },
   {
     icon: <SupportHandIcon size={24} className="text-muted" />,

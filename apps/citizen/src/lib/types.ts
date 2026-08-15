@@ -12,11 +12,24 @@ export type IssueStatus =
   | 'ASSIGNED'
   | 'ACKNOWLEDGED'
   | 'IN_PROGRESS'
+  | 'HELD'
   | 'RESOLUTION_SUBMITTED'
   | 'AWAITING_VERIFICATION'
   | 'RESOLVED'
   | 'CLOSED'
-  | 'REJECTED';
+  | 'REOPENED'
+  | 'REJECTED'
+  | 'MERGED';
+
+export type LocationPrecision = 'POINT' | 'AREA' | 'JURISDICTION';
+export type LocationVisibility = 'EXACT' | 'APPROXIMATE' | 'PRIVATE';
+export type RoutingTier = 'ONBOARDED' | 'CONTACTABLE' | 'UNMAPPED';
+export type JurisdictionMatchMethod =
+  | 'POLYGON'
+  | 'CENTROID_FALLBACK'
+  | 'GEOCODE_FALLBACK'
+  | 'MANUAL'
+  | 'NONE';
 
 export type ReplyAuthorKind = 'citizen' | 'government';
 
@@ -31,6 +44,7 @@ export interface Reply {
 
 export interface Issue {
   id: string; // "CIV-10482"
+  internalId?: string;
   title: string;
   body: string;
   category: string;
@@ -47,6 +61,11 @@ export interface Issue {
   standingWithCount: number;
   photoCount: number;
   overdueDays?: number;
+  routingTier?: RoutingTier;
+  jurisdictionMatchMethod?: JurisdictionMatchMethod;
+  locationPrecision?: LocationPrecision;
+  locationVisibility?: LocationVisibility;
+  publishedToFeed?: boolean;
   replies: Reply[];
   history: string[]; // "Reported" -> "Routed" -> "Response" -> "Evidence" -> "Verifying"
 }

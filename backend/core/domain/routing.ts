@@ -15,7 +15,7 @@ import type { Db } from '../db/client.ts';
 import type { AdminDb } from '../db/admin.ts';
 import type { LatLng, RoutingResult } from '../types/index.ts';
 import { isJurisdictionLevel, type JurisdictionLevel } from '../types/enums.ts';
-import { reverseGeocode, matchJurisdictionByName, type GeoProvider } from '../services/geo.ts';
+import { matchJurisdictionByName, type GeoProvider } from '../services/geo.ts';
 
 type AnyDb = Db | AdminDb;
 

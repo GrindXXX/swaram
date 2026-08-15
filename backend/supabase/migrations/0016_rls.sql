@@ -30,41 +30,41 @@
 -- These are `stable`, not `immutable`: the claim is constant within a
 -- statement, which is all the planner needs to hoist the call out of the loop.
 
-create or replace function auth.app_role() returns text
+create or replace function public.current_app_role() returns text
 language sql stable as $$
   select coalesce(
            nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'app_role',
            'ANON');
 $$;
 
-create or replace function auth.juris_id() returns bigint
+create or replace function public.current_juris_id() returns bigint
 language sql stable as $$
   select nullif(
            nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'juris_id',
          '')::bigint;
 $$;
 
-create or replace function auth.juris_level() returns jurisdiction_level
+create or replace function public.current_juris_level() returns jurisdiction_level
 language sql stable as $$
   select nullif(
            nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'juris_lvl',
          '')::jurisdiction_level;
 $$;
 
-create or replace function auth.dept_id() returns bigint
+create or replace function public.current_dept_id() returns bigint
 language sql stable as $$
   select nullif(
            nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'dept_id',
          '')::bigint;
 $$;
 
-create or replace function auth.is_admin() returns boolean
-language sql stable as $$ select auth.app_role() = 'ADMIN'; $$;
+create or replace function public.is_admin() returns boolean
+language sql stable as $$ select public.current_app_role() = 'ADMIN'; $$;
 
-create or replace function auth.is_gov() returns boolean
-language sql stable as $$ select auth.app_role() in ('GOVERNMENT', 'ADMIN'); $$;
+create or replace function public.is_gov() returns boolean
+language sql stable as $$ select public.current_app_role() in ('GOVERNMENT', 'ADMIN'); $$;
 
-comment on function auth.app_role is
+comment on function public.current_app_role is
   'Claims go stale: a JWT minted before a role change carries the old claims '
   'until it refreshes. Read paths tolerate up to one token lifetime of lag; '
   'WRITE paths must not, so write policies also re-check government_officers '
@@ -78,11 +78,11 @@ comment on function auth.app_role is
 -- A ward officer's subtree is just their ward; a zone or district supervisor
 -- gets the whole subtree for free. This is why there is no supervisor role --
 -- scope is data (PRD S18).
-create or replace function auth.in_gov_scope(p_juris bigint) returns boolean
+create or replace function public.in_gov_scope(p_juris bigint) returns boolean
 language sql stable as $$
   select p_juris is not null
-     and auth.juris_id() is not null
-     and exists (select 1 from jurisdiction_descendants(auth.juris_id()) d
+     and public.current_juris_id() is not null
+     and exists (select 1 from jurisdiction_descendants(public.current_juris_id()) d
                   where d.id = p_juris);
 $$;
 
@@ -166,8 +166,8 @@ language sql stable security definer set search_path = public as $$
          -- reporter, participant, owning department, admin
          or public.is_issue_reporter(p_issue)
          or public.is_issue_participant(p_issue)
-         or (auth.is_gov() and auth.in_gov_scope(i.jurisdiction_id))
-         or auth.is_admin()
+          or (public.is_gov() and public.in_gov_scope(i.jurisdiction_id))
+          or public.is_admin()
        )
   );
 $$;
@@ -185,8 +185,8 @@ language sql stable security definer set search_path = public as $$
                                   and i.status <> 'HELD')
          or public.is_issue_reporter(p_issue)
          or public.is_issue_participant(p_issue)
-         or (auth.is_gov() and auth.in_gov_scope(i.jurisdiction_id))
-         or auth.is_admin()
+          or (public.is_gov() and public.in_gov_scope(i.jurisdiction_id))
+          or public.is_admin()
        )
   );
 $$;
@@ -197,7 +197,7 @@ language sql stable security definer set search_path = public as $$
   select exists (
     select 1 from issues i
      where i.id = p_issue
-       and auth.is_gov()
+        and public.is_gov()
        and public.gov_scope_covers(i.jurisdiction_id)
   );
 $$;
@@ -222,39 +222,39 @@ alter table organisations             enable row level security;
 create policy jurisdictions_read on jurisdictions
   for select to anon, authenticated using (true);
 create policy jurisdictions_admin on jurisdictions
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy authority_types_read on authority_types
   for select to anon, authenticated using (true);
 create policy authority_types_admin on authority_types
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy categories_read on categories
   for select to anon, authenticated using (true);
 create policy categories_admin on categories
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy category_rules_read on category_authority_rules
   for select to anon, authenticated using (true);
 create policy category_rules_admin on category_authority_rules
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy departments_read on departments
   for select to anon, authenticated using (true);
 create policy departments_admin on departments
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy authorities_read on authorities
   for select to anon, authenticated using (true);
 -- Only an admin edits the registry. bounce_count is written by the dispatch
 -- worker under the service role, which bypasses RLS.
 create policy authorities_admin on authorities
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy organisations_read on organisations
   for select to anon, authenticated using (true);
 create policy organisations_admin on organisations
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- ===========================================================================
 -- 4. Identity
@@ -273,7 +273,7 @@ create policy users_self_read on users
 create policy users_self_update on users
   for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
 create policy users_admin_all on users
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- No insert policy: rows appear only via handle_new_user() (0006), which is
 -- security definer and fires on auth.users. There is no self-signup path that
@@ -294,9 +294,9 @@ create policy gov_officers_self_read on government_officers
 -- Colleagues in scope: needed for the assignment picker and the team view.
 create policy gov_officers_scope_read on government_officers
   for select to authenticated
-  using (auth.is_gov() and auth.in_gov_scope(jurisdiction_id));
+  using (public.is_gov() and public.in_gov_scope(jurisdiction_id));
 create policy gov_officers_admin on government_officers
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 comment on table government_officers is
   'No INSERT policy for GOVERNMENT. An officer cannot provision an officer; the '
@@ -309,12 +309,12 @@ comment on table government_officers is
 -- officer_claim_candidate(), which is security definer and returns at most two
 -- rows so ambiguity can be detected and refused.
 create policy roster_admin_all on officer_roster_records
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- Read-only even for admins: role grants are the most security-sensitive event
 -- in the system, and an audit trail its operator can rewrite is not one.
 create policy role_grants_admin_read on role_grants_log
-  for select to authenticated using (auth.is_admin());
+  for select to authenticated using (public.is_admin());
 
 -- ===========================================================================
 -- 5. Issues
@@ -356,10 +356,10 @@ create policy issues_participant_read on issues
 -- issues lose the audience, not the accountability (PRD S03).
 create policy issues_gov_read on issues
   for select to authenticated
-  using (auth.is_gov() and auth.in_gov_scope(jurisdiction_id));
+  using (public.is_gov() and public.in_gov_scope(jurisdiction_id));
 
 create policy issues_admin_read on issues
-  for select to authenticated using (auth.is_admin());
+  for select to authenticated using (public.is_admin());
 
 -- Anyone signed in may create an issue, always. A submission is never blocked,
 -- diverted or converted at submit time (PRD S03 hard rule). The columns a
@@ -371,8 +371,8 @@ create policy issues_insert on issues
 
 create policy issues_gov_update on issues
   for update to authenticated
-  using (auth.app_role() = 'GOVERNMENT' and public.gov_scope_covers(jurisdiction_id))
-  with check (auth.app_role() = 'GOVERNMENT' and public.gov_scope_covers(jurisdiction_id));
+  using (public.current_app_role() = 'GOVERNMENT' and public.gov_scope_covers(jurisdiction_id))
+  with check (public.current_app_role() = 'GOVERNMENT' and public.gov_scope_covers(jurisdiction_id));
 
 create policy issues_reporter_update on issues
   for update to authenticated
@@ -381,7 +381,7 @@ create policy issues_reporter_update on issues
 
 create policy issues_admin_update on issues
   for all to authenticated
-  using (auth.is_admin()) with check (auth.is_admin());
+  using (public.is_admin()) with check (public.is_admin());
 
 comment on table issues is
   'No DELETE policy for any role. Issues are never destroyed: account deletion '
@@ -394,7 +394,7 @@ comment on table issues is
 create or replace function guard_issue_write()
 returns trigger language plpgsql as $$
 declare
-  v_role text := auth.app_role();
+  v_role text := public.current_app_role();
 begin
   if tg_op = 'INSERT' then
     if v_role in ('GOVERNMENT', 'ADMIN') then
@@ -428,7 +428,7 @@ begin
     -- Lowering a visibility class is a supervisor action (PRD S18). A ward
     -- officer may raise it but never lower it, and either way it is logged.
     if new.visibility < old.visibility
-       and auth.juris_level() in ('WARD') then
+       and public.current_juris_level() in ('WARD') then
       raise exception 'only a supervisor may lower an issue visibility class';
     end if;
     return new;
@@ -497,7 +497,7 @@ create policy reports_own_update on reports
   using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 create policy reports_admin_all on reports
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 create policy issue_evidence_read on issue_evidence
   for select to anon, authenticated
@@ -516,7 +516,7 @@ create policy issue_evidence_insert on issue_evidence
   );
 
 create policy issue_evidence_admin on issue_evidence
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- ===========================================================================
 -- 7. Participants and transfers
@@ -549,7 +549,7 @@ create policy issue_participants_gov_update on issue_participants
   with check (public.gov_owns_issue(issue_id));
 
 create policy issue_participants_admin on issue_participants
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- The transfer chain is a PUBLIC accountability log. That is its entire
 -- purpose: a citizen must be able to see that their report was passed between
@@ -564,7 +564,7 @@ create policy issue_transfers_gov_write on issue_transfers
 -- No update, no delete, for anyone. An accountability log that can be tidied up
 -- is worth nothing.
 create policy issue_transfers_admin_read on issue_transfers
-  for select to authenticated using (auth.is_admin());
+  for select to authenticated using (public.is_admin());
 
 -- ===========================================================================
 -- 8. Discussion
@@ -592,7 +592,7 @@ create policy comments_internal_read on comments
   for select to authenticated
   using (visibility = 'INTERNAL'
          and deleted_at is null
-         and (auth.is_admin() or public.gov_owns_issue(issue_id)));
+         and (public.is_admin() or public.gov_owns_issue(issue_id)));
 
 create policy comments_own_read on comments
   for select to authenticated using (user_id = auth.uid());
@@ -610,7 +610,7 @@ create policy comments_citizen_insert on comments
 create policy comments_gov_insert on comments
   for insert to authenticated
   with check (user_id = auth.uid()
-              and auth.is_gov()
+              and public.is_gov()
               and public.gov_owns_issue(issue_id));
 
 create policy comments_own_update on comments
@@ -620,8 +620,8 @@ create policy comments_own_update on comments
 
 create policy comments_moderator_update on comments
   for update to authenticated
-  using (auth.is_admin() or public.gov_owns_issue(issue_id))
-  with check (auth.is_admin() or public.gov_owns_issue(issue_id));
+  using (public.is_admin() or public.gov_owns_issue(issue_id))
+  with check (public.is_admin() or public.gov_owns_issue(issue_id));
 
 -- Who follows what is nobody else's business; the public number is
 -- issues.follower_count.
@@ -656,12 +656,12 @@ create policy flags_own_read on flags
 -- flag, they cannot review).
 create policy flags_moderator_all on flags
   for all to authenticated
-  using (auth.is_admin()
-         or (auth.app_role() = 'GOVERNMENT'
-             and auth.juris_level() in ('ZONE','DISTRICT','STATE')))
-  with check (auth.is_admin()
-         or (auth.app_role() = 'GOVERNMENT'
-             and auth.juris_level() in ('ZONE','DISTRICT','STATE')));
+  using (public.is_admin()
+         or (public.current_app_role() = 'GOVERNMENT'
+             and public.current_juris_level() in ('ZONE','DISTRICT','STATE')))
+  with check (public.is_admin()
+         or (public.current_app_role() = 'GOVERNMENT'
+             and public.current_juris_level() in ('ZONE','DISTRICT','STATE')));
 
 -- ===========================================================================
 -- 9. Resolution and verification
@@ -688,7 +688,7 @@ create policy resolution_gov_update on resolution_submissions
   with check (public.gov_owns_issue(issue_id));
 
 create policy resolution_admin on resolution_submissions
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- Everyone can see the result. That is the accountability output.
 create policy verification_read on verification_responses
@@ -715,7 +715,7 @@ create policy verification_own_update on verification_responses
   with check (user_id = auth.uid());
 
 create policy verification_admin on verification_responses
-  for all to authenticated using (auth.is_admin()) with check (auth.is_admin());
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- ===========================================================================
 -- 10. Audit, AI and operational tables
@@ -742,16 +742,16 @@ create policy issue_history_read on issue_history
 -- output fields via a server-rendered page under the service role.
 create policy agent_runs_gov_read on agent_runs
   for select to authenticated
-  using (auth.is_admin()
-         or (auth.is_gov() and issue_id is not null
+  using (public.is_admin()
+         or (public.is_gov() and issue_id is not null
              and public.gov_owns_issue(issue_id)));
 
 -- Officers mark a run as overridden when they contradict it. Nothing else on
 -- the row may change -- the input, output and confidence are the evidence.
 create policy agent_runs_override on agent_runs
   for update to authenticated
-  using (auth.is_gov() and issue_id is not null and public.gov_owns_issue(issue_id))
-  with check (auth.is_gov() and was_overridden and overridden_by = auth.uid());
+  using (public.is_gov() and issue_id is not null and public.gov_owns_issue(issue_id))
+  with check (public.is_gov() and was_overridden and overridden_by = auth.uid());
 
 create policy notifications_self on notifications
   for select to authenticated using (user_id = auth.uid());

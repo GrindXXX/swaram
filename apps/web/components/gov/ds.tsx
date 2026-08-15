@@ -1,18 +1,19 @@
-/* ============================================================================
-   DESIGN-SYSTEM ADAPTER  (gov/admin surfaces)
+import type { ReactNode } from 'react';
 
-   Single choke point between the gov/admin surfaces and @swaram/ui, which is
-   owned by the scaffold agent. If its exported names or prop shapes differ from
-   what is assumed below, THIS IS THE ONLY FILE THAT NEEDS EDITING.
+type PillProps = { status?: string; priority?: string; size?: 'sm' | 'md' };
 
-   ASSUMED @swaram/ui CONTRACT
-   ---------------------------------------------------------------------------
-     StatusPill   ({ status: IssueStatus,   size?: 'sm'|'md' })
-     PriorityPill ({ priority: IssuePriority, size?: 'sm'|'md' })
-     QueueRow     ({ issue, selected?, onOpen? })     — used for simple lists
-     AITraceCard  ({ runs: { agent_name, output, confidence, was_overridden }[] })
+export function StatusPill({ status = '' }: PillProps) {
+  return <span className="sw-pill" data-tone={status === 'IN_PROGRESS' ? 'gov' : 'muted'}>{status.replaceAll('_', ' ')}</span>;
+}
 
-   Everything else on these surfaces is rendered with the local newsprint
-   stylesheet (components/gov/newsprint.css) and needs nothing from @swaram/ui.
-   ========================================================================== */
-export { StatusPill, PriorityPill, QueueRow, AITraceCard } from '@swaram/ui';
+export function PriorityPill({ priority = '' }: PillProps) {
+  return <span className="sw-pill" data-tone={priority === 'CRITICAL' ? 'rage' : 'muted'}>{priority}</span>;
+}
+
+export function QueueRow({ children }: { children?: ReactNode }) {
+  return <>{children}</>;
+}
+
+export function AITraceCard({ runs }: { runs: Array<{ agent_name: string; output: string; confidence: number; was_overridden: boolean }> }) {
+  return <div className="sw-box">{runs.map((run, index) => <div className="sw-micro" key={`${run.agent_name}-${index}`}>{run.agent_name}: {run.output} ({Math.round(run.confidence * 100)}%){run.was_overridden ? ' · overridden' : ''}</div>)}</div>;
+}

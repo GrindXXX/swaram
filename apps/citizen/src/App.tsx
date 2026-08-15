@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Navigate, Routes, Route, useParams } from 'react-router-dom';
 import { Feed } from './pages/Feed';
 import { Alerts } from './pages/Alerts';
 import { Thread } from './pages/Thread';
@@ -10,6 +10,12 @@ import { WeeklyRecord } from './pages/WeeklyRecord';
 import { Profile } from './pages/Profile';
 import { Leagues } from './pages/Leagues';
 import { BurnedTicket } from './pages/BurnedTicket';
+import { MyIssues } from './pages/MyIssues';
+
+function LegacyThreadRoute({ verify = false }: { verify?: boolean }) {
+  const { id } = useParams();
+  return <Navigate to={`/i/${id ?? ''}${verify ? '/verify' : ''}`} replace />;
+}
 
 export default function App() {
   return (
@@ -17,13 +23,16 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Feed />} />
         <Route path="/alerts" element={<Alerts />} />
-        <Route path="/thread/:id" element={<Thread />} />
-        <Route path="/thread/:id/verify" element={<RepairVerification />} />
+        <Route path="/i/:id" element={<Thread />} />
+        <Route path="/i/:id/verify" element={<RepairVerification />} />
+        <Route path="/thread/:id" element={<LegacyThreadRoute />} />
+        <Route path="/thread/:id/verify" element={<LegacyThreadRoute verify />} />
         <Route path="/map" element={<MapView />} />
         <Route path="/report" element={<ReportStep1 />} />
         <Route path="/report/confirm" element={<ReportStep2 />} />
         <Route path="/weekly" element={<WeeklyRecord />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/me/issues" element={<MyIssues />} />
         <Route path="/profile/leagues" element={<Leagues />} />
         <Route path="/ticket/:id/burned" element={<BurnedTicket />} />
       </Routes>

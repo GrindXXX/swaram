@@ -227,44 +227,86 @@ export async function recomputePressure(
   const { data: issue, error } = await db
     .from('issues')
     .select(
-      'id, report_count, support_count, follower_count, comment_count, created_at, acknowledged_at, last_activity_at, status',
+      'id, report_count, follower_count, created_at, acknowledged_at, status',
     )
     .eq('id', issueId)
     .single();
 
   if (error) throw new Error(`recomputePressure read failed: ${error.message}`);
 
-  const [{ count: replies }, { count: progress }, { count: rejections }] = await Promise.all([
+  const [
+    { count: supporters },
+    { count: comments },
+    { count: replies },
+    { count: progress },
+    { count: rejections },
+    officialActivity,
+    officerActivity,
+  ] = await Promise.all([
     db
-      .from('issue_transfers')
-      .select('id', { count: 'exact', head: true })
+      .from('issue_reactions')
+      .select('issue_id', { count: 'exact', head: true })
       .eq('issue_id', issueId),
     db
-      .from('evidence')
+      .from('comments')
       .select('id', { count: 'exact', head: true })
       .eq('issue_id', issueId)
-      .eq('type', 'PROGRESS'),
+      .eq('visibility', 'PUBLIC')
+      .is('deleted_at', null),
     db
-      .from('verifications')
+      .from('comments')
+      .select('id', { count: 'exact', head: true })
+      .eq('issue_id', issueId)
+      .eq('is_official', true)
+      .is('deleted_at', null),
+    db
+      .from('issue_evidence')
+      .select('id', { count: 'exact', head: true })
+      .eq('issue_id', issueId)
+      .eq('evidence_type', 'PROGRESS'),
+    db
+      .from('verification_responses')
       .select('id', { count: 'exact', head: true })
       .eq('issue_id', issueId)
       .in('verdict', ['STILL_EXISTS', 'NEW_PROBLEM']),
+    db
+      .from('comments')
+      .select('created_at')
+      .eq('issue_id', issueId)
+      .eq('is_official', true)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(1),
+    db
+      .from('issue_history')
+      .select('created_at')
+      .eq('issue_id', issueId)
+      .eq('actor_type', 'OFFICER')
+      .order('created_at', { ascending: false })
+      .limit(1),
   ]);
 
   const now = Date.now();
   const createdAt = new Date(issue.created_at).getTime();
-  const lastActivity = new Date(issue.last_activity_at).getTime();
+  const authorityTimes = [
+    issue.acknowledged_at,
+    officialActivity.data?.[0]?.created_at,
+    officerActivity.data?.[0]?.created_at,
+  ]
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => new Date(value).getTime());
+  const lastAuthorityActivity = authorityTimes.length > 0 ? Math.max(...authorityTimes) : null;
 
   const result = computePressure(
     {
       reportCount: issue.report_count,
-      supportCount: issue.support_count,
+      supportCount: supporters ?? 0,
       followerCount: issue.follower_count,
-      commentCount: issue.comment_count,
+      commentCount: comments ?? 0,
       ageHours: (now - createdAt) / 3_600_000,
-      hoursSinceAuthorityActivity: issue.acknowledged_at
-        ? (now - lastActivity) / 3_600_000
-        : null,
+      hoursSinceAuthorityActivity: lastAuthorityActivity === null
+        ? null
+        : (now - lastAuthorityActivity) / 3_600_000,
       acknowledged: issue.acknowledged_at !== null,
       officialReplies: replies ?? 0,
       progressEvidenceCount: progress ?? 0,

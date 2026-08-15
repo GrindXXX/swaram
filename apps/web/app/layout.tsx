@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Swaram',
-  description: 'Swaram — the civic record.',
+  description: 'Civic issue reporting + public accountability layer',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
