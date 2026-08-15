@@ -1,71 +1,18 @@
 # swaram
 
-Civic issue reporting + public accountability layer for India. Citizens photograph
-an issue (pothole, garbage, outage, ...), it gets geo-tagged, routed to the
-department actually responsible, and tracked publicly — including when a
-department falsely marks something resolved.
+Civic issue reporting + public accountability layer for India — citizens photograph
+an issue, it gets geo-tagged and routed to the department actually responsible for
+it, and tracked publicly. This README describes the government department data
+collected so far.
 
-This does not replace official complaint portals (Swachhata-MoHUA, BBMP Sahaaya,
-GHMC, MCD 311, etc). It sits on top of them as an independent public scoreboard.
+## Urban local bodies, by district — 4,814 total
 
-## Repo layout
+Every Municipal Corporation, Municipality, Town Panchayat, Notified Area Council,
+Municipal Council, and City/Town Municipal Council in India, each tagged with its
+district and state. Sourced from India's Local Government Directory (LGD, Ministry
+of Panchayati Raj) — 99.9% of rows (4,809/4,814) have a matched district.
 
-```
-data/
-  raw/lgd/                    Bulk-downloaded Local Government Directory data (see below)
-  raw/portals/                Cached HTML from official grievance portals (scraper output)
-  departments/
-    taxonomy.json             Civic issue category -> type of authority responsible
-    state_agencies.csv        State-level water boards / electricity DISCOMs (not in LGD)
-    portals.json              Registry of official city grievance portals + scrape status
-    ulb_directory.csv         4,814 urban local bodies, joined to their district (see below)
-    nodal_officers_central.csv  92 central ministries/departments — real name + email
-    nodal_officers_state.csv    37 states/UTs — real name + email
-scrapers/
-  fetch_lgd_data.py           Downloads state/district/urban-local-body data for all of India
-  build_ulb_directory.py      Joins ULBs to their district -> ulb_directory.csv
-  scrape_nodal_officers.py    Scrapes real dept/state contact directories -> nodal_officers_*.csv
-  scrape_portal.py            Fetches + classifies official portals (server-rendered / SPA / blocked)
-  requirements.txt
-schema/
-  department.schema.json      Resolved-department shape
-  ticket.schema.json          A single reported issue, incl. transfer-chain + disputed-closure fields
-```
-
-## Where the department data comes from
-
-**Jurisdiction directory (who governs where) — bulk open data, no scraping needed.**
-`scrapers/fetch_lgd_data.py` pulls India's Local Government Directory (LGD, Ministry
-of Panchayati Raj — the standard location/local-body code mandated for all
-e-governance systems since 2016) from the GODL-India-licensed GitHub mirror of
-lgdirectory.gov.in. One run gets:
-
-- 36 states/UTs (`data/raw/lgd/states.csv`)
-- 763 districts (`data/raw/lgd/districts.csv`)
-- **4,814 urban local bodies across India** (`data/raw/lgd/urban_local_bodies.csv`) —
-  every Municipal Corporation, Municipality, Town Panchayat, Notified Area
-  Council, etc., with its LGD code, district, and state.
-
-Run it any time to refresh:
-```
-pip install -r scrapers/requirements.txt
-python3 scrapers/fetch_lgd_data.py
-```
-
-For a live/authoritative pull instead of the mirror: register a free instant API
-key at [data.gov.in](https://data.gov.in), then hit
-`https://api.data.gov.in/resource/<resource-id>?api-key=<key>&format=json` —
-resource IDs are on each dataset's page (e.g. the LGD States dataset).
-
-### Departments by district (`data/departments/ulb_directory.csv`)
-
-`scrapers/build_ulb_directory.py` joins the raw LGD files (local body ↔ district
-share a code, not a name — this is what does the join) into one flat table:
-**all 4,814 urban local bodies, each tagged with its district.** Match rate:
-4,809/4,814 (99.9%) — 5 rows have no district match, worth a manual look before
-relying on them.
-
-By local body type, nationally:
+By type, nationally:
 
 | Type | Count |
 |---|---|
@@ -78,8 +25,7 @@ By local body type, nationally:
 | Municipal Council | 59 |
 | NCT Municipal Council | 1 (Delhi) |
 
-Sample rows (Bengaluru area — this also doubles as a correctness check: BBMP
-itself shows up correctly as the Municipal Corporation for BENGALURU URBAN):
+Sample (Bengaluru area):
 
 | State | District | Local Body | Type | LGD Code |
 |---|---|---|---|---|
@@ -89,88 +35,67 @@ itself shows up correctly as the Municipal Corporation for BENGALURU URBAN):
 | KARNATAKA | BENGALURU RURAL | Devanahalli | Town Municipal Council | 251994 |
 | KARNATAKA | BENGALURU RURAL | Dod Ballapur | City Municipal Council | 251992 |
 
-Full 4,814-row table is in the CSV — this is a sample, not the whole dataset.
+Top 5 states by ULB count: Uttar Pradesh (763), Tamil Nadu (661), Madhya Pradesh
+(413), Maharashtra (406), Karnataka (315).
 
-### Department names + emails (`data/departments/nodal_officers_*.csv`)
+Full table: `data/departments/ulb_directory.csv`
 
-This is real, scraped, verifiable data — not filled in from memory. DARPG (Dept
-of Administrative Reforms & Public Grievances) publishes exactly this — a named
-contact per department — as plain server-rendered HTML tables, no auth, no JS:
+## Central government departments — 92, with named contact + email
 
-- `pgportal.gov.in/Home/NodalPgOfficers` → **92 central ministries/departments**
-- `pmopg.gov.in/CitizenReforms/Home/NodalPgOfficersState` → **37 states/UTs**
+One nodal grievance officer per central ministry/department, published by DARPG.
 
-`scrapers/scrape_nodal_officers.py` scrapes both, de-obfuscates the `[at]`/`[dot]`
-email encoding, and writes two CSVs. Every one of the 129 rows produced a
-syntactically valid email on this run. Sample:
-
-| Organisation | Officer | Email |
+| Department | Officer | Email |
 |---|---|---|
 | Administrative Reforms and Public Grievances | Sardendu Kumar Pandey, Director | Director-pg@gov.in |
 | Agriculture and Farmers Welfare | Shri Rajesh Kumar, Deputy Secretary PG | rajesh.kumar67@nic.in |
 | Atomic Energy | Shri K.V. Madhavadas, Deputy Secretary | dsscs@dae.gov.in |
+| Ayush | Dr Srinivas Rao Chinta, Joint Adviser | ayush-cdn@gov.in |
+| Bio Technology | Rajesh Kumar Singh, Director | rajesh.kumar@gov.in |
 | Central Board of Direct Taxes | Swapna Devireddy, Addl. Director | delhi.addldit.eservices@incometax.gov.in |
-| **Karnataka** (state) | Suma.S, Under Secretary | *see CSV* |
-| **Maharashtra** (state) | Hemant Anant Mahajan, Deputy Secretary | *see CSV* |
 
-**Important limitation: this is ministry-level and state-level, not district-level.**
-One row per central department, one row per state — not one row per department
-per district. A true district-level directory (e.g. "BBMP Solid Waste Dept,
-Bengaluru Urban, email X") would need scraping each district collectorate's own
-"who's who" page one state at a time — no common format across states, genuinely
-a much larger job. Treat these two CSVs as the pan-India escalation layer (who do
-you email if a city-level portal stonewalls you), not the primary routing table —
-`ulb_directory.csv` + `taxonomy.json` do the actual per-ticket routing.
+Full table (all 92): `data/departments/nodal_officers_central.csv`
 
-**State-level utility boards (water boards, electricity DISCOMs) — not in LGD,
-hand-curated.** These are parastatal agencies, not local governments, so they
-don't show up in the LGD directory. `data/departments/state_agencies.csv` has a
-first pass for all 36 states/UTs. **Every row is marked `verified=FALSE`** except
-where noted — this is a starting seed from general knowledge, not a verified
-source. Before the demo, cross-check each state you actually route tickets for
-against the agency's own site.
+## State governments — 37 states/UTs, with named contact + email
 
-**Ward-level assignment + live complaint volumes — needs scraping, and it's the
-hard part.** `data/departments/portals.json` tracks 5 metro portals we found and
-already probed once (`scrapers/scrape_portal.py`, run 2026-08-15):
+One nodal grievance officer per state/UT.
 
-| City | Portal | Status |
+| State | Officer | Email |
 |---|---|---|
-| Hyderabad | GHMC | fetches fine, server-rendered → BeautifulSoup works |
-| Chennai | GCC Public Grievance Redressal | fetches fine, server-rendered → BeautifulSoup works |
-| Delhi | MCD 311 | confirmed React SPA — needs DevTools inspection for the JSON API |
-| Mumbai | MCGM (SAP iView portal) | rejects plain requests — needs Playwright or its underlying SAP web service |
-| Bengaluru | Sahaaya 2.0 | inconclusive here (sandbox SSL issue) — retest on a normal machine; also has a documented history of being pulled from app stores, worth citing in the pitch |
+| Andhra Pradesh | Chinna Rao, CGO-CMO | pgrs-helpdesk@ap.gov.in |
+| Assam | Shri Utpal Borah ACS, State Nodal Officer | artassamdept@gmail.com |
+| Bihar | Miss Vineeta, DS | publicgrievances-bih@gov.in |
+| Gujarat | Shri Hareet Shukla, Principal Secretary | secartd@gujarat.gov.in |
+| Karnataka | Suma.S, Under Secretary | us2dpar-js@karnataka.gov.in |
+| Maharashtra | Hemant Anant Mahajan, Deputy Secretary | hemant.mahajan@nic.in |
 
-Re-run/extend with:
-```
-python3 scrapers/scrape_portal.py --city Hyderabad
-python3 scrapers/scrape_portal.py --all
-```
+Full table (all 37): `data/departments/nodal_officers_state.csv`
 
-Rules baked into the scraper: 1 req/sec, checks `robots.txt` first, caches every
-response to `data/raw/portals/`, and **never collects complainant names or phone
-numbers** — only public department/ward/status metadata (DPDP Act boundary).
-Department-name text and ward routing logic on each portal still need to be
-extracted by hand once you've confirmed HTML vs. JSON per city — that part
-isn't automated yet.
+**Limitation:** these two tables are ministry-level and state-level — one row per
+department, one row per state, not one row per department per district. A true
+per-district directory (e.g. "BBMP Solid Waste Dept, Bengaluru Urban, email X")
+doesn't exist as a single national source; each district publishes its own
+contact page with no shared format, so that layer would need to be built one
+state at a time.
 
-## How resolution works (`data/departments/taxonomy.json`)
+## State utility boards — water + electricity, all 36 states/UTs
 
-A reported issue's category maps to an **authority type** (e.g. `pothole_road_damage`
-→ `ULB_ENGINEERING`), which then resolves to an actual name by joining:
-- `ULB_*` types → the LGD local body covering that lat/lng (point-in-polygon
-  against ward boundaries, not yet in this repo — see `schema/department.schema.json`)
-- `STATE_*` types → `data/departments/state_agencies.csv` for that state
+Water boards and electricity DISCOMs aren't local governments, so they're not in
+the LGD directory — this table is a separate, hand-compiled first pass covering
+all 36 states/UTs (e.g. Karnataka → BWSSB for Bengaluru water, BESCOM/MESCOM/
+HESCOM/GESCOM/CESC for electricity by region; Delhi → DJB for water, BSES
+Rajdhani/Yamuna/TPDDL by zone for electricity).
 
-Below a confidence threshold, route to the ULB's general grievance cell instead
-of guessing, and show the guess to the user for confirmation.
+**Not yet verified** — every row needs a cross-check against the agency's own
+site before being relied on. Table: `data/departments/state_agencies.csv`
 
-## Validation checklist before trusting any of this in a demo
+## City grievance portals checked so far
 
-- Ward polygon count for a city matches its current LGD local-body count
-  (Bengaluru went 198 → 243 → 225 wards — stale boundary files will silently
-  misroute tickets)
-- Every `state_agencies.csv` row you rely on has `verified=TRUE` and a source
-- Spot-check ~20 random LGD rows by hand
-- Stamp every scraped/derived row with `source` + `retrieved_at`
+| City | Portal | Departments it covers |
+|---|---|---|
+| Bengaluru | Sahaaya 2.0 | BBMP, BESCOM, BWSSB, BMTC, BMRCL, BMRDA, BDA |
+| Mumbai | MCGM Complaint Registration | MCGM/BMC |
+| Hyderabad | GHMC | GHMC |
+| Delhi | MCD 311 | MCD |
+| Chennai | GCC Public Grievance Redressal | Greater Chennai Corporation |
+
+Details (URLs, per-portal status): `data/departments/portals.json`
