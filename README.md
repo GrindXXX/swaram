@@ -12,19 +12,24 @@ GHMC, MCD 311, etc). It sits on top of them as an independent public scoreboard.
 
 ```
 data/
-  raw/lgd/                  Bulk-downloaded Local Government Directory data (see below)
-  raw/portals/              Cached HTML from official grievance portals (scraper output)
+  raw/lgd/                    Bulk-downloaded Local Government Directory data (see below)
+  raw/portals/                Cached HTML from official grievance portals (scraper output)
   departments/
-    taxonomy.json           Civic issue category -> type of authority responsible
-    state_agencies.csv      State-level water boards / electricity DISCOMs (not in LGD)
-    portals.json            Registry of official city grievance portals + scrape status
+    taxonomy.json             Civic issue category -> type of authority responsible
+    state_agencies.csv        State-level water boards / electricity DISCOMs (not in LGD)
+    portals.json              Registry of official city grievance portals + scrape status
+    ulb_directory.csv         4,814 urban local bodies, joined to their district (see below)
+    nodal_officers_central.csv  92 central ministries/departments — real name + email
+    nodal_officers_state.csv    37 states/UTs — real name + email
 scrapers/
-  fetch_lgd_data.py         Downloads state/district/urban-local-body data for all of India
-  scrape_portal.py          Fetches + classifies official portals (server-rendered / SPA / blocked)
+  fetch_lgd_data.py           Downloads state/district/urban-local-body data for all of India
+  build_ulb_directory.py      Joins ULBs to their district -> ulb_directory.csv
+  scrape_nodal_officers.py    Scrapes real dept/state contact directories -> nodal_officers_*.csv
+  scrape_portal.py            Fetches + classifies official portals (server-rendered / SPA / blocked)
   requirements.txt
 schema/
-  department.schema.json    Resolved-department shape
-  ticket.schema.json        A single reported issue, incl. transfer-chain + disputed-closure fields
+  department.schema.json      Resolved-department shape
+  ticket.schema.json          A single reported issue, incl. transfer-chain + disputed-closure fields
 ```
 
 ## Where the department data comes from
@@ -51,6 +56,71 @@ For a live/authoritative pull instead of the mirror: register a free instant API
 key at [data.gov.in](https://data.gov.in), then hit
 `https://api.data.gov.in/resource/<resource-id>?api-key=<key>&format=json` —
 resource IDs are on each dataset's page (e.g. the LGD States dataset).
+
+### Departments by district (`data/departments/ulb_directory.csv`)
+
+`scrapers/build_ulb_directory.py` joins the raw LGD files (local body ↔ district
+share a code, not a name — this is what does the join) into one flat table:
+**all 4,814 urban local bodies, each tagged with its district.** Match rate:
+4,809/4,814 (99.9%) — 5 rows have no district match, worth a manual look before
+relying on them.
+
+By local body type, nationally:
+
+| Type | Count |
+|---|---|
+| Town Panchayat | 2,364 |
+| Municipality | 1,826 |
+| Municipal Corporation | 248 |
+| Notified Area Council | 136 |
+| Town Municipal Council | 120 |
+| City Municipal Council | 60 |
+| Municipal Council | 59 |
+| NCT Municipal Council | 1 (Delhi) |
+
+Sample rows (Bengaluru area — this also doubles as a correctness check: BBMP
+itself shows up correctly as the Municipal Corporation for BENGALURU URBAN):
+
+| State | District | Local Body | Type | LGD Code |
+|---|---|---|---|---|
+| KARNATAKA | BENGALURU URBAN | BBMP | Municipal Corporation | 276600 |
+| KARNATAKA | BENGALURU URBAN | Attibele | Town Municipal Council | 276539 |
+| KARNATAKA | BENGALURU URBAN | Chandapura | Town Municipal Council | 276533 |
+| KARNATAKA | BENGALURU RURAL | Devanahalli | Town Municipal Council | 251994 |
+| KARNATAKA | BENGALURU RURAL | Dod Ballapur | City Municipal Council | 251992 |
+
+Full 4,814-row table is in the CSV — this is a sample, not the whole dataset.
+
+### Department names + emails (`data/departments/nodal_officers_*.csv`)
+
+This is real, scraped, verifiable data — not filled in from memory. DARPG (Dept
+of Administrative Reforms & Public Grievances) publishes exactly this — a named
+contact per department — as plain server-rendered HTML tables, no auth, no JS:
+
+- `pgportal.gov.in/Home/NodalPgOfficers` → **92 central ministries/departments**
+- `pmopg.gov.in/CitizenReforms/Home/NodalPgOfficersState` → **37 states/UTs**
+
+`scrapers/scrape_nodal_officers.py` scrapes both, de-obfuscates the `[at]`/`[dot]`
+email encoding, and writes two CSVs. Every one of the 129 rows produced a
+syntactically valid email on this run. Sample:
+
+| Organisation | Officer | Email |
+|---|---|---|
+| Administrative Reforms and Public Grievances | Sardendu Kumar Pandey, Director | Director-pg@gov.in |
+| Agriculture and Farmers Welfare | Shri Rajesh Kumar, Deputy Secretary PG | rajesh.kumar67@nic.in |
+| Atomic Energy | Shri K.V. Madhavadas, Deputy Secretary | dsscs@dae.gov.in |
+| Central Board of Direct Taxes | Swapna Devireddy, Addl. Director | delhi.addldit.eservices@incometax.gov.in |
+| **Karnataka** (state) | Suma.S, Under Secretary | *see CSV* |
+| **Maharashtra** (state) | Hemant Anant Mahajan, Deputy Secretary | *see CSV* |
+
+**Important limitation: this is ministry-level and state-level, not district-level.**
+One row per central department, one row per state — not one row per department
+per district. A true district-level directory (e.g. "BBMP Solid Waste Dept,
+Bengaluru Urban, email X") would need scraping each district collectorate's own
+"who's who" page one state at a time — no common format across states, genuinely
+a much larger job. Treat these two CSVs as the pan-India escalation layer (who do
+you email if a city-level portal stonewalls you), not the primary routing table —
+`ulb_directory.csv` + `taxonomy.json` do the actual per-ticket routing.
 
 **State-level utility boards (water boards, electricity DISCOMs) — not in LGD,
 hand-curated.** These are parastatal agencies, not local governments, so they
