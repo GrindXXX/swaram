@@ -43,6 +43,7 @@ export interface Reply {
 }
 
 export interface Issue {
+  backendId: string;
   id: string; // "CIV-10482"
   internalId?: string;
   title: string;

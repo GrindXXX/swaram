@@ -22,6 +22,7 @@ export const currentUser = {
 
 export const issues: Issue[] = [
   {
+    backendId: 'fixture-CIV-10482',
     id: 'CIV-10482',
     title: "The pothole that won't go away",
     body: 'Twelve days now on Whitefield Main Road. Bikes swerve into the next lane every evening.',
@@ -59,6 +60,7 @@ export const issues: Issue[] = [
     ],
   },
   {
+    backendId: 'fixture-CIV-10981',
     id: 'CIV-10981',
     title: 'Streetlights out for three weeks in Sector 4',
     body: 'Entire stretch dark after 7pm. Residents avoiding the footpath.',
@@ -78,6 +80,7 @@ export const issues: Issue[] = [
     replies: [],
   },
   {
+    backendId: 'fixture-CIV-10077',
     id: 'CIV-10077',
     title: 'Garbage pile cleared at park gate',
     body: 'Reported build-up at the main gate; cleared within three days.',
@@ -97,6 +100,7 @@ export const issues: Issue[] = [
     replies: [],
   },
   {
+    backendId: 'fixture-CIV-11290',
     id: 'CIV-11290',
     title: 'Fourth day without supply in Kuvempunagar',
     body: 'Whole block dry since Monday. Tankers not showing up on schedule.',
@@ -116,6 +120,7 @@ export const issues: Issue[] = [
     replies: [],
   },
   {
+    backendId: 'fixture-CIV-11304',
     id: 'CIV-11304',
     title: 'Supply cut without notice, 3rd Block',
     body: 'No prior intimation, sixth day of intermittent supply.',
@@ -135,6 +140,7 @@ export const issues: Issue[] = [
     replies: [],
   },
   {
+    backendId: 'fixture-CIV-11311',
     id: 'CIV-11311',
     title: 'Drain overflow at 9th Cross',
     body: 'Repair submitted by BWSSB, verification pending from the neighbourhood.',

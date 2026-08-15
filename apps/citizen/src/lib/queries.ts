@@ -129,6 +129,58 @@ export async function submitReport(draft: ReportDraft) {
   return accepted;
 }
 
+export async function addComment(issueId: string, content: string): Promise<void> {
+  if (!supabase) throw new Error('Supabase is not configured for this build.');
+  const { error } = await supabase.rpc('add_citizen_comment', {
+    p_issue_id: issueId,
+    p_content: content,
+  });
+  if (error) throw error;
+}
+
+export async function toggleSupport(issueId: string): Promise<boolean> {
+  if (!supabase) throw new Error('Supabase is not configured for this build.');
+  const { data, error } = await supabase.rpc('toggle_issue_support', { p_issue_id: issueId });
+  if (error) throw error;
+  return data;
+}
+
+export async function toggleFollow(issueId: string): Promise<boolean> {
+  if (!supabase) throw new Error('Supabase is not configured for this build.');
+  const { data, error } = await supabase.rpc('toggle_issue_follow', { p_issue_id: issueId });
+  if (error) throw error;
+  return data;
+}
+
+export type VerificationVerdict =
+  | 'COMPLETELY_FIXED'
+  | 'PARTIALLY_FIXED'
+  | 'STILL_EXISTS'
+  | 'NEW_PROBLEM';
+
+export async function getVerificationContext(issueId: string) {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('verification_context', { p_issue_id: issueId });
+  if (error) throw error;
+  return data;
+}
+
+export async function submitVerification(
+  issueId: string,
+  resolutionId: string,
+  verdict: VerificationVerdict,
+  comment?: string,
+): Promise<void> {
+  if (!supabase) throw new Error('Supabase is not configured for this build.');
+  const { error } = await supabase.rpc('submit_verification_response', {
+    p_issue_id: issueId,
+    p_resolution_id: resolutionId,
+    p_verdict: verdict,
+    p_comment: comment ?? null,
+  });
+  if (error) throw error;
+}
+
 export async function getIssues(): Promise<Issue[]> {
   if (!supabase) return fixtureIssues;
   return loadIssues();
@@ -460,6 +512,7 @@ async function loadIssues(publicId?: string, internalIds?: string[]): Promise<Is
     const jurisdiction = row.jurisdiction_id ? jurisdictions.get(row.jurisdiction_id) : null;
 
     return {
+      backendId: row.id,
       id: row.public_id,
       internalId: row.id,
       title: row.title ?? 'Civic issue reported',

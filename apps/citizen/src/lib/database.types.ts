@@ -160,6 +160,43 @@ export interface Database {
         Args: { p_public_id: string; p_client_report_id: string };
         Returns: { inserted: boolean; report_count: number }[];
       };
+      add_citizen_comment: {
+        Args: { p_issue_id: string; p_content: string };
+        Returns: string;
+      };
+      toggle_issue_support: {
+        Args: { p_issue_id: string };
+        Returns: boolean;
+      };
+      toggle_issue_follow: {
+        Args: { p_issue_id: string };
+        Returns: boolean;
+      };
+      submit_verification_response: {
+        Args: {
+          p_issue_id: string;
+          p_resolution_id: string;
+          p_verdict: 'COMPLETELY_FIXED' | 'PARTIALLY_FIXED' | 'STILL_EXISTS' | 'NEW_PROBLEM';
+          p_comment?: string | null;
+        };
+        Returns: string;
+      };
+      verification_context: {
+        Args: { p_issue_id: string };
+        Returns: {
+          resolution_id: string;
+          action_taken: string;
+          submitted_at: string;
+          resolution_photo_url: string | null;
+          same_location: boolean | null;
+          verification_open: boolean;
+          breakdown: Array<{
+            verdict: 'COMPLETELY_FIXED' | 'PARTIALLY_FIXED' | 'STILL_EXISTS' | 'NEW_PROBLEM';
+            responses: number;
+            pct: number;
+          }>;
+        } | null;
+      };
     };
     Enums: {
       issue_status: IssueStatus;
@@ -167,6 +204,7 @@ export interface Database {
       location_precision: LocationPrecision;
       location_visibility: LocationVisibility;
       jurisdiction_match_method: JurisdictionMatchMethod;
+      verification_verdict: 'COMPLETELY_FIXED' | 'PARTIALLY_FIXED' | 'STILL_EXISTS' | 'NEW_PROBLEM';
     };
     CompositeTypes: Record<string, never>;
   };
