@@ -15,7 +15,6 @@ import {
   getSession,
   isSupabaseConfigured,
   setIssueFollowing,
-  signInWithEmail,
 } from '../lib/queries';
 import { clearActionIntent, readActionIntent, saveActionIntent, type CitizenActionIntent } from '../lib/action-intent';
 import { shareIssue } from '../lib/share';
@@ -32,7 +31,6 @@ export function Thread() {
   const [following, setFollowing] = useState(false);
   const [hasReported, setHasReported] = useState(false);
   const [comment, setComment] = useState('');
-  const [email, setEmail] = useState('');
   const [pending, setPending] = useState<CitizenActionIntent | null>(null);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +88,7 @@ export function Thread() {
     if (!signedIn) {
       saveActionIntent(intent);
       setPending(intent);
-      setNotice('Sign in by email to complete this action. Your intent is saved.');
+      setNotice('Sign in to complete this action. Your intent is saved.');
       return;
     }
     await executeIntent(intent);
@@ -141,21 +139,8 @@ export function Thread() {
     }
   }, [id, issue, loading, location.search, signedIn]);
 
-  async function sendSignInLink() {
-    if (!email.trim()) {
-      setError('Enter your email to receive a sign-in link.');
-      return;
-    }
-    setWorking(true);
-    setError(null);
-    try {
-      await signInWithEmail(email.trim(), `/i/${id}`);
-      setNotice('Check your email. Returning from the link will complete your saved action.');
-    } catch (authError) {
-      setError(authError instanceof Error ? authError.message : 'Could not send the sign-in link.');
-    } finally {
-      setWorking(false);
-    }
+  function goToSignIn() {
+    navigate(`/sign-in?next=${encodeURIComponent(`/i/${id}`)}`);
   }
 
   async function toggleFollowing() {
@@ -252,10 +237,7 @@ export function Thread() {
         {pending && !signedIn && (
           <div className="mt-3 rounded-card border border-gov-border bg-gov-bg p-3">
             <p className="text-sm text-gov-text">Sign in to {pending.action === 'facing' ? 'add your report to this issue' : pending.action}.</p>
-            <div className="mt-2 flex gap-2">
-              <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" className="min-w-0 flex-1 rounded-lg border border-border-strong bg-paper px-3 py-2 text-sm" />
-              <button onClick={() => void sendSignInLink()} disabled={working} className="rounded-lg bg-gov px-3 font-mono text-xs font-bold text-paper">Email link</button>
-            </div>
+            <button onClick={goToSignIn} className="mt-2 rounded-lg bg-gov px-3 py-2 font-mono text-xs font-bold text-paper">Sign in</button>
           </div>
         )}
 

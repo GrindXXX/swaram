@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { ChevronLeftIcon } from '../components/ui/Icons';
-import { getMyIssues, getSession, isSupabaseConfigured, signInWithEmail } from '../lib/queries';
+import { getMyIssues, getSession, isSupabaseConfigured } from '../lib/queries';
 import type { Issue } from '../lib/types';
 
 export function MyIssues() {
@@ -12,9 +12,7 @@ export function MyIssues() {
   const [issues, setIssues] = useState<{ created: Issue[]; following: Issue[] }>({ created: [], following: [] });
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
-  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -31,20 +29,6 @@ export function MyIssues() {
     return () => { active = false; };
   }, []);
 
-  async function sendSignInLink() {
-    if (!email.trim()) {
-      setError('Enter your email to receive a sign-in link.');
-      return;
-    }
-    try {
-      await signInWithEmail(email.trim(), '/me/issues');
-      setNotice('Check your email, then return here to see your issues.');
-      setError(null);
-    } catch (authError) {
-      setError(authError instanceof Error ? authError.message : 'Could not send the sign-in link.');
-    }
-  }
-
   const visible = issues[tab];
   return (
     <AppShell>
@@ -58,10 +42,9 @@ export function MyIssues() {
         {isSupabaseConfigured && !signedIn ? (
           <div className="mx-auto mt-16 max-w-sm text-center">
             <h2 className="font-display text-2xl">Your civic record</h2>
-            <p className="mt-2 text-sm text-muted">Sign in by email to see issues you created and follow.</p>
-            <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" className="mt-5 w-full rounded-card border border-border-strong bg-paper px-4 py-3 text-sm" />
-            <Button className="mt-3" onClick={() => void sendSignInLink()}>Email me a sign-in link</Button>
-            {(error || notice) && <p className={`mt-3 text-sm ${error ? 'text-rage' : 'text-gov'}`}>{error ?? notice}</p>}
+            <p className="mt-2 text-sm text-muted">Sign in to see issues you created and follow.</p>
+            <Button className="mt-5" onClick={() => navigate('/sign-in?next=/me/issues')}>Sign in</Button>
+            {error && <p className="mt-3 text-sm text-rage">{error}</p>}
           </div>
         ) : (
           <>

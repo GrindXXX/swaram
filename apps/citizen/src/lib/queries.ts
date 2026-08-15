@@ -75,6 +75,37 @@ export async function signInWithEmail(email: string, returnPath = '/report/confi
   if (error) throw error;
 }
 
+/**
+ * Direct email+password sign-in — no inbox round-trip. Resolves the moment
+ * Supabase confirms the credentials, so callers can navigate on to `next`
+ * immediately (see SignIn.tsx).
+ */
+export async function signInWithPassword(email: string, password: string): Promise<void> {
+  if (!supabase) throw new Error('Supabase is not configured for this build.');
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+}
+
+/**
+ * Creates the account and, since this project's local config has
+ * `enable_confirmations = false`, signs the user in immediately — no
+ * "check your email" step. Against a project with confirmations on, this
+ * still succeeds but the caller won't have a session until the user
+ * confirms; the returned `needsEmailConfirmation` flag reflects that.
+ */
+export async function signUpWithPassword(email: string, password: string): Promise<{ needsEmailConfirmation: boolean }> {
+  if (!supabase) throw new Error('Supabase is not configured for this build.');
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) throw error;
+  return { needsEmailConfirmation: !data.session };
+}
+
+export async function signOut(): Promise<void> {
+  if (!supabase) return;
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
 export async function submitReport(draft: ReportDraft) {
   if (!supabase) throw new Error('Supabase is not configured for this build.');
 

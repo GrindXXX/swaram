@@ -8,7 +8,6 @@ import { clearReportDraft, readReportDraft } from '../lib/report-draft';
 import {
   getSession,
   isSupabaseConfigured,
-  signInWithEmail,
   submitReport,
 } from '../lib/queries';
 
@@ -18,8 +17,6 @@ export function ReportStep2() {
   const [signedIn, setSignedIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -45,23 +42,14 @@ export function ReportStep2() {
       return;
     }
 
+    if (!signedIn) {
+      navigate('/sign-in?next=/report/confirm');
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
-      if (!signedIn) {
-        if (!email.trim()) {
-          setError('Enter your email to receive a sign-in link.');
-          setSubmitting(false);
-          return;
-        }
-        // Google OAuth is the target, but the current Supabase project only has
-        // email auth enabled. Keep the draft across the magic-link redirect.
-        await signInWithEmail(email.trim());
-        setNotice('Check your email for the sign-in link, then return here to submit.');
-        setSubmitting(false);
-        return;
-      }
-
       const accepted = await submitReport(draft);
       clearReportDraft();
       navigate(`/i/${accepted.public_id}`, { replace: true });
@@ -131,20 +119,9 @@ export function ReportStep2() {
       </div>
 
       <div className="mt-auto flex flex-col gap-2.5 px-5 pb-6">
-        {!signedIn && (
-          <input
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Email address"
-            className="w-full rounded-card border border-border-strong bg-paper px-4 py-3 text-sm outline-none focus:border-rage"
-          />
-        )}
         {error && <p className="text-sm leading-relaxed text-rage">{error}</p>}
-        {notice && <p className="text-sm leading-relaxed text-gov">{notice}</p>}
         <Button variant="rage" onClick={handleSubmit} disabled={submitting} className="text-base">
-          {submitting ? 'Submitting…' : signedIn ? 'Submit new problem' : 'Email me a sign-in link'}
+          {submitting ? 'Submitting…' : signedIn ? 'Submit new problem' : 'Sign in to submit'}
         </Button>
         <Button variant="outline" onClick={() => navigate('/report')}>
           Edit report

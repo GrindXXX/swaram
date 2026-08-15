@@ -11,6 +11,8 @@ import { Profile } from './pages/Profile';
 import { Leagues } from './pages/Leagues';
 import { BurnedTicket } from './pages/BurnedTicket';
 import { MyIssues } from './pages/MyIssues';
+import { SignIn } from './pages/SignIn';
+import { SignUp } from './pages/SignUp';
 
 function LegacyThreadRoute({ verify = false }: { verify?: boolean }) {
   const { id } = useParams();
@@ -33,6 +35,8 @@ export default function App() {
         <Route path="/weekly" element={<WeeklyRecord />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/me/issues" element={<MyIssues />} />
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
         <Route path="/profile/leagues" element={<Leagues />} />
         <Route path="/ticket/:id/burned" element={<BurnedTicket />} />
       </Routes>
