@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SWARAM — Product Requirements Document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SWARAM PRD — "Civic Field Manual" aesthetic
+   Paper + ink, signal orange, civic blue. Mobile-first.
+   ============================================================ */
+
+:root{
+  --paper:#F4EFE4;
+  --paper-2:#EDE6D6;
+  --paper-3:#E3DAC5;
+  --ink:#17140F;
+  --ink-2:#3D372D;
+  --ink-3:#6B6355;
+  --rule:#CFC5AE;
+  --signal:#C93F09;      /* signal orange - primary accent */
+  --signal-soft:#F6E3D6;
+  --civic:#164C63;       /* civic blue - gov surface */
+  --civic-soft:#DCE8EC;
+  --moss:#3F6212;        /* resolved */
+  --moss-soft:#E4EBD5;
+  --amber:#A16207;       /* in progress / warn */
+  --amber-soft:#F6EBCF;
+  --crit:#9F1239;        /* critical */
+  --crit-soft:#F7DDE3;
+  --violet:#4C1D95;      /* AI layer */
+  --violet-soft:#E7E0F5;
+
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --serif:'Fraunces',Georgia,serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --sp:clamp(1rem,4vw,2rem);
+  --maxw:1180px;
+  --shadow:0 1px 0 var(--rule), 0 8px 24px -18px rgba(23,20,15,.5);
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#131210;
+    --paper-2:#1B1A17;
+    --paper-3:#24221D;
+    --ink:#F0EADC;
+    --ink-2:#CFC7B6;
+    --ink-3:#9A9284;
+    --rule:#35322B;
+    --signal:#F97316;
+    --signal-soft:#3A1D0C;
+    --civic:#7DD3FC;
+    --civic-soft:#0F2A38;
+    --moss:#A3E635;
+    --moss-soft:#1D2A0D;
+    --amber:#FBBF24;
+    --amber-soft:#33260A;
+    --crit:#FB7185;
+    --crit-soft:#3A1018;
+    --violet:#C4B5FD;
+    --violet-soft:#241A3D;
+    --shadow:0 1px 0 var(--rule), 0 8px 24px -18px #000;
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:5rem;-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.65;
+  font-weight:350;
+  overflow-x:hidden;
+  background-image:
+    radial-gradient(circle at 12% 8%, color-mix(in srgb,var(--signal) 7%, transparent), transparent 42%),
+    radial-gradient(circle at 88% 4%, color-mix(in srgb,var(--civic) 9%, transparent), transparent 38%);
+  background-attachment:fixed;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.4;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+@media (prefers-color-scheme: dark){ body::before{mix-blend-mode:screen;opacity:.18} }
+
+/* ---------- typography ---------- */
+h1,h2,h3,h4{font-family:var(--serif);font-weight:700;line-height:1.08;letter-spacing:-.02em}
+h2{font-size:clamp(1.75rem,5.5vw,2.9rem);font-variation-settings:'opsz' 120}
+h3{font-size:clamp(1.2rem,3.6vw,1.6rem);margin-bottom:.5rem}
+h4{font-size:1.02rem;font-family:var(--sans);font-weight:600;letter-spacing:.01em}
+p{max-width:68ch}
+a{color:var(--signal);text-underline-offset:3px}
+strong{font-weight:600;color:var(--ink)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+.lede{font-size:clamp(1.02rem,2.6vw,1.22rem);color:var(--ink-2);max-width:62ch}
+.kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--signal);font-weight:500}
+.muted{color:var(--ink-3)}
+.small{font-size:.86rem}
+
+/* ---------- layout ---------- */
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--sp)}
+section{padding-block:clamp(2.5rem,8vw,4.5rem);border-top:1px solid var(--rule)}
+section:first-of-type{border-top:0}
+.sec-head{display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap;margin-bottom:1.5rem}
+.sec-num{font-family:var(--mono);font-size:.75rem;color:var(--ink-3);border:1px solid var(--rule);padding:.15rem .45rem;border-radius:3px;flex:none}
+
+.grid{display:grid;gap:1rem}
+@media(min-width:720px){
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:1000px){ .g4{grid-template-columns:repeat(4,1fr)} }
+
+.card{
+  background:var(--paper-2);border:1px solid var(--rule);border-radius:6px;
+  padding:1.15rem 1.25rem;box-shadow:var(--shadow);
+}
+.card h4{margin-bottom:.35rem}
+.card .small{color:var(--ink-3)}
+
+/* ---------- top bar ---------- */
+header.bar{
+  position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--paper) 88%, transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--rule);
+}
+.bar-in{max-width:var(--maxw);margin:0 auto;padding:.6rem var(--sp);display:flex;align-items:center;gap:.75rem}
+.logo{font-family:var(--serif);font-weight:900;font-size:1.1rem;letter-spacing:-.03em;display:flex;align-items:center;gap:.45rem}
+.logo .dot{width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 4px color-mix(in srgb,var(--signal) 18%,transparent)}
+.bar .tag{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--rule);padding:.1rem .4rem;border-radius:3px}
+.bar nav{margin-left:auto;display:none;gap:1.1rem;font-size:.82rem}
+.bar nav a{color:var(--ink-2);text-decoration:none;font-weight:450}
+.bar nav a:hover{color:var(--signal)}
+@media(min-width:900px){ .bar nav{display:flex} }
+#tocBtn{margin-left:auto;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:0;padding:.5rem .7rem;border-radius:4px;cursor:pointer;min-height:38px}
+@media(min-width:900px){ #tocBtn{margin-left:1rem} }
+
+/* ---------- TOC drawer ---------- */
+#toc{position:fixed;inset:0;z-index:200;background:color-mix(in srgb,var(--ink) 55%,transparent);
+  opacity:0;pointer-events:none;transition:opacity .25s}
+#toc[open-drawer]{opacity:1;pointer-events:auto}
+#toc .panel{
+  position:absolute;right:0;top:0;bottom:0;width:min(360px,88vw);background:var(--paper-2);
+  border-left:1px solid var(--rule);padding:1.25rem;overflow-y:auto;
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+}
+#toc[open-drawer] .panel{transform:none}
+#toc ol{list-style:none;counter-reset:t}
+#toc li{counter-increment:t;border-bottom:1px dashed var(--rule)}
+#toc a{display:flex;gap:.7rem;padding:.6rem .2rem;text-decoration:none;color:var(--ink-2);font-size:.9rem}
+#toc a::before{content:counter(t,decimal-leading-zero);font-family:var(--mono);font-size:.7rem;color:var(--ink-3);padding-top:.25rem}
+#toc a:hover{color:var(--signal)}
+
+/* ---------- cover ---------- */
+.cover{padding-block:clamp(2.5rem,10vw,5.5rem) clamp(2rem,7vw,4rem)}
+.cover h1{font-size:clamp(3rem,14vw,7.5rem);font-weight:900;font-variation-settings:'opsz' 144;line-height:.86;letter-spacing:-.045em}
+.cover h1 em{font-style:italic;font-weight:300;color:var(--signal)}
+.cover .sub{margin-top:1.25rem;font-size:clamp(1.05rem,3vw,1.45rem);font-family:var(--serif);font-weight:300;color:var(--ink-2);max-width:34ch;line-height:1.3}
+.meta-strip{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem 1rem;margin-top:2rem;padding-top:1.25rem;border-top:2px solid var(--ink)}
+@media(min-width:720px){.meta-strip{grid-template-columns:repeat(4,1fr)}}
+.meta-strip div span{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.meta-strip div b{font-weight:500;font-size:.92rem}
+
+/* equation banner */
+.equation{
+  display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .8rem;margin-top:2rem;
+  padding:1rem 1.1rem;border:1px solid var(--rule);border-left:4px solid var(--signal);
+  background:var(--paper-2);border-radius:4px;font-family:var(--mono);font-size:.78rem;
+}
+.equation b{font-family:var(--sans);font-weight:600;font-size:.9rem}
+.equation .op{color:var(--signal);font-size:1.1rem}
+
+/* ---------- pills / tokens ---------- */
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--mono);font-size:.66rem;
+  letter-spacing:.09em;text-transform:uppercase;padding:.22rem .5rem;border-radius:99px;font-weight:500;white-space:nowrap}
+.p-open{background:var(--crit-soft);color:var(--crit)}
+.p-prog{background:var(--amber-soft);color:var(--amber)}
+.p-done{background:var(--moss-soft);color:var(--moss)}
+.p-ai{background:var(--violet-soft);color:var(--violet)}
+.p-gov{background:var(--civic-soft);color:var(--civic)}
+.p-sig{background:var(--signal-soft);color:var(--signal)}
+.p-neu{background:var(--paper-3);color:var(--ink-3)}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;background:var(--paper-2);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.86rem}
+th,td{text-align:left;padding:.6rem .75rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);
+  background:var(--paper-3);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td code{background:var(--paper-3);padding:.08rem .3rem;border-radius:3px}
+.scroll-hint{font-family:var(--mono);font-size:.62rem;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem}
+@media(min-width:760px){.scroll-hint{display:none}}
+
+/* ---------- ascii / flow blocks ---------- */
+pre.flow{
+  font-family:var(--mono);font-size:.72rem;line-height:1.5;background:var(--paper-2);
+  border:1px solid var(--rule);border-radius:6px;padding:1rem;overflow-x:auto;color:var(--ink-2);
+}
+
+/* ---------- requirement list ---------- */
+ul.req{list-style:none;display:grid;gap:.5rem}
+ul.req li{display:flex;gap:.6rem;align-items:flex-start;font-size:.92rem;color:var(--ink-2)}
+ul.req li::before{content:"";width:6px;height:6px;margin-top:.55rem;flex:none;background:var(--signal);border-radius:1px;transform:rotate(45deg)}
+ul.req li b{color:var(--ink)}
+ol.steps{list-style:none;counter-reset:s;display:grid;gap:.6rem}
+ol.steps li{counter-increment:s;display:flex;gap:.7rem;font-size:.92rem;color:var(--ink-2)}
+ol.steps li::before{content:counter(s);font-family:var(--mono);font-size:.66rem;flex:none;width:20px;height:20px;
+  display:grid;place-items:center;border:1px solid var(--rule);border-radius:50%;margin-top:.2rem;color:var(--ink-3)}
+
+/* ---------- ID chips ---------- */
+.rid{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--ink-3);border:1px solid var(--rule);
+  padding:.08rem .35rem;border-radius:3px;white-space:nowrap}
+
+/* ---------- callouts ---------- */
+.note{border-left:3px solid var(--civic);background:var(--civic-soft);padding:.85rem 1rem;border-radius:0 5px 5px 0;font-size:.9rem;color:var(--ink-2)}
+.note.warn{border-color:var(--signal);background:var(--signal-soft)}
+.note.ai{border-color:var(--violet);background:var(--violet-soft)}
+.note b{display:block;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.25rem;color:var(--ink)}
+
+/* ============================================================
+   PHONE MOCKUPS
+   ============================================================ */
+.rail{display:flex;gap:1.1rem;overflow-x:auto;padding:.25rem .25rem 1rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.rail>*{scroll-snap-align:center;flex:none}
+.phone{
+  width:290px;background:var(--paper-2);border:1px solid var(--rule);border-radius:26px;padding:8px;
+  box-shadow:0 24px 50px -30px rgba(0,0,0,.55), 0 0 0 1px color-mix(in srgb,var(--ink) 6%,transparent);
+}
+.phone .screen{
+  background:var(--paper);border-radius:19px;overflow:hidden;height:560px;display:flex;flex-direction:column;
+  border:1px solid var(--rule);position:relative;
+}
+.phone .status{display:flex;justify-content:space-between;align-items:center;padding:.4rem .85rem .25rem;
+  font-family:var(--mono);font-size:.55rem;color:var(--ink-3);letter-spacing:.05em}
+.phone .body{flex:1;overflow-y:auto;padding:0 .7rem .7rem}
+.phone .caption{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);text-align:center;padding-top:.6rem}
+.phone .caption b{color:var(--signal);font-weight:500}
+
+/* app chrome inside phone */
+.app-head{display:flex;align-items:center;gap:.4rem;padding:.35rem .15rem .5rem;border-bottom:1px solid var(--rule);margin-bottom:.55rem}
+.app-head .t{font-family:var(--serif);font-weight:700;font-size:.95rem;letter-spacing:-.02em}
+.app-head .r{margin-left:auto;display:flex;gap:.3rem}
+.icn{width:24px;height:24px;border-radius:6px;background:var(--paper-3);display:grid;place-items:center;font-size:.62rem;color:var(--ink-3)}
+.chips{display:flex;gap:.3rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.15rem}
+.chip{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;padding:.25rem .5rem;
+  border:1px solid var(--rule);border-radius:99px;color:var(--ink-3);white-space:nowrap;background:var(--paper-2)}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.post{border:1px solid var(--rule);border-radius:9px;background:var(--paper-2);padding:.55rem .6rem;margin-bottom:.5rem}
+.post .row1{display:flex;gap:.35rem;align-items:center;margin-bottom:.3rem;flex-wrap:wrap}
+.post .ttl{font-weight:600;font-size:.78rem;line-height:1.25;margin-bottom:.15rem}
+.post .sub{font-family:var(--mono);font-size:.55rem;color:var(--ink-3);letter-spacing:.03em;margin-bottom:.35rem}
+.post .img{height:74px;border-radius:6px;margin-bottom:.35rem;
+  background:linear-gradient(115deg,var(--paper-3),color-mix(in srgb,var(--civic) 22%,var(--paper-3)));
+  display:grid;place-items:center;font-family:var(--mono);font-size:.52rem;color:var(--ink-3)}
+.post .txt{font-size:.66rem;color:var(--ink-2);line-height:1.4;margin-bottom:.4rem}
+.post .acts{display:flex;gap:.75rem;font-family:var(--mono);font-size:.56rem;color:var(--ink-3);
+  border-top:1px solid var(--rule);padding-top:.35rem}
+.post .acts .me{color:var(--signal)}
+
+.tabbar{display:flex;border-top:1px solid var(--rule);background:var(--paper-2)}
+.tabbar div{flex:1;text-align:center;padding:.5rem .1rem calc(.5rem + 4px);font-family:var(--mono);font-size:.5rem;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.tabbar div i{display:block;font-style:normal;font-size:.9rem;margin-bottom:.1rem;opacity:.55}
+.tabbar div.on{color:var(--signal)}
+.tabbar div.on i{opacity:1}
+.fab{position:absolute;right:.85rem;bottom:3.4rem;width:44px;height:44px;border-radius:50%;background:var(--signal);
+  color:#fff;display:grid;place-items:center;font-size:1.3rem;box-shadow:0 8px 18px -6px color-mix(in srgb,var(--signal) 70%,transparent)}
+
+/* status ladder */
+.ladder{display:grid;gap:0;margin:.5rem 0}
+.ladder div{display:flex;gap:.45rem;align-items:flex-start;font-size:.64rem;color:var(--ink-3);padding-left:.1rem}
+.ladder div b{font-weight:600;color:var(--ink);font-size:.66rem}
+.ladder .dotc{width:9px;height:9px;border-radius:50%;border:2px solid var(--rule);background:var(--paper);flex:none;margin-top:.15rem;position:relative}
+.ladder div:not(:last-child) .dotc::after{content:"";position:absolute;left:50%;top:11px;width:1px;height:20px;background:var(--rule);transform:translateX(-50%)}
+.ladder .done .dotc{background:var(--moss);border-color:var(--moss)}
+.ladder .now .dotc{background:var(--amber);border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+
+/* desktop mock */
+.desk{border:1px solid var(--rule);border-radius:9px;overflow:hidden;background:var(--paper-2);box-shadow:var(--shadow)}
+.desk .top{display:flex;gap:.3rem;align-items:center;padding:.45rem .7rem;border-bottom:1px solid var(--rule);background:var(--paper-3)}
+.desk .top i{width:8px;height:8px;border-radius:50%;background:var(--rule);display:block}
+.desk .top span{margin-left:.6rem;font-family:var(--mono);font-size:.58rem;color:var(--ink-3)}
+.desk .cols{display:grid;grid-template-columns:118px 1fr;min-height:290px}
+@media(min-width:820px){.desk .cols{grid-template-columns:150px 1fr 210px}}
+.desk .side{border-right:1px solid var(--rule);padding:.6rem .55rem;font-size:.62rem;color:var(--ink-3);background:var(--paper-2)}
+.desk .side .grp{font-family:var(--mono);font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:.6rem 0 .3rem}
+.desk .side a{display:block;padding:.22rem .3rem;border-radius:4px;text-decoration:none;color:var(--ink-2);font-size:.65rem}
+.desk .side a.on{background:var(--ink);color:var(--paper)}
+.desk .main{padding:.7rem .8rem;overflow-x:auto}
+.desk .aside{border-left:1px solid var(--rule);padding:.7rem .7rem;display:none;font-size:.62rem}
+@media(min-width:820px){.desk .aside{display:block}}
+.qrow{display:grid;grid-template-columns:58px 1fr auto;gap:.5rem;align-items:center;padding:.4rem .3rem;border-bottom:1px solid var(--rule);font-size:.68rem}
+.qrow .id{font-family:var(--mono);font-size:.58rem;color:var(--ink-3)}
+.qrow .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:.7rem}
+.kpi{border:1px solid var(--rule);border-radius:6px;padding:.4rem .45rem;background:var(--paper)}
+.kpi span{display:block;font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.kpi b{font-family:var(--serif);font-size:1.15rem;font-weight:700;line-height:1.2}
+
+/* footer */
+footer{border-top:2px solid var(--ink);padding-block:2.5rem 4rem;font-size:.82rem;color:var(--ink-3)}
+footer .wrap{display:grid;gap:1rem}
+@media(min-width:720px){footer .wrap{grid-template-columns:1fr auto;align-items:end}}
+
+/* reveal */
+@media(prefers-reduced-motion:no-preference){
+  .rv{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+  .rv.in{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="logo"><span class="dot"></span>SWARAM</div>
+    <span class="tag">PRD v1.0</span>
+    <nav>
+      <a href="#concept">Concept</a>
+      <a href="#citizen">Citizen</a>
+      <a href="#gov">Government</a>
+      <a href="#admin">Admin</a>
+      <a href="#system">Design System</a>
+      <a href="#data">Data</a>
+      <a href="#scope">Scope</a>
+    </nav>
+    <button id="tocBtn" aria-expanded="false" aria-controls="toc">Contents</button>
+  </div>
+</header>
+
+<div id="toc" role="dialog" aria-label="Table of contents">
+  <div class="panel">
+    <div class="kicker" style="margin-bottom:.75rem">Table of contents</div>
+    <ol>
+      <li><a href="#concept">Product concept &amp; positioning</a></li>
+      <li><a href="#problem">Problem, users &amp; principles</a></li>
+      <li><a href="#master">The Master Issue model</a></li>
+      <li><a href="#ia">Information architecture</a></li>
+      <li><a href="#citizen">Citizen app — screen specs</a></li>
+      <li><a href="#feed">Feed, filters &amp; ranking</a></li>
+      <li><a href="#issue">Public issue page</a></li>
+      <li><a href="#report">Report flow</a></li>
+      <li><a href="#mine">My Issues, profile &amp; about</a></li>
+      <li><a href="#gov">Government portal</a></li>
+      <li><a href="#admin">Admin dashboard</a></li>
+      <li><a href="#ai">AI layer &amp; transparency</a></li>
+      <li><a href="#responsive">Responsive &amp; device strategy</a></li>
+      <li><a href="#system">Design system</a></li>
+      <li><a href="#states">States, errors &amp; edge cases</a></li>
+      <li><a href="#data">Data model</a></li>
+      <li><a href="#roles">Roles, permissions &amp; notifications</a></li>
+      <li><a href="#nfr">Non-functional requirements</a></li>
+      <li><a href="#trust">Trust, safety &amp; moderation</a></li>
+      <li><a href="#metrics">Success metrics</a></li>
+      <li><a href="#scope">Scope: MVP → V1 → later</a></li>
+      <li><a href="#risks">Open questions &amp; risks</a></li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================ COVER ============================ -->
+<div class="wrap cover">
+  <div class="kicker">Product Requirements Document</div>
+  <h1>Swaram<em>.</em></h1>
+  <p class="sub">A public feed for civic problems, and a disciplined work queue for the people who fix them — with an AI layer holding the two together.</p>
+
+  <div class="equation">
+    <b>Twitter/X for civic issues</b>
+    <span class="op">+</span>
+    <b>Linear for government resolution</b>
+    <span class="op">=</span>
+    <b style="color:var(--signal)">Swaram</b>
+  </div>
+
+  <div class="meta-strip">
+    <div><span>Document</span><b>Product Requirements</b></div>
+    <div><span>Version</span><b>1.0 — 15 Aug 2026</b></div>
+    <div><span>Primary platform</span><b>Mobile web / PWA</b></div>
+    <div><span>Companion doc</span><b>Technical Design (next)</b></div>
+  </div>
+</div>
+
+<!-- ============================ 01 CONCEPT ============================ -->
+<section id="concept" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Product concept &amp; positioning</h2></div>
+
+  <p class="lede">Swaram is not a complaint form. A form produces a private ticket that disappears into an inbox. Swaram produces a <strong>public, shared civic object</strong> that many people can point at, argue about, follow, and hold someone accountable for.</p>
+
+  <div class="grid g3" style="margin-top:1.75rem">
+    <div class="card">
+      <span class="pill p-sig">Surface 01</span>
+      <h4 style="margin-top:.6rem">Citizen App</h4>
+      <p class="small">Behaves like a social platform. Discover → Report → Discuss → Support → Follow. Mobile-first, thumb-driven, works on a cheap Android over 3G.</p>
+    </div>
+    <div class="card">
+      <span class="pill p-gov">Surface 02</span>
+      <h4 style="margin-top:.6rem">Government Portal</h4>
+      <p class="small">Behaves like Linear/Jira. Receive → Assign → Work → Resolve → Verify. Dense, keyboard-driven, desktop-first but usable on a field phone.</p>
+    </div>
+    <div class="card">
+      <span class="pill p-neu">Surface 03</span>
+      <h4 style="margin-top:.6rem">Admin Dashboard</h4>
+      <p class="small">For the platform operator, not for line officers. Ecosystem health, department SLAs, geographic hotspots, AI quality metrics.</p>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3>What we are building</h3>
+      <ul class="req">
+        <li><b>One public object per real-world problem.</b> Not one ticket per angry citizen.</li>
+        <li><b>Reporting that requires zero bureaucratic knowledge.</b> Speak, photograph, submit. The AI decides department, ward, category and priority.</li>
+        <li><b>Visible pressure.</b> Report counts, follower counts and elapsed time are public. Silence becomes expensive.</li>
+        <li><b>An operational tool officers actually prefer.</b> If the portal is worse than WhatsApp, they will use WhatsApp.</li>
+        <li><b>An auditable AI trail.</b> Every automated decision is logged with input, output and confidence, and is overridable by a human.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>What we are explicitly not building</h3>
+      <ul class="req">
+        <li><b>Not a general social network.</b> No follows-between-people, no DMs, no vanity profiles. You follow <em>issues</em>, not humans.</li>
+        <li><b>Not an anonymous rage board.</b> Reports are attributable to a verified phone number, even where the display is pseudonymous.</li>
+        <li><b>Not a replacement for emergency services.</b> Fire, medical and crime route to 112 with a hard interstitial.</li>
+        <li><b>Not an AI that closes tickets by itself.</b> AI proposes; a human disposes on every state change that affects a citizen.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note ai" style="margin-top:1.5rem">
+    <b>The core bet</b>
+    Most civic apps fail because the citizen's effort is high and the visible return is zero. Swaram inverts both: reporting takes under 30 seconds, and the reporter immediately joins a visible crowd of 27 other people with the same problem. Clustering is not a backend optimisation — it <em>is</em> the product.
+  </div>
+</section>
+
+<!-- ============================ 02 PROBLEM / USERS ============================ -->
+<section id="problem" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Problem, users &amp; principles</h2></div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h4>The citizen's problem</h4>
+      <p class="small">A pothole has been there for three weeks. You don't know which department owns it, which ward you're in, or whether anyone else has complained. If you do complain, you get a reference number and silence. You cannot tell whether you are the first person or the fiftieth.</p>
+    </div>
+    <div class="card">
+      <h4>The officer's problem</h4>
+      <p class="small">Fifty complaints arrive for one pothole across phone, WhatsApp, email and a portal. Half are mis-routed to your department. There is no single record of the problem, so "is it fixed?" cannot be answered without a site visit and a phone call.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Personas</h3>
+  <div class="grid g4" style="margin-top:.75rem">
+    <div class="card">
+      <span class="rid">P-01</span>
+      <h4 style="margin-top:.5rem">Rahul — The Reporter</h4>
+      <p class="small">28, commutes daily, mid-range Android, patchy data. Will give the app 30 seconds while standing at the spot. Motivated by "did anything happen?"</p>
+      <p class="small" style="margin-top:.4rem;color:var(--signal)">Needs: instant capture, zero forms, proof of progress.</p>
+    </div>
+    <div class="card">
+      <span class="rid">P-02</span>
+      <h4 style="margin-top:.5rem">Priya — The Watcher</h4>
+      <p class="small">41, RWA member. Rarely reports, constantly monitors. Wants to know what is happening in a 2 km radius and to amplify what matters.</p>
+      <p class="small" style="margin-top:.4rem;color:var(--signal)">Needs: feed, filters, follow, share.</p>
+    </div>
+    <div class="card">
+      <span class="rid">P-03</span>
+      <h4 style="margin-top:.5rem">Officer Kiran — The Resolver</h4>
+      <p class="small">Ward-level engineer, Roads. 30–60 live items. Desktop in the office, phone in the field. Judged on closure time and re-open rate.</p>
+      <p class="small" style="margin-top:.4rem;color:var(--signal)">Needs: a sane queue, bulk actions, one-tap field updates with photo.</p>
+    </div>
+    <div class="card">
+      <span class="rid">P-04</span>
+      <h4 style="margin-top:.5rem">Supervisor Meera — The Accountable</h4>
+      <p class="small">Zone-level. Cares about overdue counts, department SLA breaches and escalations, not individual tickets.</p>
+      <p class="small" style="margin-top:.4rem;color:var(--signal)">Needs: dashboards, reassignment, escalation, exports.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Product principles</h3>
+  <div class="grid g3" style="margin-top:.75rem">
+    <div class="card"><h4>01 — The crowd is the feature</h4><p class="small">Every surface should make it obvious how many people share a problem. A count of 27 is more persuasive than any wording.</p></div>
+    <div class="card"><h4>02 — Never ask what we can infer</h4><p class="small">Department, ward, category, severity and duplicates are inferred. The citizen answers one question: what happened?</p></div>
+    <div class="card"><h4>03 — Confidence must be visible</h4><p class="small">Where AI decided something, say so, show the confidence, and let a human change it in one tap.</p></div>
+    <div class="card"><h4>04 — Status is a promise</h4><p class="small">Every status change fires a notification to reporters and followers. No silent transitions, ever.</p></div>
+    <div class="card"><h4>05 — Thumb-first, then keyboard</h4><p class="small">Citizen surfaces are designed for one hand at arm's length. Government surfaces are designed for a keyboard and a large screen.</p></div>
+    <div class="card"><h4>06 — Slow networks are the default</h4><p class="small">Optimistic UI, offline draft queue, aggressive image compression on-device. Assume 3G and 2 GB RAM.</p></div>
+  </div>
+</section>
+<!-- ============================ 03 MASTER ISSUE ============================ -->
+<section id="master" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">03</span><h2>The Master Issue model</h2></div>
+  <p class="lede">Everything in Swaram hangs off one object. Getting this separation right is the difference between a working product and a duplicate-ridden mess.</p>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <pre class="flow">                    ISSUE  ·  CIV-10234
+              "Large pothole, Whitefield Main Rd"
+                           │
+      ┌────────────┬───────┴───────┬────────────┐
+      │            │               │            │
+  Report #1    Report #2       Report #3    Report #27
+   Rahul        Priya           Arjun         ...
+   photo        photo+voice     text          photo
+
+      │            │               │            │
+      └────────────┴───────┬───────┴────────────┘
+                           │
+        followers · comments · reactions · evidence
+                           │
+                    one department
+                    one jurisdiction
+                    one assigned officer
+                    one status
+                    one timeline</pre>
+    </div>
+    <div>
+      <h3>Why the split matters</h3>
+      <ul class="req">
+        <li><b>An Issue is the real-world problem.</b> It has a status, an owner and an SLA. There is exactly one per physical problem.</li>
+        <li><b>A Report is one person's experience of it.</b> It has an author, a photo, a timestamp and a precise location. There are many per issue.</li>
+        <li><b>Government works the Issue.</b> Officers never see 27 tickets; they see one ticket with 27 pieces of evidence.</li>
+        <li><b>Citizens contribute Reports.</b> "I'm facing this too" creates a Report attached to an existing Issue, not a new Issue.</li>
+        <li><b>Metrics are honest.</b> "27 people affected" comes from report count; "how many problems exist" comes from issue count. Conflating them destroys both numbers.</li>
+      </ul>
+      <div class="note warn" style="margin-top:1rem">
+        <b>Hard rule</b>
+        A citizen can never be blocked from submitting because "a similar issue exists". We always accept the submission; the system decides afterwards whether it became a new Issue or a Report on an existing one, and tells the user which happened.
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Object lifecycle</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Status</th><th>Meaning</th><th>Who sets it</th><th>Citizen-visible label</th><th>Exit condition</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill p-open">OPEN</span></td><td>Created and routed, not yet owned by a named officer</td><td>System</td><td>Reported</td><td>An officer is assigned</td></tr>
+        <tr><td><span class="pill p-neu">ASSIGNED</span></td><td>Owned by a named officer, not started</td><td>System / Supervisor</td><td>Assigned</td><td>Officer acknowledges &amp; starts</td></tr>
+        <tr><td><span class="pill p-prog">IN_PROGRESS</span></td><td>Work is actively happening</td><td>Officer</td><td>In progress</td><td>Officer uploads resolution evidence</td></tr>
+        <tr><td><span class="pill p-ai">PENDING_VERIFICATION</span></td><td>Officer claims done; AI + citizens verifying</td><td>Officer</td><td>Awaiting confirmation</td><td>Verification passes or fails</td></tr>
+        <tr><td><span class="pill p-done">RESOLVED</span></td><td>Verified fixed</td><td>System after verification</td><td>Resolved</td><td>Re-open window (14 days) expires → CLOSED</td></tr>
+        <tr><td><span class="pill p-neu">CLOSED</span></td><td>Final. No further state changes</td><td>System</td><td>Closed</td><td>—</td></tr>
+        <tr><td><span class="pill p-crit" style="background:var(--crit-soft);color:var(--crit)">REOPENED</span></td><td>Citizens reported it recurring within the window</td><td>Citizen action / Supervisor</td><td>Reopened</td><td>Returns to ASSIGNED</td></tr>
+        <tr><td><span class="pill p-neu">REJECTED</span></td><td>Not a valid civic issue, or out of scope</td><td>Officer + reason, required</td><td>Not actionable — with reason</td><td>Appealable once</td></tr>
+        <tr><td><span class="pill p-neu">MERGED</span></td><td>Found to be a duplicate after creation</td><td>Officer / AI + officer approval</td><td>Redirects to the surviving issue</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+</section>
+
+<!-- ============================ 04 IA ============================ -->
+<section id="ia" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Information architecture</h2></div>
+
+  <div class="grid g2">
+    <div>
+      <h3>Citizen — 4 tabs, no more</h3>
+      <pre class="flow">┌───────────────────────────────────┐
+│                                   │
+│            [ content ]            │
+│                                   │
+│                          ( + )    │  ← FAB: Report
+├───────────────────────────────────┤
+│  🏠 Feed   🎫 Mine   🔔 Alerts  ☰ More │
+└───────────────────────────────────┘
+
+Feed    = default landing screen
+Mine    = Created by me / Following
+Alerts  = status changes, replies, nearby
+More    = profile, about, language, help</pre>
+      <ul class="req" style="margin-top:1rem">
+        <li><b>Report is a FAB, not a tab.</b> It is an action, not a destination — and it must be reachable from every screen.</li>
+        <li><b>Feed is home.</b> Opening the app answers "what is happening around me" before it asks for anything.</li>
+        <li><b>Max depth 3.</b> Feed → Issue → Report thread. Nothing is buried deeper.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Government — sidebar + queue + detail</h3>
+      <pre class="flow">┌─────────┬──────────────────┬─────────┐
+│ Inbox   │  CIV-10234  …    │ Details │
+│ My work │  CIV-10291  …    │ Status  │
+│ Team    │  CIV-10321  …    │ Assign  │
+│ Overdue │  CIV-10344  …    │ SLA     │
+│ Map     │  ...             │ AI      │
+│ Reports │                  │ trace   │
+└─────────┴──────────────────┴─────────┘
+ nav          list (master)     detail
+
+Mobile: the three panes become three screens,
+navigated by push/back. Same data, same actions.</pre>
+      <ul class="req" style="margin-top:1rem">
+        <li><b>Views, not folders.</b> Inbox / My work / Overdue / Unassigned are saved filters over one table.</li>
+        <li><b>Keyboard first.</b> <code>j k</code> move, <code>Enter</code> open, <code>a</code> assign, <code>s</code> status, <code>⌘K</code> command palette.</li>
+        <li><b>The detail pane is the ticket.</b> Reports, discussion, evidence and activity all live in tabs inside it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Route map</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Route</th><th>Surface</th><th>Auth</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>/</code></td><td>Citizen</td><td>Public</td><td>Feed. Readable logged-out; actions prompt sign-in.</td></tr>
+        <tr><td><code>/i/CIV-10234</code></td><td>Citizen</td><td>Public</td><td>Public issue page. SEO-indexed, OG-image for sharing.</td></tr>
+        <tr><td><code>/report</code></td><td>Citizen</td><td>Required</td><td>Capture flow. Deep-linkable with a pre-set category.</td></tr>
+        <tr><td><code>/me/issues</code></td><td>Citizen</td><td>Required</td><td>Created / Following tabs.</td></tr>
+        <tr><td><code>/alerts</code></td><td>Citizen</td><td>Required</td><td>Notification centre.</td></tr>
+        <tr><td><code>/about</code></td><td>Citizen</td><td>Public</td><td>What Swaram is, how AI works, privacy, guidelines.</td></tr>
+        <tr><td><code>/gov</code></td><td>Government</td><td>Officer+</td><td>Dashboard, defaults to My Work.</td></tr>
+        <tr><td><code>/gov/t/CIV-10234</code></td><td>Government</td><td>Officer+</td><td>Full operational ticket.</td></tr>
+        <tr><td><code>/gov/map</code></td><td>Government</td><td>Officer+</td><td>Jurisdiction map with clustering.</td></tr>
+        <tr><td><code>/admin</code></td><td>Admin</td><td>Admin only</td><td>Platform metrics, departments, AI quality.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+</section>
+
+<!-- ============================ 05 CITIZEN SCREENS ============================ -->
+<section id="citizen" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Citizen app — screen specs</h2></div>
+  <p class="lede">Designed for a 360 × 640 viewport first. Every mockup below is a real rendering of the intended layout at phone width — swipe the rail sideways.</p>
+
+  <div class="rail" style="margin-top:1.5rem">
+
+    <!-- FEED -->
+    <div>
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><span>◍ Whitefield · 4G ▮</span></div>
+          <div class="body">
+            <div class="app-head">
+              <div class="t">Around you</div>
+              <div class="r"><span class="icn">⌕</span><span class="icn">⚙</span></div>
+            </div>
+            <div class="chips">
+              <span class="chip on">5 km</span><span class="chip">All depts</span><span class="chip">Open</span><span class="chip">Roads</span><span class="chip">Water</span>
+            </div>
+
+            <div class="post">
+              <div class="row1"><span class="pill p-open" style="font-size:.5rem">High</span><span class="pill p-neu" style="font-size:.5rem">Roads</span></div>
+              <div class="ttl">Large pothole on Whitefield Main Road</div>
+              <div class="sub">500 m away · CIV-10234 · 2d old</div>
+              <div class="img">photo · 27 attached</div>
+              <div class="txt">Deep pothole near the signal, two-wheelers swerving into the next lane…</div>
+              <div class="acts"><span class="me">♥ 27 affected</span><span>💬 8</span><span>＋ Follow</span></div>
+            </div>
+
+            <div class="post">
+              <div class="row1"><span class="pill p-prog" style="font-size:.5rem">In progress</span><span class="pill p-neu" style="font-size:.5rem">Electricity</span></div>
+              <div class="ttl">Streetlight out for 3 weeks — Sector 4</div>
+              <div class="sub">1.2 km away · CIV-10981 · officer assigned</div>
+              <div class="img">photo</div>
+              <div class="acts"><span>♥ 12</span><span>💬 3</span><span>✓ Following</span></div>
+            </div>
+
+            <div class="post">
+              <div class="row1"><span class="pill p-done" style="font-size:.5rem">Resolved</span><span class="pill p-neu" style="font-size:.5rem">Sanitation</span></div>
+              <div class="ttl">Garbage pile cleared near park gate</div>
+              <div class="sub">800 m away · fixed in 3d</div>
+              <div class="acts"><span>♥ 19</span><span>💬 5</span><span>before / after</span></div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+          <div class="tabbar">
+            <div class="on"><i>🏠</i>Feed</div><div><i>🎫</i>Mine</div><div><i>🔔</i>Alerts</div><div><i>☰</i>More</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>01</b> · Civic feed (home)</div>
+    </div>
+
+    <!-- ISSUE PAGE -->
+    <div>
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><span>◍ · 4G ▮</span></div>
+          <div class="body">
+            <div class="app-head">
+              <div class="t" style="font-family:var(--mono);font-size:.7rem">← CIV-10234</div>
+              <div class="r"><span class="icn">↗</span><span class="icn">⋯</span></div>
+            </div>
+
+            <div class="row1" style="display:flex;gap:.3rem;margin-bottom:.35rem">
+              <span class="pill p-open" style="font-size:.5rem">High priority</span>
+              <span class="pill p-prog" style="font-size:.5rem">In progress</span>
+            </div>
+            <div style="font-family:var(--serif);font-weight:700;font-size:1rem;line-height:1.2;margin-bottom:.25rem">Large pothole on Whitefield Main Road</div>
+            <div class="sub" style="font-family:var(--mono);font-size:.55rem;color:var(--ink-3);margin-bottom:.5rem">Roads Dept · Ward 42 · reported 13 Aug</div>
+
+            <div style="border:1px solid var(--rule);border-radius:8px;padding:.45rem .55rem;background:var(--signal-soft);margin-bottom:.6rem">
+              <div style="font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--signal)">Crowd</div>
+              <div style="font-size:.72rem"><b>27 people</b> reported this · <b>41</b> following</div>
+            </div>
+
+            <div class="img" style="height:82px;border-radius:7px;margin-bottom:.55rem;background:linear-gradient(115deg,var(--paper-3),color-mix(in srgb,var(--civic) 22%,var(--paper-3)));display:grid;place-items:center;font-family:var(--mono);font-size:.52rem;color:var(--ink-3)">photo 1 of 27 · swipe</div>
+
+            <div class="ladder">
+              <div class="done"><span class="dotc"></span><div><b>Reported</b> · 13 Aug 09:12</div></div>
+              <div class="done"><span class="dotc"></span><div><b>Assigned</b> · Officer K, Roads</div></div>
+              <div class="now"><span class="dotc"></span><div><b>In progress</b> · repair scheduled 16 Aug</div></div>
+              <div><span class="dotc"></span><div><b>Resolved</b> · SLA 18 Aug</div></div>
+            </div>
+
+            <div style="font-family:var(--mono);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:.6rem 0 .35rem">Discussion · 8</div>
+            <div style="border-top:1px solid var(--rule);padding-top:.4rem;font-size:.64rem;color:var(--ink-2)">
+              <div style="margin-bottom:.4rem"><b style="font-size:.62rem">Rahul</b> — This has been here two weeks.</div>
+              <div style="margin-bottom:.4rem"><b style="font-size:.62rem">Priya</b> — Same. Almost fell yesterday.</div>
+              <div style="background:var(--civic-soft);padding:.35rem .45rem;border-radius:6px;border-left:2px solid var(--civic)">
+                <b style="font-size:.62rem">Officer K</b> <span class="pill p-gov" style="font-size:.45rem">Official</span><br>Team inspected. Repair scheduled tomorrow.
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--rule);background:var(--paper-2);padding:.5rem .6rem;display:flex;gap:.4rem">
+            <div style="flex:1;background:var(--signal);color:#fff;text-align:center;padding:.5rem;border-radius:7px;font-size:.68rem;font-weight:600">I'm facing this too</div>
+            <div style="border:1px solid var(--rule);padding:.5rem .6rem;border-radius:7px;font-size:.68rem">＋</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>02</b> · Public issue page</div>
+    </div>
+
+    <!-- REPORT -->
+    <div>
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><span>◍ · 4G ▮</span></div>
+          <div class="body">
+            <div class="app-head"><div class="t">Report an issue</div><div class="r"><span class="icn">✕</span></div></div>
+            <div style="font-family:var(--serif);font-size:.95rem;font-weight:700;margin-bottom:.15rem">What happened?</div>
+            <div style="font-size:.62rem;color:var(--ink-3);margin-bottom:.6rem">Speak, snap or type. We'll work out the rest.</div>
+
+            <div style="border:2px dashed var(--rule);border-radius:10px;padding:.9rem;text-align:center;margin-bottom:.5rem;background:var(--paper-2)">
+              <div style="font-size:1.5rem">🎤</div>
+              <div style="font-size:.68rem;font-weight:600;margin-top:.2rem">Hold to speak</div>
+              <div style="font-size:.55rem;color:var(--ink-3)">Kannada · Hindi · English · Telugu</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">
+              <div style="border:1px solid var(--rule);border-radius:8px;padding:.5rem;text-align:center;font-size:.62rem;background:var(--paper-2)">📷 Photo</div>
+              <div style="border:1px solid var(--rule);border-radius:8px;padding:.5rem;text-align:center;font-size:.62rem;background:var(--paper-2)">🎥 Video</div>
+            </div>
+            <div style="border:1px solid var(--rule);border-radius:8px;padding:.5rem;font-size:.62rem;color:var(--ink-3);background:var(--paper-2);margin-bottom:.5rem">📝 Or type a description…</div>
+
+            <div style="border:1px solid var(--rule);border-radius:8px;padding:.5rem .55rem;background:var(--paper-2);margin-bottom:.55rem">
+              <div style="font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.2rem">Location · auto</div>
+              <div style="font-size:.66rem">Whitefield Main Rd, Ward 42</div>
+              <div style="font-size:.55rem;color:var(--signal)">Adjust pin ›</div>
+            </div>
+
+            <div style="border-left:3px solid var(--violet);background:var(--violet-soft);padding:.45rem .55rem;border-radius:0 6px 6px 0;font-size:.6rem;color:var(--ink-2)">
+              <b style="font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);display:block">AI preview</b>
+              Roads · Pothole · High · likely matches <b>CIV-10234</b> (27 reports)
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--rule);background:var(--paper-2);padding:.5rem .6rem">
+            <div style="background:var(--ink);color:var(--paper);text-align:center;padding:.55rem;border-radius:7px;font-size:.7rem;font-weight:600">Submit report</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>03</b> · Report flow</div>
+    </div>
+
+    <!-- MY ISSUES -->
+    <div>
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><span>◍ · 4G ▮</span></div>
+          <div class="body">
+            <div class="app-head"><div class="t">My issues</div><div class="r"><span class="icn">⌕</span></div></div>
+            <div style="display:flex;border-bottom:1px solid var(--rule);margin-bottom:.6rem">
+              <div style="flex:1;text-align:center;padding:.35rem;font-size:.68rem;font-weight:600;border-bottom:2px solid var(--signal);color:var(--signal)">Created · 4</div>
+              <div style="flex:1;text-align:center;padding:.35rem;font-size:.68rem;color:var(--ink-3)">Following · 9</div>
+            </div>
+
+            <div class="post" style="padding:.5rem .55rem">
+              <div class="sub" style="margin-bottom:.15rem">CIV-10234 · Roads</div>
+              <div class="ttl" style="font-size:.74rem">Large pothole, Whitefield Main Rd</div>
+              <div style="display:flex;gap:.3rem;margin-top:.3rem"><span class="pill p-prog" style="font-size:.48rem">In progress</span><span class="pill p-neu" style="font-size:.48rem">27 reports</span></div>
+              <div style="font-size:.55rem;color:var(--ink-3);margin-top:.25rem">Officer updated 4h ago · SLA in 3d</div>
+            </div>
+
+            <div class="post" style="padding:.5rem .55rem">
+              <div class="sub" style="margin-bottom:.15rem">CIV-10421 · Sanitation</div>
+              <div class="ttl" style="font-size:.74rem">Garbage accumulation, 2nd cross</div>
+              <div style="display:flex;gap:.3rem;margin-top:.3rem"><span class="pill p-done" style="font-size:.48rem">Resolved</span></div>
+              <div style="font-size:.55rem;color:var(--signal);margin-top:.25rem">Still a problem? Reopen ›</div>
+            </div>
+
+            <div class="post" style="padding:.5rem .55rem">
+              <div class="sub" style="margin-bottom:.15rem">CIV-10502 · Water</div>
+              <div class="ttl" style="font-size:.74rem">Pipeline leak near bus stop</div>
+              <div style="display:flex;gap:.3rem;margin-top:.3rem"><span class="pill p-open" style="font-size:.48rem">Open</span><span class="pill p-ai" style="font-size:.48rem">Routing</span></div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+          <div class="tabbar"><div><i>🏠</i>Feed</div><div class="on"><i>🎫</i>Mine</div><div><i>🔔</i>Alerts</div><div><i>☰</i>More</div></div>
+        </div>
+      </div>
+      <div class="caption"><b>04</b> · My issues</div>
+    </div>
+
+    <!-- CONFIRMATION -->
+    <div>
+      <div class="phone">
+        <div class="screen">
+          <div class="status"><span>9:41</span><span>◍ · 4G ▮</span></div>
+          <div class="body" style="display:flex;flex-direction:column;justify-content:center;text-align:center;padding:1rem">
+            <div style="font-size:2.2rem;margin-bottom:.4rem">✓</div>
+            <div style="font-family:var(--serif);font-weight:700;font-size:1.05rem;line-height:1.2;margin-bottom:.4rem">You joined 26 others reporting this</div>
+            <div style="font-size:.68rem;color:var(--ink-2);margin-bottom:.9rem">Your report was added to <b>CIV-10234</b> instead of creating a duplicate — so it carries more weight.</div>
+
+            <div style="border:1px solid var(--rule);border-radius:9px;padding:.6rem;background:var(--paper-2);text-align:left;margin-bottom:.7rem">
+              <div style="font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);margin-bottom:.3rem">What the AI did</div>
+              <div style="font-size:.6rem;color:var(--ink-2);line-height:1.6">
+                Classified · <b>Roads › Pothole</b> <span style="color:var(--ink-3)">96%</span><br>
+                Jurisdiction · <b>Ward 42</b> <span style="color:var(--ink-3)">GPS</span><br>
+                Matched · <b>CIV-10234</b> <span style="color:var(--ink-3)">91%</span><br>
+                Priority · <b>High</b> <span style="color:var(--ink-3)">27 reports · arterial road</span>
+              </div>
+              <div style="font-size:.55rem;color:var(--signal);margin-top:.35rem">Wrong? Tell us ›</div>
+            </div>
+
+            <div style="background:var(--ink);color:var(--paper);padding:.5rem;border-radius:7px;font-size:.68rem;font-weight:600;margin-bottom:.4rem">Track this issue</div>
+            <div style="font-size:.6rem;color:var(--ink-3)">You'll be notified on every status change.</div>
+          </div>
+        </div>
+      </div>
+      <div class="caption"><b>05</b> · Post-submit confirmation</div>
+    </div>
+
+  </div>
+  <p class="scroll-hint">← swipe screens →</p>
+
+  <div class="note" style="margin-top:1rem">
+    <b>Why screen 05 exists</b>
+    The confirmation screen is the single highest-leverage screen in the citizen app. It is where an anonymous form submission becomes membership in a crowd, and where the AI earns trust by explaining itself. Do not reduce it to a toast.
+  </div>
+</section>
+
+<!-- ============================ 06 FEED ============================ -->
+<section id="feed" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Feed, filters &amp; ranking</h2></div>
+
+  <div class="grid g2">
+    <div>
+      <h3>Feed card — required content</h3>
+      <ul class="req">
+        <li><b>Status + priority pills</b> — always first, always visible without expanding.</li>
+        <li><b>Title</b> — AI-generated, max 2 lines, human-editable by the officer.</li>
+        <li><b>Distance from user</b> — "500 m away", not coordinates. The single strongest relevance cue.</li>
+        <li><b>Department + public ID</b> — establishes accountability and shareability.</li>
+        <li><b>Crowd count</b> — "27 people reported this" is the emotional payload of the card.</li>
+        <li><b>Age / last activity</b> — "2d old", "officer updated 4h ago".</li>
+        <li><b>Lead media</b> — first photo, lazy-loaded, blur-up placeholder, 16:9 crop.</li>
+        <li><b>Three actions</b> — Support (♥ affected), Comment, Follow. Nothing else.</li>
+      </ul>
+      <div class="note warn" style="margin-top:1rem">
+        <b>Anti-requirement</b>
+        No reporter avatars or names on the feed card. The subject is the problem, not the person. Attribution lives on the issue page, where the reports are listed.
+      </div>
+    </div>
+    <div>
+      <h3>Filters</h3>
+      <div class="tw">
+        <table style="min-width:420px">
+          <thead><tr><th>Filter</th><th>Options</th><th>Default</th></tr></thead>
+          <tbody>
+            <tr><td>Distance</td><td>500 m · 1 km · 5 km · 10 km · My ward · Custom area</td><td>5 km</td></tr>
+            <tr><td>Department</td><td>All · Roads · Sanitation · Water · Electricity · Transport · Public Safety · Health · Education</td><td>All</td></tr>
+            <tr><td>Issue type</td><td>Potholes · Garbage · Streetlights · Water leakage · Drainage · Traffic · Public infra · Other</td><td>All</td></tr>
+            <tr><td>Status</td><td>All · Open · In progress · Resolved</td><td>Open + In progress</td></tr>
+            <tr><td>Sort</td><td>Relevance · Newest · Most reported · Longest pending</td><td>Relevance</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="req" style="margin-top:1rem">
+        <li><b>Filters persist</b> across sessions per device, and are encoded in the URL so a filtered view is shareable.</li>
+        <li><b>Active filters render as removable chips</b> in a horizontally scrolling row under the header — never hidden behind a modal alone.</li>
+        <li><b>"Longest pending" is deliberate.</b> It gives citizens a way to surface neglect, which is the accountability lever.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Ranking</h3>
+  <p class="small muted" style="max-width:68ch">The feed is not chronological. An issue affecting 500 people must outrank a fresh minor complaint. For V1 a transparent scoring formula beats a learned model — it is explainable, debuggable and demo-able.</p>
+
+  <div class="grid g2" style="margin-top:1rem">
+    <div>
+      <pre class="flow">score =
+    w1 · proximity      (1 / (1 + km))
+  + w2 · severity       (LOW…CRITICAL → 0.2…1.0)
+  + w3 · report_count   (log scale, capped)
+  + w4 · recent_activity(decay over 72 h)
+  + w5 · people_affected(est. from location type)
+  − w6 · staleness      (resolved &amp; old sinks)
+
+defaults: w1 .30  w2 .20  w3 .20
+          w4 .15  w5 .10  w6 .05</pre>
+    </div>
+    <div>
+      <ul class="req">
+        <li><b>Log-scale the report count</b> so the 200th report doesn't permanently pin one issue to the top.</li>
+        <li><b>Resolved issues stay in the feed for 48 h</b> with before/after media. Visible wins are what keep people reporting.</li>
+        <li><b>Guaranteed diversity:</b> no more than 3 consecutive cards from the same department.</li>
+        <li><b>Fresh-report boost:</b> an issue with a report in the last hour gets a temporary multiplier so live problems surface.</li>
+        <li><b>Weights are server-side config</b>, tunable without a client release, and logged per feed request for debugging.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 07 ISSUE PAGE ============================ -->
+<section id="issue" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">07</span><h2>Public issue page</h2></div>
+  <p class="lede">The most important URL in the product. It is shareable to WhatsApp, indexable by search engines, and readable without an account.</p>
+
+  <div class="grid g3" style="margin-top:1.5rem">
+    <div class="card">
+      <h4>Header block</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Public ID <code>CIV-10234</code>, copyable</li>
+        <li>Title, priority pill, status pill</li>
+        <li>Department · jurisdiction · created date</li>
+        <li>Share button → WhatsApp-first, generates an OG card with the photo and crowd count</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Crowd block</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>N people reported this</b> · <b>M following</b></li>
+        <li>Growth indicator: "+6 today"</li>
+        <li>Photo gallery from all reports, swipeable, newest first</li>
+        <li>Map with a pin and the cluster radius</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Status ladder</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Reported → Assigned → In progress → Resolved</li>
+        <li>Each completed step shows a timestamp and the actor role</li>
+        <li>Current step shows the promised date and SLA countdown</li>
+        <li>Breached SLA renders in <span style="color:var(--crit)">critical red</span> with days overdue</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3>Discussion</h3>
+      <ul class="req">
+        <li><b>Official replies are visually distinct</b> — civic-blue left border, "Official" badge, officer designation. They can never be confused with citizen comments.</li>
+        <li><b>Officer replies pin to the top</b> of the thread while unread by the user, then fall into chronological order.</li>
+        <li>Flat threads with one level of reply. No nested trees.</li>
+        <li>Rate limit: 5 comments / issue / user / hour.</li>
+        <li>Report-abuse on every comment; three flags auto-hide pending review.</li>
+      </ul>
+
+      <h3 style="margin-top:1.5rem">Primary action — "I'm facing this too"</h3>
+      <ul class="req">
+        <li>Sticky bottom bar, full-width, thumb-reachable, always visible.</li>
+        <li>Creates a <b>Report</b> on this issue; optionally attaches a photo and the user's exact location.</li>
+        <li>Auto-follows the issue.</li>
+        <li>Guards: one report per user per issue per 24 h; must be within the issue's cluster radius (or ask "are you at this location?").</li>
+        <li>After tapping, the button becomes "You reported this · 28 people affected".</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Section order on mobile</h3>
+      <ol class="steps">
+        <li>Header — ID, title, pills</li>
+        <li>Crowd counts + growth</li>
+        <li>Media gallery</li>
+        <li>Status ladder + SLA</li>
+        <li>Description (AI summary of all reports)</li>
+        <li>Location map</li>
+        <li>Discussion</li>
+        <li>Individual reports list (collapsed, "27 reports ›")</li>
+        <li>Activity timeline (collapsed)</li>
+        <li>Sticky action bar — always on screen</li>
+      </ol>
+      <div class="note" style="margin-top:1rem">
+        <b>Desktop variance</b>
+        At ≥1024 px the page becomes two columns: narrative (title, media, discussion) on the left, a sticky rail on the right holding status, SLA, department, map and actions. No content is added or removed — only re-flowed.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 08 REPORT FLOW ============================ -->
+<section id="report" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">08</span><h2>Report flow</h2></div>
+  <p class="lede">Target: under 30 seconds from tapping ＋ to a confirmed submission, standing at the location, one-handed.</p>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3>The flow</h3>
+      <ol class="steps">
+        <li><b>Tap ＋</b> from anywhere. Camera and location permissions are requested here, in context, with a plain-language reason — never on app launch.</li>
+        <li><b>Capture.</b> One screen, four equal inputs: hold-to-speak voice, photo, video, text. Any <em>one</em> is sufficient to submit.</li>
+        <li><b>Location.</b> Auto-filled from GPS with a reverse-geocoded address. One tap to adjust the pin. Manual entry if GPS is denied or wrong.</li>
+        <li><b>AI preview.</b> While the user is still on the screen, show the inferred department, category, priority and any likely duplicate. This is a preview, not a gate — it can be wrong and the user can still submit.</li>
+        <li><b>Submit.</b> Optimistic: the UI confirms immediately, upload continues in the background, and failures retry from a local queue.</li>
+        <li><b>Confirmation.</b> Screen 05 — new issue created, or joined an existing crowd, with the AI's reasoning shown.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Requirements</h3>
+      <ul class="req">
+        <li><b>Voice is a first-class input.</b> Kannada, Hindi, English, Telugu at minimum. Transcription happens server-side; the raw audio is retained as evidence.</li>
+        <li><b>No category picker.</b> Ever. If the AI is unsure it asks a single disambiguating question ("Is this about the road surface or the drain?"), never a 9-item dropdown.</li>
+        <li><b>Client-side image compression</b> to ≤ 1600 px long edge, ~200 KB target, before upload. EXIF GPS is read then stripped from the stored copy.</li>
+        <li><b>Offline capture.</b> Reports queue locally with their media and submit when connectivity returns; the user sees "Queued — will send when you're online".</li>
+        <li><b>Emergency interception.</b> If the classifier detects fire, injury, crime or gas leak, an interstitial appears with a one-tap call to 112 <em>before</em> submission continues.</li>
+        <li><b>Anonymous-to-public toggle.</b> The user chooses whether their display name appears on the public report. Identity is always known to the platform for accountability.</li>
+        <li><b>Duplicate handling is never a wall.</b> If a match is found, the copy is "join 26 others" — a benefit, not a rejection.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 09 MINE / ABOUT ============================ -->
+<section id="mine" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">09</span><h2>My Issues, alerts, profile &amp; about</h2></div>
+
+  <div class="grid g4">
+    <div class="card">
+      <h4>My Issues — Created</h4>
+      <p class="small">Issues where the user authored a report. Sorted by last activity. Each row: ID, title, status pill, report count, last officer update, SLA remaining.</p>
+      <p class="small" style="margin-top:.4rem"><b>Key action:</b> on a RESOLVED issue within the 14-day window, a "Still a problem? Reopen" link.</p>
+    </div>
+    <div class="card">
+      <h4>My Issues — Following</h4>
+      <p class="small">Issues the user follows without reporting. Same row anatomy, plus an unfollow swipe action. Empty state points to the feed: "Follow issues to track them here."</p>
+    </div>
+    <div class="card">
+      <h4>Alerts</h4>
+      <p class="small">Grouped by day. Types: status change, official reply, comment reply, issue resolved, reopen window closing, new high-priority issue near you.</p>
+      <p class="small" style="margin-top:.4rem"><b>Rule:</b> tapping any alert deep-links to the exact section of the issue page that changed.</p>
+    </div>
+    <div class="card">
+      <h4>Profile &amp; settings</h4>
+      <p class="small">Name, phone (verified), home ward, language, notification preferences per type and channel, privacy controls, delete account and export my data.</p>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3>Civic reputation — deliberate restraint</h3>
+      <p class="small muted">A user profile shows reports filed, issues resolved that they reported, and a light "Active reporter" style badge. There are deliberately <strong>no leaderboards and no points</strong>: gamified civic apps reliably produce spam reports, and the cost of a false report is borne by a real officer's day.</p>
+    </div>
+    <div>
+      <h3>About section</h3>
+      <ul class="req">
+        <li><b>What is Swaram</b> — one paragraph, no jargon.</li>
+        <li><b>How it works</b> — Report → AI understands → Government acts → Verified → Resolved, as a five-step visual.</li>
+        <li><b>How the AI works</b> — plainly: what it decides, what confidence means, that a human can override it, and how to flag a wrong decision.</li>
+        <li><b>Privacy</b> — what location data is stored, what is public, what is never shared.</li>
+        <li><b>Community guidelines</b> — what belongs here, what does not, how flags work.</li>
+        <li><b>Contact, terms, open data</b> — including a public statistics page per ward.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 10 GOVERNMENT ============================ -->
+<section id="gov" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Government portal</h2></div>
+  <p class="lede">Officers do not want a social feed. They want a queue, a keyboard, and to be told what is about to breach. This surface is Linear, not Twitter.</p>
+
+  <div class="desk" style="margin-top:1.5rem">
+    <div class="top"><i></i><i></i><i></i><span>swaram.gov / roads · ward 42 · officer kiran</span></div>
+    <div class="cols">
+      <div class="side">
+        <div class="grp">Views</div>
+        <a href="#gov" class="on">My work · 32</a>
+        <a href="#gov">Unassigned · 11</a>
+        <a href="#gov">Overdue · 4</a>
+        <a href="#gov">Awaiting verify · 6</a>
+        <a href="#gov">Resolved · 120</a>
+        <div class="grp">Team</div>
+        <a href="#gov">Ward 42 · Roads</a>
+        <a href="#gov">Field crew</a>
+        <div class="grp">Tools</div>
+        <a href="#gov">Map</a>
+        <a href="#gov">＋ Create issue</a>
+      </div>
+      <div class="main">
+        <div class="kpis">
+          <div class="kpi"><span>Open</span><b>32</b></div>
+          <div class="kpi"><span>In prog</span><b>18</b></div>
+          <div class="kpi"><span>Overdue</span><b style="color:var(--crit)">4</b></div>
+          <div class="kpi"><span>Closed 30d</span><b>120</b></div>
+        </div>
+        <div class="qrow" style="background:var(--paper-3);font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)">
+          <div>ID</div><div>Title</div><div>SLA</div>
+        </div>
+        <div class="qrow"><div class="id">CIV-10234</div><div class="t">Large pothole, Whitefield Main Rd <span class="pill p-prog" style="font-size:.45rem">In prog</span> <span class="pill p-neu" style="font-size:.45rem">27</span></div><div style="font-size:.58rem;color:var(--amber)">3d</div></div>
+        <div class="qrow"><div class="id">CIV-10291</div><div class="t">Road caved near culvert <span class="pill p-open" style="font-size:.45rem">Open</span> <span class="pill p-neu" style="font-size:.45rem">9</span></div><div style="font-size:.58rem;color:var(--crit)">-2d</div></div>
+        <div class="qrow"><div class="id">CIV-10321</div><div class="t">Speed breaker damaged <span class="pill p-neu" style="font-size:.45rem">Assigned</span></div><div style="font-size:.58rem">6d</div></div>
+        <div class="qrow"><div class="id">CIV-10344</div><div class="t">Footpath slabs broken <span class="pill p-ai" style="font-size:.45rem">Verify</span></div><div style="font-size:.58rem">—</div></div>
+        <div class="qrow"><div class="id">CIV-10402</div><div class="t">Debris blocking lane <span class="pill p-open" style="font-size:.45rem">Open</span></div><div style="font-size:.58rem">1d</div></div>
+        <div style="font-family:var(--mono);font-size:.52rem;color:var(--ink-3);padding-top:.5rem">j / k navigate · enter open · a assign · s status · ⌘K palette</div>
+      </div>
+      <div class="aside">
+        <div style="font-family:var(--mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)">CIV-10234</div>
+        <div style="font-family:var(--serif);font-weight:700;font-size:.78rem;line-height:1.2;margin:.2rem 0 .4rem">Large pothole, Whitefield Main Rd</div>
+        <div style="display:grid;gap:.28rem;font-size:.58rem;color:var(--ink-2)">
+          <div><span class="muted">Status</span> · <b>In progress</b></div>
+          <div><span class="muted">Priority</span> · <b style="color:var(--crit)">High</b></div>
+          <div><span class="muted">Dept</span> · Roads</div>
+          <div><span class="muted">Ward</span> · 42</div>
+          <div><span class="muted">Assignee</span> · Officer Kiran</div>
+          <div><span class="muted">Reports</span> · 27 · <span class="muted">Followers</span> 41</div>
+          <div><span class="muted">SLA</span> · <b style="color:var(--amber)">3d left</b></div>
+        </div>
+        <div style="border-left:2px solid var(--violet);background:var(--violet-soft);padding:.35rem .45rem;margin-top:.5rem;font-size:.55rem;border-radius:0 5px 5px 0">
+          <b style="font-family:var(--mono);font-size:.45rem;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);display:block">AI trace</b>
+          Routed → Roads · 94%<br>Priority → High · 88%<br>Merged 3 duplicates
+        </div>
+        <div style="margin-top:.5rem;display:grid;gap:.25rem">
+          <div style="background:var(--ink);color:var(--paper);text-align:center;padding:.3rem;border-radius:5px;font-size:.58rem">Mark resolved</div>
+          <div style="border:1px solid var(--rule);text-align:center;padding:.3rem;border-radius:5px;font-size:.58rem">Reassign</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="scroll-hint">shown at desktop width — panes stack on mobile</p>
+
+  <div class="grid g2" style="margin-top:1.75rem">
+    <div>
+      <h3>The queue</h3>
+      <ul class="req">
+        <li><b>Views are saved filters</b> over a single table: My work, Unassigned, Overdue, Awaiting verification, Team, All. Officers can save their own.</li>
+        <li><b>Default sort:</b> SLA remaining ascending — what breaches first is on top. Not newest-first.</li>
+        <li><b>Row anatomy:</b> ID · title · status · priority · report count · assignee avatar · SLA countdown · last activity.</li>
+        <li><b>Bulk actions:</b> multi-select for assign, priority, status, and merge duplicates.</li>
+        <li><b>Overdue rows are unmissable</b> — negative SLA in critical red with a left edge marker.</li>
+        <li><b>Command palette (⌘K):</b> jump to ticket by ID, change status, assign, search.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>The ticket</h3>
+      <ul class="req">
+        <li><b>Properties rail:</b> status, priority, department, jurisdiction, assignee, SLA, report count, follower count, coordinates with a map link.</li>
+        <li><b>Tab: Reports</b> — all 27 citizen reports with photo, text/voice, exact location and time. The evidence base.</li>
+        <li><b>Tab: Discussion</b> — a single thread with a visibility toggle per message: <span class="pill p-gov">Public</span> (citizens see it) or <span class="pill p-neu">Internal</span> (department only). This toggle must be impossible to get wrong.</li>
+        <li><b>Tab: Evidence</b> — initial, progress and resolution media, each geotagged and timestamped.</li>
+        <li><b>Tab: Activity</b> — the immutable timeline: who did what, when, and which AI agent decided what with what confidence.</li>
+        <li><b>Resolution requires evidence.</b> Marking resolved is blocked until at least one resolution photo is attached.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div class="card">
+      <h4>Officers can create issues too</h4>
+      <p class="small">Officers report what they observe in the field, internal infrastructure faults, and problems belonging to another department. The same AI pipeline runs — classification, jurisdiction, routing, priority — so a cross-department hand-off is one action, not an email.</p>
+      <p class="small" style="margin-top:.4rem"><b>Extra fields officers get:</b> pre-set priority, internal-only flag, and direct assignment on creation.</p>
+    </div>
+    <div class="card">
+      <h4>Field mode — the mobile officer</h4>
+      <p class="small">The portal on a phone is not a shrunken table. It is a task list of today's assigned issues sorted by distance from the officer, with one-tap actions: acknowledge, start work, upload progress photo, mark resolved with photo.</p>
+      <p class="small" style="margin-top:.4rem"><b>Requirement:</b> resolution photos capture GPS and time, and the AI verifier compares them against the original report location and imagery.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">SLA policy</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Priority</th><th>Acknowledge</th><th>Resolve</th><th>Escalation on breach</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill" style="background:var(--crit-soft);color:var(--crit)">Critical</span></td><td>1 hour</td><td>24 hours</td><td>Immediate supervisor alert + admin dashboard flag</td></tr>
+        <tr><td><span class="pill p-open">High</span></td><td>4 hours</td><td>3 days</td><td>Supervisor alert at breach</td></tr>
+        <tr><td><span class="pill p-prog">Medium</span></td><td>1 day</td><td>7 days</td><td>Appears in Overdue view; weekly digest</td></tr>
+        <tr><td><span class="pill p-neu">Low</span></td><td>2 days</td><td>14 days</td><td>Overdue view only</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+  <div class="note warn" style="margin-top:1rem">
+    <b>Escalation is automatic, not requested</b>
+    SLA breaches escalate on a timer without anyone filing a complaint. Citizens see "overdue by 2 days" on the public issue page — the accountability is structural, not discretionary.
+  </div>
+</section>
+
+<!-- ============================ 11 ADMIN ============================ -->
+<section id="admin" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Admin dashboard</h2></div>
+  <p class="lede">For the platform operator. Answers three questions: is the ecosystem healthy, which department is failing, and is the AI trustworthy?</p>
+
+  <div class="grid g4" style="margin-top:1.5rem">
+    <div class="card"><span class="kicker">Overview</span><h4 style="margin-top:.4rem">Volume &amp; flow</h4><p class="small">Total issues, open, in progress, resolved, overdue. Trend lines over 7/30/90 days. New issues vs resolved issues per day — the crossover point is the health signal.</p></div>
+    <div class="card"><span class="kicker">Departments</span><h4 style="margin-top:.4rem">Performance</h4><p class="small">Per department: resolution rate, median time to acknowledge, median time to resolve, SLA compliance %, re-open rate, backlog age. Ranked, with movement vs last period.</p></div>
+    <div class="card"><span class="kicker">Geography</span><h4 style="margin-top:.4rem">Hotspot map</h4><p class="small">Choropleth by ward with density clustering. Critical hotspots, high activity, normal, resolved. Filter by department, category and time window. Click a ward to drill into its queue.</p></div>
+    <div class="card"><span class="kicker">AI</span><h4 style="margin-top:.4rem">Model quality</h4><p class="small">Classification accuracy, duplicate detection precision/recall, routing accuracy (measured by officer re-routes), verification agreement, and confidence distribution. Per-agent, over time.</p></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3>Operational sections</h3>
+      <ul class="req">
+        <li><b>Departments &amp; jurisdictions</b> — CRUD, category-to-department routing rules, ward boundaries, SLA overrides per department.</li>
+        <li><b>Officers</b> — onboarding, role assignment, jurisdiction and department mapping, deactivation, workload balance view.</li>
+        <li><b>Moderation queue</b> — flagged comments, flagged reports, suspected spam accounts, appeal requests.</li>
+        <li><b>AI override log</b> — every human correction of an AI decision, which becomes the evaluation set for the next model iteration.</li>
+        <li><b>Exports</b> — CSV/JSON per period and per department for RTI-style transparency and internal reporting.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Accountability rules</h3>
+      <ul class="req">
+        <li><b>Department performance is publishable.</b> A public statistics page per ward is a first-class feature, not an afterthought — resolution rates are the product's civic output.</li>
+        <li><b>No silent metric edits.</b> Admin cannot delete issues to improve numbers; only merge, reject with reason, or close. All are logged with the actor.</li>
+        <li><b>AI metrics are measured against human overrides</b>, not self-reported confidence. Confidence is a signal, accuracy is the truth.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 12 AI ============================ -->
+<section id="ai" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">12</span><h2>AI layer &amp; transparency</h2></div>
+  <p class="lede">The AI is the bridge between a citizen who doesn't know the bureaucracy and a bureaucracy that can't process fifty phone calls about one pothole. From a product standpoint, its job is to remove questions from the citizen and remove noise from the officer.</p>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <pre class="flow">          CITIZEN / OFFICER REPORT
+                     │
+        ┌────────────▼────────────┐
+        │  1. UNDERSTAND          │  transcribe voice,
+        │     classify            │  read image, extract
+        └────────────┬────────────┘  category + severity
+                     ▼
+        ┌─────────────────────────┐
+        │  2. LOCATE              │  GPS → ward polygon
+        └────────────┬────────────┘  → jurisdiction
+                     ▼
+        ┌─────────────────────────┐
+        │  3. DEDUPLICATE         │  same category +
+        └────────────┬────────────┘  within radius +
+             ┌───────┴───────┐       semantic match
+          MATCH           NO MATCH
+             │               │
+      attach Report    create Issue
+             └───────┬───────┘
+                     ▼
+        ┌─────────────────────────┐
+        │  4. ROUTE               │  category × jurisdiction
+        └────────────┬────────────┘  → department
+                     ▼
+        ┌─────────────────────────┐
+        │  5. PRIORITISE          │  severity, reports,
+        └────────────┬────────────┘  location criticality
+                     ▼
+        ┌─────────────────────────┐
+        │  6. ASSIGN              │  officer by dept,
+        └────────────┬────────────┘  ward, workload
+                     ▼
+              GOVERNMENT WORK
+                     ▼
+        ┌─────────────────────────┐
+        │  7. VERIFY              │  before/after images,
+        └────────────┬────────────┘  geo + time check,
+                     ▼               citizen confirmation
+                  CLOSED</pre>
+    </div>
+    <div>
+      <h3>Agent responsibilities</h3>
+      <div class="tw">
+        <table style="min-width:440px">
+          <thead><tr><th>Agent</th><th>Decides</th><th>Auto-applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Classifier</td><td>category, subcategory, severity</td><td>conf ≥ 0.80</td></tr>
+            <tr><td>Locator</td><td>ward / jurisdiction</td><td>GPS inside a polygon</td></tr>
+            <tr><td>Duplicate detector</td><td>attach vs create</td><td>conf ≥ 0.85</td></tr>
+            <tr><td>Router</td><td>department</td><td>conf ≥ 0.85</td></tr>
+            <tr><td>Prioritiser</td><td>priority</td><td>always (officer may override)</td></tr>
+            <tr><td>Assigner</td><td>officer</td><td>exactly one eligible officer</td></tr>
+            <tr><td>Verifier</td><td>resolution passed / failed</td><td>never — always advisory</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 style="margin-top:1.5rem">Transparency requirements</h3>
+      <ul class="req">
+        <li><b>Every AI decision is logged</b> with input, output, confidence, model and latency, and is visible in the ticket's AI trace.</li>
+        <li><b>Confidence is shown, not hidden</b> — "Routed to Roads · 94%" on the officer's ticket, and in plain language on the citizen's confirmation.</li>
+        <li><b>Below threshold → human queue.</b> Low confidence never fails silently; it lands in an "AI unsure" triage view for a supervisor.</li>
+        <li><b>One-tap override everywhere.</b> Officers change department, category or priority in one action; every override is recorded as training signal.</li>
+        <li><b>The AI never closes an issue.</b> The verifier produces a recommendation; a human confirms. Auto-closing is the fastest way to lose citizen trust permanently.</li>
+        <li><b>Citizens can dispute a decision</b> — "This isn't a Roads problem" — which flags the issue for re-routing.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Failure modes to design for</h3>
+  <div class="grid g3" style="margin-top:.75rem">
+    <div class="card"><h4>False merge</h4><p class="small">Two distinct potholes 40 m apart merged into one. Officer fixes one and closes both. <b>Mitigation:</b> officer-facing "split issue" action, and merges within 100 m require the officer's confirmation before the citizen sees "joined".</p></div>
+    <div class="card"><h4>Mis-routing</h4><p class="small">A drainage issue sent to Roads. <b>Mitigation:</b> one-tap "not my department" with a suggested destination; re-routing resets the SLA clock and is logged against routing accuracy.</p></div>
+    <div class="card"><h4>Bad transcription</h4><p class="small">Dialect or noise produces nonsense. <b>Mitigation:</b> show the transcript back to the user before submit with an edit affordance, and always keep the original audio attached as evidence.</p></div>
+  </div>
+</section>
+
+<!-- ============================ 13 RESPONSIVE ============================ -->
+<section id="responsive" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">13</span><h2>Responsive &amp; device strategy</h2></div>
+  <p class="lede">Mobile is not a smaller desktop; it is the primary product for citizens. Desktop is the primary product for government. Both must work on both.</p>
+
+  <div class="tw" style="margin-top:1.5rem">
+    <table>
+      <thead><tr><th>Breakpoint</th><th>Citizen app</th><th>Government portal</th><th>Admin</th></tr></thead>
+      <tbody>
+        <tr><td><code>320–479</code><br><span class="muted small">small phone</span></td><td>Single column. Bottom tab bar + FAB. Cards edge-to-edge with 16 px gutters. Filters as a bottom sheet.</td><td>Field mode: task list only, sorted by distance. Full ticket via push navigation.</td><td>Read-only KPI cards stacked; charts scroll horizontally.</td></tr>
+        <tr><td><code>480–767</code><br><span class="muted small">large phone</span></td><td>Same as above, wider media, 2-up photo gallery.</td><td>Same as above with a compact properties sheet.</td><td>Same, 2-up KPI grid.</td></tr>
+        <tr><td><code>768–1023</code><br><span class="muted small">tablet</span></td><td>2-column feed grid. Tab bar becomes a top nav. FAB persists.</td><td>Two panes: queue + detail. Sidebar collapses to icons.</td><td>2-column dashboard; map at half width.</td></tr>
+        <tr><td><code>1024–1439</code><br><span class="muted small">laptop</span></td><td>Centred 720 px feed with a left rail for filters and a right rail for nearby stats.</td><td>Full three-pane: sidebar + queue + detail. Keyboard shortcuts active.</td><td>Full grid: KPIs, trends, department table, map.</td></tr>
+        <tr><td><code>1440+</code><br><span class="muted small">desktop</span></td><td>Max content width 1180 px. No infinite stretching.</td><td>Three panes with a wider detail pane; optional split view for two tickets.</td><td>Four-column KPI row; map and table side by side.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <div class="grid g3" style="margin-top:1.5rem">
+    <div class="card">
+      <h4>Touch rules</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Minimum target 44 × 44 px, 8 px apart</li>
+        <li>Primary actions in the bottom third of the screen</li>
+        <li>Destructive actions never adjacent to primary ones</li>
+        <li>Swipe: back gesture on detail views, unfollow on list rows</li>
+        <li>Safe-area insets respected for notches and home bars</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Performance budgets</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>First contentful paint &lt; 1.8 s on 3G</li>
+        <li>Feed interactive &lt; 2.5 s; JS bundle &lt; 200 KB gz</li>
+        <li>Feed images lazy, blurhash placeholder, AVIF/WebP</li>
+        <li>Infinite scroll paginates 10 cards at a time</li>
+        <li>Skeletons, never spinners, for list loads</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>PWA &amp; offline</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Installable; launches to the feed</li>
+        <li>Last feed page cached and readable offline</li>
+        <li>Report drafts and media queue locally, retry on reconnect</li>
+        <li>Push notifications for status changes</li>
+        <li>Clear offline banner; no silent failures</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 14 DESIGN SYSTEM ============================ -->
+<section id="system" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">14</span><h2>Design system</h2></div>
+
+  <div class="grid g2">
+    <div>
+      <h3>Semantic colour</h3>
+      <p class="small muted">Status colour is a semantic token, never a decorative choice. The same colour means the same thing on every surface, including the map and the charts.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem">
+        <span class="pill" style="background:var(--crit-soft);color:var(--crit)">Critical</span>
+        <span class="pill p-open">Open / High</span>
+        <span class="pill p-prog">In progress</span>
+        <span class="pill p-ai">AI / verifying</span>
+        <span class="pill p-done">Resolved</span>
+        <span class="pill p-gov">Official</span>
+        <span class="pill p-neu">Neutral / closed</span>
+      </div>
+      <ul class="req" style="margin-top:1rem">
+        <li><b>Never colour alone.</b> Every status carries a text label and, in dense views, an icon — colour-blind users must lose nothing.</li>
+        <li><b>Contrast ≥ 4.5:1</b> for all text; ≥ 3:1 for UI boundaries and graphics.</li>
+        <li><b>Full dark mode</b> follows the OS preference. Government officers work night shifts; the portal is where it matters most.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Type &amp; spacing</h3>
+      <ul class="req">
+        <li><b>Display / headings:</b> a high-contrast serif for titles and numbers — civic documents should feel like documents, not dashboards.</li>
+        <li><b>Body / UI:</b> a humanist sans with strong Indic-script support (Devanagari, Kannada, Telugu) at the same optical size.</li>
+        <li><b>Mono:</b> for IDs, timestamps, coordinates, confidence values and labels. Every <code>CIV-#####</code> is monospaced everywhere.</li>
+        <li><b>Scale:</b> 12 / 14 / 16 / 18 / 22 / 28 / 36 / 48. Body never below 14 px on mobile.</li>
+        <li><b>Spacing:</b> 4 px base — 4, 8, 12, 16, 24, 32, 48, 64.</li>
+        <li><b>Radius:</b> 6 px cards, 8 px inputs, 999 px pills. <b>Elevation:</b> three levels only.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Component inventory</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Component</th><th>Used in</th><th>Key states</th></tr></thead>
+      <tbody>
+        <tr><td>IssueCard</td><td>Feed, My Issues, search</td><td>default · following · resolved · own report · skeleton</td></tr>
+        <tr><td>StatusPill / PriorityPill</td><td>Everywhere</td><td>7 statuses × 4 priorities, light + dark</td></tr>
+        <tr><td>StatusLadder</td><td>Issue page, ticket</td><td>done · current · pending · breached · reopened</td></tr>
+        <tr><td>CrowdCounter</td><td>Card, issue page</td><td>static · growing (+6 today) · you-are-included</td></tr>
+        <tr><td>FilterChipRow</td><td>Feed</td><td>active · inactive · overflow scroll · clear-all</td></tr>
+        <tr><td>MediaGallery</td><td>Issue page, ticket</td><td>loading · single · multi-swipe · before/after compare · failed</td></tr>
+        <tr><td>CommentThread</td><td>Issue page, ticket</td><td>citizen · official · internal-only · flagged · posting · failed</td></tr>
+        <tr><td>AITraceCard</td><td>Confirmation, ticket</td><td>high confidence · low confidence · overridden by human</td></tr>
+        <tr><td>QueueRow</td><td>Government portal</td><td>default · selected · overdue · unassigned · bulk-selected</td></tr>
+        <tr><td>PropertyRail</td><td>Ticket</td><td>editable · read-only (wrong department) · saving</td></tr>
+        <tr><td>MapView</td><td>Feed, issue, gov, admin</td><td>clustered · single pin · heat · ward boundary · no-location</td></tr>
+        <tr><td>CaptureSheet</td><td>Report flow</td><td>idle · recording · uploading · queued offline · error</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <div class="note" style="margin-top:1rem">
+    <b>Motion</b>
+    Purposeful only. 150–250 ms, ease-out. Three sanctioned moments: the crowd counter ticking up when you tap "I'm facing this too", the status ladder advancing when a status changes, and staggered card entry on feed load. Everything else is instant. All motion respects <code>prefers-reduced-motion</code>.
+  </div>
+</section>
+
+<!-- ============================ 15 STATES ============================ -->
+<section id="states" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">15</span><h2>States, errors &amp; edge cases</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Situation</th><th>What the user sees</th><th>Recovery</th></tr></thead>
+      <tbody>
+        <tr><td>Location permission denied</td><td>Feed falls back to the user's saved home ward, with a persistent banner explaining what is missing</td><td>"Set my area" manual picker; permission re-prompt in context</td></tr>
+        <tr><td>No issues nearby</td><td>"Quiet around here. Nothing reported within 5 km." with an expand-radius button and a report CTA</td><td>One tap to 10 km</td></tr>
+        <tr><td>Offline</td><td>Cached feed with a "Showing saved issues" bar; report button still works and queues</td><td>Auto-sync on reconnect with a success toast</td></tr>
+        <tr><td>Upload failed</td><td>Card in My Issues marked "Not sent — tap to retry"; media preserved locally</td><td>Manual retry; auto-retry with backoff 3×</td></tr>
+        <tr><td>AI low confidence</td><td>Issue is created and shown as "Being routed"; no fake certainty</td><td>Supervisor triage queue resolves it within SLA</td></tr>
+        <tr><td>Duplicate uncertain (0.6–0.85)</td><td>"This may be the same as CIV-10234 — is it?" with photo comparison</td><td>User chooses join or create new</td></tr>
+        <tr><td>Issue rejected by officer</td><td>Notification with the mandatory reason text, shown on the public page</td><td>One appeal, routed to a supervisor</td></tr>
+        <tr><td>Resolved but not actually fixed</td><td>"Reopen" available for 14 days to anyone who reported it</td><td>3 reopen signals auto-reopen and flag the officer's closure</td></tr>
+        <tr><td>Emergency detected</td><td>Full-screen interstitial: "This may need emergency services" with a call-112 button</td><td>User may continue reporting after dismissing</td></tr>
+        <tr><td>Rate limit hit</td><td>"You've reported a lot today — take a break" with the reset time</td><td>Limit lifts automatically; verified users get higher limits</td></tr>
+        <tr><td>Logged out user taps an action</td><td>Bottom sheet sign-in via phone OTP; returns to exactly where they were with the action completed</td><td>No lost intent, ever</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+</section>
+
+<!-- ============================ 16 DATA MODEL ============================ -->
+<section id="data" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">16</span><h2>Data model</h2></div>
+  <p class="lede">Product-level entity definitions. Field types, indexes and constraints belong in the technical design document.</p>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div class="card">
+      <h4><code>users</code></h4>
+      <p class="small mono">id · name · email · phone · role · profile_image · home_jurisdiction_id · language · is_verified · created_at · updated_at</p>
+      <p class="small" style="margin-top:.4rem">Roles: <code>CITIZEN</code> · <code>OFFICER</code> · <code>SUPERVISOR</code> · <code>ADMIN</code>. Phone is the identity anchor; email is optional.</p>
+    </div>
+    <div class="card">
+      <h4><code>departments</code></h4>
+      <p class="small mono">id · name · slug · description · contact · sla_overrides · created_at</p>
+      <p class="small" style="margin-top:.4rem">Roads, Sanitation, Water, Electricity, Transport, Public Safety, Health, Education.</p>
+    </div>
+    <div class="card">
+      <h4><code>government_officers</code></h4>
+      <p class="small mono">id · user_id · department_id · jurisdiction_id · designation · is_active · max_workload · created_at</p>
+      <p class="small" style="margin-top:.4rem">One user may hold multiple officer records across departments or wards.</p>
+    </div>
+    <div class="card">
+      <h4><code>jurisdictions</code></h4>
+      <p class="small mono">id · name · type · parent_id · geometry · created_at</p>
+      <p class="small" style="margin-top:.4rem">Self-referencing hierarchy: State → City → Zone → Ward. <code>geometry</code> holds polygon boundaries for point-in-polygon routing.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--signal)">
+      <h4><code>issues</code> — the core table</h4>
+      <p class="small mono">id · public_id · title · description · category · subcategory · latitude · longitude · address · cluster_radius_m · severity · priority · status · department_id · jurisdiction_id · assigned_officer_id · report_count · follower_count · sla_due_at · created_by · created_at · updated_at · resolved_at · closed_at · merged_into_id · rejection_reason</p>
+      <p class="small" style="margin-top:.4rem"><code>public_id</code> is the human-facing <code>CIV-#####</code> used in every URL, share and conversation.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--signal)">
+      <h4><code>reports</code> — individual experiences</h4>
+      <p class="small mono">id · issue_id · user_id · description · transcript · audio_url · media_url · media_type · latitude · longitude · is_anonymous · source · created_at</p>
+      <p class="small" style="margin-top:.4rem"><code>source</code>: <code>CITIZEN_APP</code> · <code>OFFICER</code> · <code>IMPORT</code>. Many reports per issue; never merged into the issue row.</p>
+    </div>
+    <div class="card">
+      <h4><code>issue_followers</code></h4>
+      <p class="small mono">issue_id · user_id · created_at</p>
+      <p class="small" style="margin-top:.4rem">Follow without reporting. Drives the notification fan-out.</p>
+    </div>
+    <div class="card">
+      <h4><code>comments</code></h4>
+      <p class="small mono">id · issue_id · user_id · parent_id · content · visibility · is_official · flag_count · created_at · updated_at</p>
+      <p class="small" style="margin-top:.4rem"><code>visibility</code>: <code>PUBLIC</code> · <code>INTERNAL</code>. Internal comments are invisible to citizens by hard rule at the query layer.</p>
+    </div>
+    <div class="card">
+      <h4><code>issue_reactions</code></h4>
+      <p class="small mono">id · issue_id · user_id · reaction_type · created_at</p>
+      <p class="small" style="margin-top:.4rem">MVP has one type: <code>SUPPORT</code> → "27 people are facing this".</p>
+    </div>
+    <div class="card">
+      <h4><code>issue_history</code></h4>
+      <p class="small mono">id · issue_id · actor_id · actor_type · action · old_value · new_value · metadata · created_at</p>
+      <p class="small" style="margin-top:.4rem">Append-only. Powers the citizen status ladder and the officer activity tab. Never deleted, never edited.</p>
+    </div>
+    <div class="card">
+      <h4><code>issue_evidence</code></h4>
+      <p class="small mono">id · issue_id · uploaded_by · type · media_url · latitude · longitude · captured_at · created_at</p>
+      <p class="small" style="margin-top:.4rem">Types: <code>INITIAL_REPORT</code> · <code>PROGRESS</code> · <code>RESOLUTION</code>. Before/after comparison is built on this.</p>
+    </div>
+    <div class="card">
+      <h4><code>agent_runs</code></h4>
+      <p class="small mono">id · issue_id · report_id · agent_name · input · output · confidence · model · latency_ms · status · was_overridden · created_at</p>
+      <p class="small" style="margin-top:.4rem">The AI audit trail. Powers the AI trace UI, the admin quality metrics, and the demo.</p>
+    </div>
+    <div class="card">
+      <h4><code>notifications</code></h4>
+      <p class="small mono">id · user_id · issue_id · type · title · body · channel · is_read · sent_at · created_at</p>
+    </div>
+    <div class="card">
+      <h4><code>flags</code></h4>
+      <p class="small mono">id · target_type · target_id · reporter_id · reason · status · resolved_by · created_at</p>
+      <p class="small" style="margin-top:.4rem">Targets: comment, report, issue, user. Feeds the moderation queue.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 17 ROLES / NOTIFICATIONS ============================ -->
+<section id="roles" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">17</span><h2>Roles, permissions &amp; notifications</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Capability</th><th>Anon</th><th>Citizen</th><th>Officer</th><th>Supervisor</th><th>Admin</th></tr></thead>
+      <tbody>
+        <tr><td>View feed &amp; public issue pages</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Report / support / follow / comment</td><td>—</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Reopen an issue they reported</td><td>—</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Change status of assigned issues</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Post official / internal replies</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Override AI department / category / priority</td><td>—</td><td>—</td><td>✓ own dept</td><td>✓ own zone</td><td>✓ all</td></tr>
+        <tr><td>Assign / reassign within department</td><td>—</td><td>—</td><td>✓ self-claim</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Merge / split issues</td><td>—</td><td>—</td><td>✓ own dept</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Reject with reason</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Cross-department reassignment</td><td>—</td><td>—</td><td>propose</td><td>✓</td><td>✓</td></tr>
+        <tr><td>View department dashboards</td><td>—</td><td>public stats</td><td>own dept</td><td>own zone</td><td>✓ all</td></tr>
+        <tr><td>Manage officers, departments, jurisdictions</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td></tr>
+        <tr><td>Moderation queue &amp; appeals</td><td>—</td><td>flag only</td><td>flag only</td><td>✓</td><td>✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <h3 style="margin-top:2rem">Notification matrix</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Event</th><th>Reporters</th><th>Followers</th><th>Assigned officer</th><th>Supervisor</th></tr></thead>
+      <tbody>
+        <tr><td>Report joined an existing issue</td><td>push</td><td>digest</td><td>in-app badge</td><td>—</td></tr>
+        <tr><td>Issue assigned to an officer</td><td>push</td><td>push</td><td>push</td><td>—</td></tr>
+        <tr><td>Status → In progress</td><td>push</td><td>push</td><td>—</td><td>—</td></tr>
+        <tr><td>Official reply posted</td><td>push</td><td>push</td><td>—</td><td>—</td></tr>
+        <tr><td>Issue resolved</td><td>push + confirm prompt</td><td>push</td><td>—</td><td>digest</td></tr>
+        <tr><td>Issue reopened</td><td>push</td><td>push</td><td>push</td><td>push</td></tr>
+        <tr><td>SLA breached</td><td>—</td><td>—</td><td>push</td><td>push</td></tr>
+        <tr><td>New critical issue nearby</td><td>—</td><td>opt-in push</td><td>push</td><td>—</td></tr>
+        <tr><td>Issue rejected</td><td>push + reason</td><td>in-app</td><td>—</td><td>digest</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+  <ul class="req" style="margin-top:1rem">
+    <li><b>Bundling:</b> never more than 3 pushes per user per day for a single issue; the rest collapse into a daily digest.</li>
+    <li><b>Per-type control:</b> the user can mute any category of notification without muting status changes on their own reports.</li>
+    <li><b>Channels:</b> push (PWA) → in-app → SMS fallback for critical status changes only, since SMS costs money and annoys.</li>
+  </ul>
+</section>
+
+<!-- ============================ 18 NFR ============================ -->
+<section id="nfr" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">18</span><h2>Non-functional requirements</h2></div>
+
+  <div class="grid g3">
+    <div class="card"><h4>Performance</h4><ul class="req" style="margin-top:.5rem">
+      <li>Feed API p95 &lt; 400 ms</li>
+      <li>Report submit acknowledged &lt; 1 s (media async)</li>
+      <li>AI pipeline completes &lt; 10 s p95; the user never waits on it</li>
+      <li>Issue page TTI &lt; 2 s on 3G</li>
+    </ul></div>
+    <div class="card"><h4>Accessibility — WCAG 2.1 AA</h4><ul class="req" style="margin-top:.5rem">
+      <li>Full keyboard operation of the government portal</li>
+      <li>Screen-reader labels on every status, pill and count</li>
+      <li>Status never conveyed by colour alone</li>
+      <li>Text scaling to 200% without loss of function</li>
+      <li>Voice input is itself an accessibility feature for low-literacy users</li>
+    </ul></div>
+    <div class="card"><h4>Localisation</h4><ul class="req" style="margin-top:.5rem">
+      <li>UI in English, Hindi, Kannada, Telugu at launch</li>
+      <li>Voice reports accepted in all four; transcripts stored in the original language</li>
+      <li>Officer-facing text may stay English; citizen-facing text never assumes it</li>
+      <li>No text baked into images</li>
+    </ul></div>
+    <div class="card"><h4>Privacy</h4><ul class="req" style="margin-top:.5rem">
+      <li>Exact GPS is stored but the public page shows an approximate pin for home-adjacent reports</li>
+      <li>EXIF stripped from stored media</li>
+      <li>Pseudonymous display names supported; identity always known internally</li>
+      <li>Export-my-data and delete-account; deletion anonymises reports rather than destroying the civic record</li>
+    </ul></div>
+    <div class="card"><h4>Security</h4><ul class="req" style="margin-top:.5rem">
+      <li>Phone OTP for citizens; SSO or invite + MFA for officers</li>
+      <li>Role and jurisdiction enforced server-side on every query, never in the client</li>
+      <li>Signed, expiring media URLs</li>
+      <li>Full audit log for every government action</li>
+    </ul></div>
+    <div class="card"><h4>Reliability</h4><ul class="req" style="margin-top:.5rem">
+      <li>Report ingestion must survive AI outages — queue and process later, issue is created regardless</li>
+      <li>Degraded mode: if the AI is down, issues land in the unrouted triage queue</li>
+      <li>No data loss on submit; client-side durable queue</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============================ 19 TRUST ============================ -->
+<section id="trust" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">19</span><h2>Trust, safety &amp; moderation</h2></div>
+  <p class="lede">A public civic feed is a target for spam, harassment, political brigading and coordinated false reporting. These are product requirements, not policy afterthoughts.</p>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <ul class="req">
+        <li><b>Verified phone required to post.</b> One account per number; rate-limited OTP.</li>
+        <li><b>Rate limits:</b> 10 reports / user / day, 5 comments / issue / hour, 1 support per issue.</li>
+        <li><b>Location plausibility.</b> Reports far from the user's GPS trail are down-weighted in the crowd count until confirmed.</li>
+        <li><b>No naming individuals.</b> Guidelines prohibit reports targeting a private person; flagged content is hidden pending review.</li>
+        <li><b>No political content.</b> The classifier detects and routes off-topic submissions to rejection with an explanation.</li>
+        <li><b>Officers are shielded.</b> Officer identity on the public page is a designation and a name, never a personal contact.</li>
+      </ul>
+    </div>
+    <div>
+      <ul class="req">
+        <li><b>Flag → auto-hide at 3 flags → human review.</b> Reviewed within 24 h; the flagger and the author both receive the outcome.</li>
+        <li><b>Appeals exist.</b> One appeal per rejection or removal, reviewed by a different person.</li>
+        <li><b>Coordinated inauthentic reporting</b> — detected via burst patterns from similar devices or accounts; the crowd count is frozen pending review, and the issue is not deleted.</li>
+        <li><b>Transparency:</b> the number of removed items per period is published on the public statistics page.</li>
+      </ul>
+      <div class="note warn" style="margin-top:1rem">
+        <b>The gaming risk to design against</b>
+        If report count drives priority, report count will be gamed. Mitigation: log-scale the count, require distinct verified accounts, weight by location plausibility, and cap any single issue's crowd contribution to the priority score.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 20 METRICS ============================ -->
+<section id="metrics" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">20</span><h2>Success metrics</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Layer</th><th>Metric</th><th>Why it matters</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3"><b>North star</b></td><td>Verified issues resolved per 1,000 residents / month</td><td>The only number that means the product worked in the real world</td><td>Grow month over month</td></tr>
+        <tr><td>Median time to resolve</td><td>The citizen's actual experience of government</td><td>↓ 30% in 6 months</td></tr>
+        <tr><td>Re-open rate</td><td>Detects closure without a real fix</td><td>&lt; 10%</td></tr>
+        <tr><td rowspan="3"><b>Citizen</b></td><td>Report completion rate (started → submitted)</td><td>Measures friction in the capture flow</td><td>&gt; 85%</td></tr>
+        <tr><td>Reports per issue (clustering ratio)</td><td>Proves the crowd mechanic is working</td><td>&gt; 3.0 in active wards</td></tr>
+        <tr><td>D30 return rate of reporters</td><td>Did we deliver visible value?</td><td>&gt; 35%</td></tr>
+        <tr><td rowspan="3"><b>Government</b></td><td>SLA compliance %</td><td>The operational contract</td><td>&gt; 80%</td></tr>
+        <tr><td>Median time to acknowledge</td><td>How fast a citizen sees a human respond</td><td>&lt; 4 h for High</td></tr>
+        <tr><td>Weekly active officers / assigned officers</td><td>Portal adoption — if this is low, nothing else matters</td><td>&gt; 70%</td></tr>
+        <tr><td rowspan="3"><b>AI</b></td><td>Routing accuracy (1 − officer re-route rate)</td><td>Wrong routing destroys officer trust immediately</td><td>&gt; 90%</td></tr>
+        <tr><td>Duplicate detection precision</td><td>False merges are the most damaging AI error</td><td>&gt; 95% precision</td></tr>
+        <tr><td>Human override rate per agent</td><td>The honest measure of AI usefulness</td><td>Declining over time</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+</section>
+
+<!-- ============================ 21 SCOPE ============================ -->
+<section id="scope" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">21</span><h2>Scope: MVP → V1 → later</h2></div>
+
+  <div class="grid g3">
+    <div class="card" style="border-left:3px solid var(--signal)">
+      <span class="kicker">Phase 0 · Demo / hackathon</span>
+      <h4 style="margin-top:.4rem">The three-minute story</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Feed with distance + status filters, ranked by the scoring formula</li>
+        <li>Report flow with photo + text (voice if time allows)</li>
+        <li>AI: classify → locate → deduplicate → route → prioritise, with visible confidence</li>
+        <li>Public issue page with crowd count, ladder, discussion and "I'm facing this too"</li>
+        <li>Officer queue + ticket with status change and one official reply</li>
+        <li>The demo moment: a second report visibly joins an existing issue and the count ticks 26 → 27</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="kicker">Phase 1 · V1</span>
+      <h4 style="margin-top:.4rem">Real deployment in one ward</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Phone OTP auth, roles, jurisdiction enforcement</li>
+        <li>Voice reporting in 4 languages</li>
+        <li>SLA engine, escalation, overdue views</li>
+        <li>Resolution evidence + AI verification + citizen confirmation</li>
+        <li>Notifications (push + digest), reopen flow</li>
+        <li>Officer field mode, admin dashboard, moderation queue</li>
+        <li>PWA install, offline queue</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="kicker">Phase 2+ · Later</span>
+      <h4 style="margin-top:.4rem">Scale &amp; depth</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Learned feed ranking replacing the formula</li>
+        <li>Ward-level public transparency pages &amp; open data API</li>
+        <li>Predictive maintenance from recurrence patterns</li>
+        <li>Contractor / field-crew accounts with work orders</li>
+        <li>WhatsApp reporting channel</li>
+        <li>Native apps if PWA push proves insufficient</li>
+        <li>Multi-city tenancy</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:1.5rem">
+    <b>Cut-first list</b>
+    If time runs out, cut in this order: video capture, follower digests, admin AI charts, map view, bulk actions, comment threading. Never cut: the crowd count, the AI trace, the status ladder, or the notification on status change. Those four are the product.
+  </div>
+</section>
+
+<!-- ============================ 22 RISKS ============================ -->
+<section id="risks" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">22</span><h2>Open questions &amp; risks</h2></div>
+
+  <div class="grid g2">
+    <div>
+      <h3>Open questions</h3>
+      <ul class="req">
+        <li><b>Who owns an issue that spans two departments?</b> Proposal: a single owning department plus a "supporting department" field, never dual ownership.</li>
+        <li><b>Do we show officer names publicly?</b> Accountability argues yes; officer safety argues designation-only. Proposal: name + designation, no contact details, configurable per city.</li>
+        <li><b>What is the cluster radius per category?</b> A pothole is 30 m; a water supply outage is a whole street. Needs a per-category table.</li>
+        <li><b>Can citizens see internal comments after closure?</b> Proposal: no, but the activity timeline is always public.</li>
+        <li><b>Is the feed city-wide or ward-scoped by default?</b> Proposal: distance-based with a ward toggle.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Risks</h3>
+      <ul class="req">
+        <li><b>Government non-adoption</b> — the highest risk by far. A public feed with no officers responding is worse than nothing. Mitigation: launch in one ward with a committed department, and never make the public feed live before officers are onboarded.</li>
+        <li><b>False merges eroding trust</b> — see §12. Officer split action is not optional.</li>
+        <li><b>The empty-feed cold start</b> — a feed with 3 issues looks dead. Mitigation: seed with historical municipal data where available; launch geographically narrow so density is high.</li>
+        <li><b>Public visibility as a disincentive</b> — officers may reject or under-report to protect metrics. Mitigation: rejections require a reason and are public; rejection rate is itself a tracked metric.</li>
+        <li><b>Media storage cost</b> — 27 photos per issue at scale. Mitigation: aggressive compression, lifecycle policies, thumbnail-first delivery.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="logo" style="margin-bottom:.5rem"><span class="dot"></span>SWARAM</div>
+      <p class="small" style="max-width:52ch">Product Requirements Document v1.0 — the definition of what we are building and why. The companion Technical Design Document covers services, schemas, APIs, model choices and deployment.</p>
+    </div>
+    <div class="small mono" style="text-align:left">
+      15 Aug 2026<br>
+      Next: <span style="color:var(--signal)">technical-design.html</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// TOC drawer
+(function(){
+  var btn=document.getElementById('tocBtn'), toc=document.getElementById('toc');
+  function close(){toc.removeAttribute('open-drawer');btn.setAttribute('aria-expanded','false');}
+  btn.addEventListener('click',function(){
+    var open=toc.hasAttribute('open-drawer');
+    if(open){close();}else{toc.setAttribute('open-drawer','');btn.setAttribute('aria-expanded','true');}
+  });
+  toc.addEventListener('click',function(e){ if(e.target===toc||e.target.closest('a')) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
+})();
+
+// Scroll reveal
+(function(){
+  if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
+    return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
+  },{rootMargin:'0px 0px -8% 0px',threshold:.04});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
+</script>
+</body>
+</html>
