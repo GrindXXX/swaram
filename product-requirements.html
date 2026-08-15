@@ -1821,7 +1821,8 @@ promotion triggers (any two, plus officer or supervisor confirmation):
   <div class="grid g2" style="margin-top:1.5rem">
     <div class="card">
       <h4><code>users</code></h4>
-      <p class="small mono">id · name · email · phone · role · profile_image · home_jurisdiction_id · language · is_verified · created_at · updated_at</p>
+      <p class="small mono">id · name · display_name · email · phone · role · profile_image · home_jurisdiction_id · language · phone_verified_at · identity_tier · verification_ref · created_at · updated_at</p>
+      <p class="small" style="margin-top:.4rem"><code>identity_tier</code>: <code>PHONE</code> (default, sufficient) · <code>ENHANCED</code> (optional consent-based eKYC). <code>verification_ref</code> is an opaque token — <b>never an Aadhaar number</b>.</p>
       <p class="small" style="margin-top:.4rem">Roles: <code>CITIZEN</code> · <code>OFFICER</code> · <code>SUPERVISOR</code> · <code>CONTRACTOR</code> · <code>REPRESENTATIVE</code> · <code>ADMIN</code>. Phone is the identity anchor; email is optional. This is the account-level role — <em>per-issue</em> roles live in <code>issue_participants</code>, so an officer can own one issue and merely observe another.</p>
     </div>
     <div class="card">
@@ -1831,7 +1832,7 @@ promotion triggers (any two, plus officer or supervisor confirmation):
     </div>
     <div class="card">
       <h4><code>government_officers</code></h4>
-      <p class="small mono">id · user_id · department_id · jurisdiction_id · designation · is_active · max_workload · created_at</p>
+      <p class="small mono">id · user_id · department_id · jurisdiction_id · designation · employee_ref · invited_by · invitation_accepted_at · last_attested_at · is_active · max_workload · created_at</p>
       <p class="small" style="margin-top:.4rem">One user may hold multiple officer records across departments or wards.</p>
     </div>
     <div class="card">
@@ -1941,6 +1942,53 @@ promotion triggers (any two, plus officer or supervisor confirmation):
   </div>
   <p class="scroll-hint">← scroll table →</p>
 
+  <h3 style="margin-top:2rem">Identity &amp; verification — how we know who someone is</h3>
+  <p class="lede" style="font-size:1rem">Two different questions get conflated constantly, and answering the wrong one creates a security hole: <b>"is this a real person?"</b> and <b>"does this person hold this office?"</b> The first is identity. The second is authorisation, and it can only come from the employer.</p>
+
+  <div class="note warn" style="margin-top:1.25rem">
+    <b>Aadhaar cannot tell us someone is a government official</b>
+    Aadhaar holds name, date of birth, gender, address and biometrics. It carries <b>no employment, department or designation data</b>, and no API returns any. Aadhaar eKYC can confirm that Kiran is really Kiran; it can never confirm that Kiran works for the Roads Department in Ward 42. Any design that infers officer status from an Aadhaar-linked phone number is inferring a fact that does not exist in the source.
+  </div>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <h4>Citizens — phone is sufficient</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Phone OTP is the anchor.</b> Indian SIMs are already KYC'd at issuance, so a verified number is a traceable real identity. This gives us one-account-per-person and abuse traceability <em>without touching Aadhaar at all</em>.</li>
+        <li><b>One account per number</b>, rate-limited OTP, device fingerprinting for burst detection.</li>
+        <li><b>Optional enhanced verification</b> for a higher-trust tier (raised rate limits, eligibility for verification quorums) via user-initiated DigiLocker or offline Aadhaar QR — <b>consent-based, always optional, never required to report.</b></li>
+        <li><b>We do not store Aadhaar numbers.</b> If enhanced verification is implemented, we store a verification flag and a reference token — never the number itself. The liability of an Aadhaar database vastly outweighs the product benefit.</li>
+        <li><b>Legal review is a prerequisite</b>, not a formality. Private-entity Aadhaar authentication is constrained by the 2018 Supreme Court judgment and subsequent framework, and the DPDP Act governs anything we retain. This must be signed off by counsel before a line of it is built.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Officers — the employer vouches, nobody self-declares</h4>
+      <div class="tw">
+        <table style="min-width:420px">
+          <thead><tr><th>Signal</th><th>What it proves</th><th>Weight</th></tr></thead>
+          <tbody>
+            <tr><td><b>Department invitation</b></td><td>Works here, this role, this jurisdiction</td><td><b>Source of truth</b></td></tr>
+            <tr><td>Government email domain</td><td>Affiliation with a body</td><td>Strong — but not role or ward</td></tr>
+            <tr><td>Employee ID vs. roster</td><td>Identity within the department</td><td>Strong where a roster exists</td></tr>
+            <tr><td>Phone OTP + MFA</td><td>Control of the account</td><td>Necessary, not sufficient</td></tr>
+            <tr><td>Aadhaar eKYC</td><td>Legal name only</td><td><span class="muted">Answers a different question</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="req" style="margin-top:.75rem">
+        <li><b>Officer accounts are created by invitation</b> from an authenticated department admin, who sets department, jurisdiction and designation. There is no self-service officer signup, and no route by which a citizen account becomes an officer account.</li>
+        <li><b>The authority that grants can revoke.</b> This is what makes transfers, retirements and suspensions work — problems no self-attested identity scheme solves.</li>
+        <li><b>Periodic re-attestation.</b> Department admins confirm their active roster quarterly; unconfirmed accounts go read-only rather than silently retaining power.</li>
+        <li><b>Contractors and representatives follow the same rule</b> — vouched for by the department that engaged them, scoped to specific issues, with an expiry date on the engagement.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:1.25rem">
+    <b>Why this matters more than it looks</b>
+    The <span class="pill p-gov">Official</span> badge on a comment is the highest-trust object in the product — it is the government speaking to a citizen about their problem. If that badge can be obtained by anyone who passes an identity check, it is worthless. It must be obtainable only from the institution it represents.
+  </div>
+
   <h3 style="margin-top:2rem">Notification matrix</h3>
   <div class="tw" style="margin-top:.75rem">
     <table>
@@ -1999,7 +2047,8 @@ promotion triggers (any two, plus officer or supervisor confirmation):
       <li>Export-my-data and delete-account; deletion anonymises reports rather than destroying the civic record</li>
     </ul></div>
     <div class="card"><h4>Security</h4><ul class="req" style="margin-top:.5rem">
-      <li>Phone OTP for citizens; SSO or invite + MFA for officers</li>
+      <li>Phone OTP for citizens; department-issued invitation + MFA for officers (§17). No self-service officer signup, no privilege escalation path from a citizen account</li>
+      <li>No Aadhaar numbers stored — a verification flag and reference token at most</li>
       <li>Role and jurisdiction enforced server-side on every query, never in the client</li>
       <li>Signed, expiring media URLs</li>
       <li>Full audit log for every government action</li>
