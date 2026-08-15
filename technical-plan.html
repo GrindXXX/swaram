@@ -527,101 +527,53 @@ create table category_authority_rules (
   <p class="lede">One Next.js app serving all three surfaces via route groups, one Supabase project, one worker process. Resist splitting into three deployables — the surfaces share types, components and the entire data layer.</p>
 
   <pre class="flow" style="margin-top:1.5rem">swaram/
+├── backend/                          # ★ THE BACKEND. Every app talks to this.
+│   ├── supabase/
+│   │   ├── migrations/               # 0001…0020 — the schema is the API
+│   │   ├── functions/                # Edge: sub-second work only (enqueue, notify)
+│   │   └── seed/demo.sql             # Bengaluru fixtures
+│   ├── core/                         # shared server logic — imported by web AND workers
+│   │   ├── db/        client.ts · admin.ts · types.gen.ts
+│   │   ├── domain/    issue.ts · report.ts · routing.ts · clustering.ts
+│   │   │              verification.ts · pressure.ts · sla.ts
+│   │   ├── agents/    intake.ts · cluster.ts · verify.ts · prompts/
+│   │   ├── services/  media.ts · asr.ts · geo.ts · email.ts · storage.ts
+│   │   └── types/     enums.ts · zod schemas
+│   ├── workers/                      # long-running; cannot be Edge Functions
+│   │   ├── index.ts                  # pgmq poll loop
+│   │   └── jobs/  intake · cluster · verify · dispatch · notify
+│   └── scripts/                      # one-shot ingest, run in order
+│       ├── 01_load_lgd.ts   02_load_boundaries.ts ← D1 blocker
+│       ├── 03_load_taxonomy.ts   04_load_authorities.ts
+│       └── 05_load_roster.ts
+│
 ├── apps/
-│   └── web/                          # Next.js 14 App Router · TypeScript
+│   └── web/                          # Next.js 14 App Router · the ONLY frontend
 │       ├── app/
-│       │   ├── (citizen)/            # PUBLIC surface — no auth required to read
-│       │   │   ├── page.tsx                  # / — the feed
-│       │   │   ├── i/[publicId]/page.tsx     # /i/CIV-10234 — public issue page (SSR, OG tags)
-│       │   │   ├── report/page.tsx           # /report — capture flow
-│       │   │   ├── me/issues/page.tsx        # created / following tabs
-│       │   │   ├── alerts/page.tsx
-│       │   │   └── about/page.tsx
-│       │   ├── (gov)/gov/            # GOVERNMENT surface — role gate in layout.tsx
-│       │   │   ├── layout.tsx                # sidebar + role guard
-│       │   │   ├── page.tsx                  # dashboard / My Work
-│       │   │   ├── queue/[view]/page.tsx     # inbox|unassigned|overdue|verify
-│       │   │   ├── t/[publicId]/page.tsx     # operational ticket
-│       │   │   ├── map/page.tsx
-│       │   │   └── new/page.tsx              # officer-created issue
-│       │   ├── (admin)/admin/        # ADMIN surface
-│       │   │   ├── page.tsx                  # overview KPIs
-│       │   │   ├── departments/page.tsx
-│       │   │   ├── authorities/page.tsx      # registry health
-│       │   │   ├── moderation/page.tsx
-│       │   │   ├── ai/page.tsx               # agent quality
-│       │   │   └── coverage/page.tsx         # tier map
-│       │   ├── auth/callback/route.ts        # Google OAuth callback
-│       │   ├── api/
-│       │   │   ├── report/route.ts           # POST — create issue, enqueue intake
-│       │   │   ├── upload/route.ts           # signed upload URL
-│       │   │   └── claim-officer/route.ts    # roster claim
-│       │   └── layout.tsx
-│       ├── components/
-│       │   ├── issue/          IssueCard · StatusLadder · CrowdCounter · MediaGallery
-│       │   ├── feed/           FilterChipRow · FeedList · DistanceChip
-│       │   ├── report/         CaptureSheet · LocationPicker · AIPreview
-│       │   ├── gov/            QueueRow · PropertyRail · ResolutionForm · TransferChain
-│       │   ├── admin/          KpiTile · DeptTable · CoverageMap · AgentMetrics
-│       │   └── ui/             ← re-exports @swaram/ui
-│       ├── lib/
-│       │   ├── supabase/       client.ts · server.ts · middleware.ts
-│       │   ├── queries/        feed.ts · issue.ts · queue.ts · dashboard.ts
-│       │   └── hooks/
-│       └── middleware.ts             # session refresh + /gov /admin route guards
+│       │   ├── (citizen)/            # / · /i/[publicId] · /report · /me · /alerts
+│       │   ├── (gov)/gov/            # dashboard · queue/[view] · t/[publicId] · map
+│       │   ├── (admin)/admin/        # overview · departments · authorities
+│       │   │                         # moderation · ai · coverage
+│       │   ├── auth/callback/route.ts
+│       │   └── api/                  # thin — delegates to backend/core
+│       ├── components/  issue/ feed/ report/ gov/ admin/
+│       └── lib/         supabase/ queries/ hooks/
 │
 ├── packages/
-│   ├── ui/                           # A5 — design system, framework-agnostic
-│   │   ├── tokens.css                # the CSS vars from the PRD
-│   │   ├── Pill.tsx  Card.tsx  Table.tsx  Sheet.tsx  Skeleton.tsx
-│   │   └── index.ts
-│   ├── shared/                       # imported by web AND workers
-│   │   ├── taxonomy.ts               # generated from data/departments/taxonomy.json
-│   │   ├── enums.ts                  # IssueStatus, RoutingTier, Visibility, ParticipantRole
-│   │   ├── zod/                      # intake output, resolution submission, verification
-│   │   └── scoring.ts                # feed rank + civic pressure — pure, unit-tested
-│   └── db/
-│       └── types.ts                  # `supabase gen types typescript` output
-│
-├── supabase/
-│   ├── migrations/
-│   │   ├── 0001_extensions.sql       # postgis, vector, pg_cron, pgmq
-│   │   ├── 0002_jurisdictions.sql    # D1
-│   │   ├── 0003_taxonomy.sql         # D5
-│   │   ├── 0004_authorities.sql      # D4
-│   │   ├── 0005_users_officers.sql   # B1/B2 + roster records
-│   │   ├── 0006_issues_reports.sql   # A2 core
-│   │   ├── 0007_participants.sql     # issue_participants + one-owner index
-│   │   ├── 0008_social.sql           # comments, followers, reactions
-│   │   ├── 0009_resolution.sql       # submissions, verification_responses
-│   │   ├── 0010_agent_runs.sql
-│   │   ├── 0011_rls.sql              # A3 — every policy in one reviewable file
-│   │   ├── 0012_functions.sql        # resolve_authority, feed_rank, pressure
-│   │   └── 0013_cron.sql             # SLA sweep, pressure recompute
-│   ├── functions/                    # Edge — short work only
-│   │   ├── intake/                   # enqueue + fast-path classify
-│   │   └── notify/
-│   └── seed/demo.sql                 # Bengaluru demo fixtures
-│
-├── workers/                          # E1 — long-running, cannot be Edge Functions
-│   ├── index.ts                      # pgmq poll loop
-│   └── jobs/
-│       ├── intake.ts        media pipeline + intake agent (C1/C2)
-│       ├── cluster.ts       embeddings + merge judgment (C4/C5)
-│       ├── verify.ts        resolution verification (C6)
-│       └── dispatch.ts      Tier-2 grievance email (E5)
-│
-├── scripts/                          # one-shot ingest, run in order
-│   ├── 01_load_lgd.ts                # D2
-│   ├── 02_load_boundaries.ts         # D1 ← the blocker
-│   ├── 03_load_taxonomy.ts           # D5
-│   ├── 04_load_authorities.ts        # D4
-│   └── 05_load_roster.ts             # B2
+│   ├── ui/                           # A5 design system: tokens.css + primitives
+│   └── shared/                       # enums, zod, scoring.ts (pure, unit-tested)
 │
 ├── data/  scrapers/  schema/         # existing — unchanged
-└── docs/
-    ├── product-requirements.html
-    └── technical-plan.html</pre>
+└── docs/  product-requirements.html · technical-plan.html</pre>
+
+  <div class="note ai" style="margin-top:1.25rem">
+    <b>Where is the backend? <code>backend/</code> — and it is one folder, shared</b>
+    With Supabase it is tempting to say "there is no backend, the database is the backend". That is half true and it is why the first draft of this plan scattered backend concerns across <code>supabase/</code>, <code>workers/</code> and <code>packages/</code>. Consolidated: <b><code>backend/</code> owns the schema, the domain logic, the agents and the jobs.</b>
+    <br><br>
+    <b style="display:inline">Who imports it.</b> <code>apps/web</code> server components and route handlers import <code>backend/core</code> directly — no HTTP hop, since Next server code and the backend run in the same process. <code>backend/workers</code> imports the same modules in a separate long-running process. Both share one <code>types.gen.ts</code> generated from the live schema, so a column rename breaks the build in every consumer at once, which is the point.
+    <br><br>
+    <b style="display:inline">The rule.</b> Business logic lives in <code>backend/core/domain</code> and nowhere else. If a route handler in <code>apps/web/api</code> grows past validating input and calling one domain function, it is in the wrong place — the workers will need that same logic and cannot import a Next route.
+  </div>
 
   <div class="grid g3" style="margin-top:1.5rem">
     <div class="card">
