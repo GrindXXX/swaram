@@ -156,12 +156,13 @@ footer .wrap{display:grid;gap:1rem}
     <nav>
       <a href="#findings">Findings</a>
       <a href="#dag">DAG</a>
-      <a href="#data">Data</a>
+      <a href="#repo">Structure</a>
       <a href="#db">Database</a>
-      <a href="#resolve">Routing</a>
+      <a href="#auth">Auth</a>
       <a href="#ai">AI</a>
-      <a href="#coverage">Coverage</a>
+      <a href="#dash">Dashboards</a>
       <a href="#phases">Phases</a>
+
     </nav>
     <button id="tocBtn" aria-expanded="false" aria-controls="toc">Contents</button>
   </div>
@@ -175,14 +176,18 @@ footer .wrap{display:grid;gap:1rem}
       <li><a href="#inventory">Repo inventory — every file</a></li>
       <li><a href="#dag">The build DAG</a></li>
       <li><a href="#data">Data layer &amp; the geometry blocker</a></li>
+      <li><a href="#repo">Repository structure</a></li>
       <li><a href="#db">Database, schema &amp; RLS</a></li>
+      <li><a href="#auth">Authentication &amp; authorization</a></li>
       <li><a href="#resolve">Resolution chain</a></li>
       <li><a href="#ai">AI pipeline</a></li>
       <li><a href="#queue">Jobs, SLA &amp; notifications</a></li>
+      <li><a href="#dash">Dashboards</a></li>
       <li><a href="#phases">Build phases</a></li>
       <li><a href="#coverage">PRD coverage matrix</a></li>
       <li><a href="#risks">Risk register</a></li>
       <li><a href="#next">Immediate next actions</a></li>
+
     </ol>
   </div>
 </div>
@@ -288,8 +293,8 @@ graph TD
     D4["D4 · Contacts → authorities"]
     D5["D5 · Load taxonomy"]
 
-    B1["B1 · Auth phone OTP"]
-    B2["B2 · Roster → officers"]
+    B1["B1 · Google OAuth<br/>+ JWT claims"]
+    B2["B2 · Roster email match<br/>→ officer claim"]
     B3["B3 · Jurisdiction resolver"]:::crit
     B4["B4 · Authority resolver + tier"]:::crit
 
@@ -516,9 +521,127 @@ create table category_authority_rules (
   <p class="small muted" style="margin-top:.5rem">13 categories, 15 authority types, 5 categories carrying multi-step fallback chains (<code>pothole_road_damage</code>, <code>water_supply</code>, <code>sewerage_drainage</code>, <code>traffic_signal_signage</code>, <code>encroachment</code>). Every declared authority type is referenced — nothing orphaned.</p>
 </section>
 
+<!-- ================= REPO STRUCTURE ================= -->
+<section id="repo" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Repository structure</h2></div>
+  <p class="lede">One Next.js app serving all three surfaces via route groups, one Supabase project, one worker process. Resist splitting into three deployables — the surfaces share types, components and the entire data layer.</p>
+
+  <pre class="flow" style="margin-top:1.5rem">swaram/
+├── apps/
+│   └── web/                          # Next.js 14 App Router · TypeScript
+│       ├── app/
+│       │   ├── (citizen)/            # PUBLIC surface — no auth required to read
+│       │   │   ├── page.tsx                  # / — the feed
+│       │   │   ├── i/[publicId]/page.tsx     # /i/CIV-10234 — public issue page (SSR, OG tags)
+│       │   │   ├── report/page.tsx           # /report — capture flow
+│       │   │   ├── me/issues/page.tsx        # created / following tabs
+│       │   │   ├── alerts/page.tsx
+│       │   │   └── about/page.tsx
+│       │   ├── (gov)/gov/            # GOVERNMENT surface — role gate in layout.tsx
+│       │   │   ├── layout.tsx                # sidebar + role guard
+│       │   │   ├── page.tsx                  # dashboard / My Work
+│       │   │   ├── queue/[view]/page.tsx     # inbox|unassigned|overdue|verify
+│       │   │   ├── t/[publicId]/page.tsx     # operational ticket
+│       │   │   ├── map/page.tsx
+│       │   │   └── new/page.tsx              # officer-created issue
+│       │   ├── (admin)/admin/        # ADMIN surface
+│       │   │   ├── page.tsx                  # overview KPIs
+│       │   │   ├── departments/page.tsx
+│       │   │   ├── authorities/page.tsx      # registry health
+│       │   │   ├── moderation/page.tsx
+│       │   │   ├── ai/page.tsx               # agent quality
+│       │   │   └── coverage/page.tsx         # tier map
+│       │   ├── auth/callback/route.ts        # Google OAuth callback
+│       │   ├── api/
+│       │   │   ├── report/route.ts           # POST — create issue, enqueue intake
+│       │   │   ├── upload/route.ts           # signed upload URL
+│       │   │   └── claim-officer/route.ts    # roster claim
+│       │   └── layout.tsx
+│       ├── components/
+│       │   ├── issue/          IssueCard · StatusLadder · CrowdCounter · MediaGallery
+│       │   ├── feed/           FilterChipRow · FeedList · DistanceChip
+│       │   ├── report/         CaptureSheet · LocationPicker · AIPreview
+│       │   ├── gov/            QueueRow · PropertyRail · ResolutionForm · TransferChain
+│       │   ├── admin/          KpiTile · DeptTable · CoverageMap · AgentMetrics
+│       │   └── ui/             ← re-exports @swaram/ui
+│       ├── lib/
+│       │   ├── supabase/       client.ts · server.ts · middleware.ts
+│       │   ├── queries/        feed.ts · issue.ts · queue.ts · dashboard.ts
+│       │   └── hooks/
+│       └── middleware.ts             # session refresh + /gov /admin route guards
+│
+├── packages/
+│   ├── ui/                           # A5 — design system, framework-agnostic
+│   │   ├── tokens.css                # the CSS vars from the PRD
+│   │   ├── Pill.tsx  Card.tsx  Table.tsx  Sheet.tsx  Skeleton.tsx
+│   │   └── index.ts
+│   ├── shared/                       # imported by web AND workers
+│   │   ├── taxonomy.ts               # generated from data/departments/taxonomy.json
+│   │   ├── enums.ts                  # IssueStatus, RoutingTier, Visibility, ParticipantRole
+│   │   ├── zod/                      # intake output, resolution submission, verification
+│   │   └── scoring.ts                # feed rank + civic pressure — pure, unit-tested
+│   └── db/
+│       └── types.ts                  # `supabase gen types typescript` output
+│
+├── supabase/
+│   ├── migrations/
+│   │   ├── 0001_extensions.sql       # postgis, vector, pg_cron, pgmq
+│   │   ├── 0002_jurisdictions.sql    # D1
+│   │   ├── 0003_taxonomy.sql         # D5
+│   │   ├── 0004_authorities.sql      # D4
+│   │   ├── 0005_users_officers.sql   # B1/B2 + roster records
+│   │   ├── 0006_issues_reports.sql   # A2 core
+│   │   ├── 0007_participants.sql     # issue_participants + one-owner index
+│   │   ├── 0008_social.sql           # comments, followers, reactions
+│   │   ├── 0009_resolution.sql       # submissions, verification_responses
+│   │   ├── 0010_agent_runs.sql
+│   │   ├── 0011_rls.sql              # A3 — every policy in one reviewable file
+│   │   ├── 0012_functions.sql        # resolve_authority, feed_rank, pressure
+│   │   └── 0013_cron.sql             # SLA sweep, pressure recompute
+│   ├── functions/                    # Edge — short work only
+│   │   ├── intake/                   # enqueue + fast-path classify
+│   │   └── notify/
+│   └── seed/demo.sql                 # Bengaluru demo fixtures
+│
+├── workers/                          # E1 — long-running, cannot be Edge Functions
+│   ├── index.ts                      # pgmq poll loop
+│   └── jobs/
+│       ├── intake.ts        media pipeline + intake agent (C1/C2)
+│       ├── cluster.ts       embeddings + merge judgment (C4/C5)
+│       ├── verify.ts        resolution verification (C6)
+│       └── dispatch.ts      Tier-2 grievance email (E5)
+│
+├── scripts/                          # one-shot ingest, run in order
+│   ├── 01_load_lgd.ts                # D2
+│   ├── 02_load_boundaries.ts         # D1 ← the blocker
+│   ├── 03_load_taxonomy.ts           # D5
+│   ├── 04_load_authorities.ts        # D4
+│   └── 05_load_roster.ts             # B2
+│
+├── data/  scrapers/  schema/         # existing — unchanged
+└── docs/
+    ├── product-requirements.html
+    └── technical-plan.html</pre>
+
+  <div class="grid g3" style="margin-top:1.5rem">
+    <div class="card">
+      <h4>Why one Next app, not three</h4>
+      <p class="small">All three surfaces share the issue type, the status pills, the Supabase client and the query layer. Three deployables means three copies of the design system and a versioning problem between them. Route groups give clean URL separation with none of that cost.</p>
+    </div>
+    <div class="card">
+      <h4>Why a separate worker</h4>
+      <p class="small">Clustering, ASR and verification exceed Edge Function timeouts. The worker polls <code>pgmq</code> and runs anywhere (Railway, Fly, a VM). Edge Functions stay for sub-second work only — enqueue and notify.</p>
+    </div>
+    <div class="card">
+      <h4>Why <code>packages/shared</code></h4>
+      <p class="small">Scoring and enums are imported by both the app and the workers. Duplicating the status enum across two runtimes is how they silently drift. <code>scoring.ts</code> is pure and unit-tested — no DB, no network.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ================= 05 DB ================= -->
 <section id="db" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">05</span><h2>Database, schema &amp; RLS</h2></div>
+  <div class="sec-head"><span class="sec-num">06</span><h2>Database, schema &amp; RLS</h2></div>
 
   <h3>5.1 Extensions</h3>
   <pre class="sql" style="margin-top:.5rem">create extension if not exists postgis;   -- D1, B3 point-in-polygon
@@ -661,9 +784,133 @@ using (exists (select 1 from government_officers o
   </div>
 </section>
 
+<!-- ================= AUTH ================= -->
+<section id="auth" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">07</span><h2>Authentication &amp; authorization <span class="tid">B1</span> <span class="tid">B2</span></h2></div>
+  <p class="lede">Google OAuth for everyone. No SMS provider needed, and — unexpectedly — it makes officer onboarding <em>better</em> than the phone design it replaces.</p>
+
+  <div class="note ai" style="margin-top:1.5rem">
+    <b>Why Google is an upgrade for officers, not a compromise</b>
+    Officer onboarding was blocked on an open question: do government rosters carry personal mobile numbers? Mostly they don't. But <b>they carry email — 100% of the 92 central, 88 appellate and 37 state rows, and 66% of district rows.</b> Matching a Google sign-in against a roster <em>by email</em> is a direct join on data we already hold, and a <code>@gov.in</code> / <code>@nic.in</code> domain is an affiliation signal a phone number never was. This closes PRD §23's roster question.
+  </div>
+
+  <div class="note warn" style="margin-top:1rem">
+    <b>What it costs on the citizen side — plan for it</b>
+    Phone OTP was the anti-spam anchor: Indian SIMs are KYC'd, so one number meant one traceable person. <b>Google accounts are free and unlimited</b>, so that property is gone. Compensate with: rate limits keyed on user id <em>and</em> IP, a minimum account age before high-trust actions, one report per issue per user per 24h, device fingerprinting for burst detection, and holding the crowd counter for review on abnormal spikes. Do not skip this — the report count drives priority, so it <em>will</em> be gamed.
+  </div>
+
+  <h3 style="margin-top:2rem">Sign-in flow</h3>
+  <pre class="flow" style="margin-top:.75rem">  Google OAuth (Supabase Auth)
+            │
+            ▼
+  auth.users row created
+            │
+   trigger: handle_new_user()
+            │
+            ▼
+  public.users  role = 'CITIZEN'      ← everyone starts here, always
+            │
+            ├── email matches officer_roster_records? ──┐
+            │                                           │
+            │   OR email domain in (.gov.in,.nic.in)    │
+            │                                           ▼
+            │                              banner: "You appear to be
+            │                               an officer of &lt;dept&gt;.
+            │                                    Claim access?"
+            │                                           │
+            │                              explicit confirmation
+            │                                           ▼
+            │                          government_officers row created
+            │                          role → 'GOVERNMENT'
+            │                          dept/jurisdiction FROM THE ROSTER
+            ▼
+     stays a citizen (the default, and fine)</pre>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h4>Provisioning rules</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Everyone starts as CITIZEN.</b> There is no "sign up as officer" path.</li>
+        <li><b>Roster email match is the strong signal</b> → offer the claim immediately, pre-filled from the roster row.</li>
+        <li><b>Gov domain but no roster row</b> → weaker. Allow a claim request, but it needs admin approval; do not auto-provision on domain alone.</li>
+        <li><b>Confirmation is always explicit.</b> A wrong match must never silently hand someone authority. The user taps to accept.</li>
+        <li><b>One-to-one only.</b> If an email matches multiple roster rows, provision nothing and route to manual review.</li>
+        <li><b>Every grant is logged</b> with roster record, source file and match method.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>JWT claims — why RLS needs them</h4>
+      <p class="small muted">Without claims, every RLS policy runs a subquery against <code>government_officers</code> on every row of every query. Put role and scope in the token instead.</p>
+      <pre class="sql" style="margin-top:.5rem;font-size:.68rem">-- Supabase custom access token hook
+create or replace function public.custom_access_token(event jsonb)
+returns jsonb language plpgsql as $$
+declare claims jsonb; u record;
+begin
+  select r.role, o.department_id, o.jurisdiction_id,
+         o.jurisdiction_level
+    into u
+  from public.users r
+  left join public.government_officers o
+    on o.user_id = r.id and o.is_active
+  where r.id = (event-&gt;&gt;'user_id')::uuid;
+
+  claims := event-&gt;'claims';
+  claims := jsonb_set(claims,'{app_role}', to_jsonb(coalesce(u.role,'CITIZEN')));
+  claims := jsonb_set(claims,'{dept_id}',  to_jsonb(u.department_id));
+  claims := jsonb_set(claims,'{juris_id}', to_jsonb(u.jurisdiction_id));
+  claims := jsonb_set(claims,'{juris_lvl}',to_jsonb(u.jurisdiction_level));
+  return jsonb_set(event,'{claims}',claims);
+end $$;</pre>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.75rem">RLS rewritten against claims</h3>
+  <pre class="sql" style="margin-top:.5rem">create or replace function auth.app_role() returns text
+language sql stable as $$
+  select coalesce(current_setting('request.jwt.claims',true)::jsonb-&gt;&gt;'app_role','ANON')
+$$;
+create or replace function auth.juris_id() returns bigint
+language sql stable as $$
+  select nullif(current_setting('request.jwt.claims',true)::jsonb-&gt;&gt;'juris_id','')::bigint
+$$;
+
+-- public feed: PUBLIC, published, not held
+create policy issues_public_read on issues for select
+using (visibility='PUBLIC' and published_at is not null and status &lt;&gt; 'HELD');
+
+-- government: own jurisdiction, including CONFIDENTIAL — no subquery
+create policy issues_gov_read on issues for select
+using (auth.app_role() = 'GOVERNMENT' and jurisdiction_id = auth.juris_id());
+
+-- supervisors: whole subtree, via the jurisdiction closure
+create policy issues_supervisor_read on issues for select
+using (auth.app_role() = 'GOVERNMENT'
+   and jurisdiction_id in (select id from jurisdiction_descendants(auth.juris_id())));</pre>
+
+  <div class="note crit" style="margin-top:1rem">
+    <b>Claims go stale — handle it</b>
+    A JWT minted before a role change still carries the old claims until it refreshes. On any officer provisioning, deactivation or jurisdiction change, <b>force a session refresh</b> and keep a server-side check on write paths. Read paths can tolerate up to one token lifetime of lag; <b>writes cannot</b>.
+  </div>
+
+  <div class="grid g3" style="margin-top:1.5rem">
+    <div class="card">
+      <h4>Route guards</h4>
+      <p class="small"><code>middleware.ts</code> refreshes the session and gates <code>/gov</code> and <code>/admin</code> on <code>app_role</code>. This is UX, <b>not security</b> — RLS is the real boundary. A guard that fails open must still leak nothing.</p>
+    </div>
+    <div class="card">
+      <h4>Anonymous reading</h4>
+      <p class="small">The feed and issue pages render server-side for logged-out users via the anon key, which sees only the public policy. Actions prompt sign-in and <b>resume the exact intent</b> afterwards.</p>
+    </div>
+    <div class="card">
+      <h4>Migration path back to phone</h4>
+      <p class="small">Keep <code>users.phone</code> nullable from day one and treat identity as a set of linked providers. Adding phone OTP later becomes an <em>additional</em> factor for a higher trust tier, not a rewrite.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ================= 06 RESOLUTION ================= -->
 <section id="resolve" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">06</span><h2>Resolution chain <span class="tid">B3</span> <span class="tid">B4</span></h2></div>
+  <div class="sec-head"><span class="sec-num">08</span><h2>Resolution chain <span class="tid">B3</span> <span class="tid">B4</span></h2></div>
   <p class="lede">The agent tags a <b>category</b>. SQL finds the <b>authority</b>. No model participates in deciding who owns an issue.</p>
 
   <pre class="sql" style="margin-top:1.5rem">create or replace function resolve_authority(
@@ -721,7 +968,7 @@ end $$;</pre>
 
 <!-- ================= 07 AI ================= -->
 <section id="ai" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">07</span><h2>AI pipeline</h2></div>
+  <div class="sec-head"><span class="sec-num">09</span><h2>AI pipeline</h2></div>
 
   <h3><span class="tid">C1</span> Media normalisation — plumbing, not intelligence</h3>
   <div class="tw" style="margin-top:.75rem">
@@ -765,7 +1012,7 @@ limit 10;</pre>
 
 <!-- ================= 08 QUEUE ================= -->
 <section id="queue" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">08</span><h2>Jobs, SLA &amp; notifications</h2></div>
+  <div class="sec-head"><span class="sec-num">10</span><h2>Jobs, SLA &amp; notifications</h2></div>
   <div class="grid g3">
     <div class="card">
       <h4><span class="tid">E1</span> Job queue — required</h4>
@@ -783,9 +1030,140 @@ limit 10;</pre>
   </div>
 </section>
 
+<!-- ================= DASHBOARDS ================= -->
+<section id="dash" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Dashboards — queries, not just screens</h2></div>
+  <p class="lede">Three dashboards with different jobs. The government one answers "what do I do next"; the admin one answers "is the system healthy"; the public one answers "is my government working". Each is specified as the query that backs it, because that is the part that decides whether it is fast.</p>
+
+  <h3 style="margin-top:1.75rem">11.1 Government dashboard <span class="tid">G2</span> — <code>/gov</code></h3>
+  <div class="grid g2" style="margin-top:.75rem">
+    <div>
+      <h4>KPI strip — one round trip</h4>
+      <pre class="sql" style="margin-top:.5rem;font-size:.68rem">create or replace function gov_kpis(p_juris bigint, p_dept bigint)
+returns table (open int, in_progress int, overdue int,
+               awaiting_verify int, resolved_30d int)
+language sql stable as $$
+  select
+    count(*) filter (where status in ('OPEN','ASSIGNED')),
+    count(*) filter (where status = 'IN_PROGRESS'),
+    count(*) filter (where sla_due_at &lt; now()
+                       and status not in ('RESOLVED','CLOSED')),
+    count(*) filter (where status = 'AWAITING_VERIFICATION'),
+    count(*) filter (where status in ('RESOLVED','CLOSED')
+                       and resolved_at &gt; now() - interval '30 days')
+  from issues
+  where jurisdiction_id = p_juris
+    and (p_dept is null or department_id = p_dept);
+$$;</pre>
+      <p class="small muted" style="margin-top:.4rem">Five counts, one scan, one index on <code>(jurisdiction_id, status)</code>. Do not issue five separate queries from the client.</p>
+    </div>
+    <div>
+      <h4>Saved views — filters, not folders</h4>
+      <div class="tw">
+        <table style="min-width:380px">
+          <thead><tr><th>View</th><th>Predicate</th><th>Sort</th></tr></thead>
+          <tbody>
+            <tr><td>My work</td><td><code>owner_officer_id = me</code></td><td>SLA asc</td></tr>
+            <tr><td>Unassigned</td><td><code>owner_officer_id is null</code></td><td>pressure desc</td></tr>
+            <tr><td>Overdue</td><td><code>sla_due_at &lt; now()</code></td><td>most overdue</td></tr>
+            <tr><td>Awaiting verify</td><td><code>status='AWAITING_VERIFICATION'</code></td><td>submitted asc</td></tr>
+            <tr><td>Suggested merges</td><td>cluster conf 0.75–0.90</td><td>conf desc</td></tr>
+            <tr><td>AI unsure</td><td>intake conf &lt; 0.80</td><td>created asc</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted" style="margin-top:.5rem"><b>Default sort is SLA ascending</b> — what breaches first is on top. Not newest-first; that is a social-feed instinct and it is wrong here.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">11.2 Admin dashboard <span class="tid">H1</span> — <code>/admin</code></h3>
+  <p class="small muted" style="max-width:68ch">All four panels read from materialized views refreshed on a cron. Computing department performance live across a national table on every page load will not survive the first real dataset.</p>
+
+  <pre class="sql" style="margin-top:1rem">-- Department performance (PRD §11 + §21)
+create materialized view mv_department_performance as
+select d.id, d.name,
+  count(*)                                              as total,
+  count(*) filter (where i.status in ('RESOLVED','CLOSED')) as resolved,
+  round(100.0 * count(*) filter (where i.status in ('RESOLVED','CLOSED'))
+        / nullif(count(*),0), 1)                        as resolution_rate,
+  percentile_cont(0.5) within group (
+    order by extract(epoch from (i.acknowledged_at - i.created_at))/3600
+  )                                                     as median_ack_hours,
+  percentile_cont(0.5) within group (
+    order by extract(epoch from (i.resolved_at - i.created_at))/86400
+  )                                                     as median_resolve_days,
+  round(100.0 * count(*) filter (
+        where i.resolved_at is not null and i.sla_due_at &gt;= i.resolved_at)
+        / nullif(count(*) filter (where i.resolved_at is not null),0),1)
+                                                        as sla_compliance,
+  round(avg(i.satisfaction_score) filter (
+        where i.satisfaction_score is not null),1)       as avg_satisfaction,
+  count(*) filter (where i.status = 'REOPENED')          as reopened
+from departments d
+left join issues i on i.department_id = d.id
+group by d.id, d.name;
+
+create unique index on mv_department_performance (id);
+
+-- AI quality (PRD §11) — measured against human overrides, not self-reported
+create materialized view mv_agent_quality as
+select agent_name,
+  count(*)                                                as runs,
+  round(avg(confidence)::numeric, 3)                      as avg_confidence,
+  round(100.0 * count(*) filter (where was_overridden)
+        / nullif(count(*),0), 1)                          as override_rate,
+  round(avg(latency_ms))                                  as avg_latency_ms,
+  date_trunc('day', created_at)                           as day
+from agent_runs
+group by agent_name, date_trunc('day', created_at);
+
+-- Coverage: the §12 tier picture, which is the growth constraint
+create materialized view mv_coverage as
+select j.id, j.name, j.level,
+  count(i.*)                                                    as issues,
+  count(*) filter (where i.routing_tier = 'ONBOARDED')          as tier1,
+  count(*) filter (where i.routing_tier = 'CONTACTABLE')        as tier2,
+  count(*) filter (where i.routing_tier = 'UNMAPPED')           as tier3
+from jurisdictions j left join issues i on i.jurisdiction_id = j.id
+group by j.id, j.name, j.level;
+
+select cron.schedule('refresh-dash','*/15 * * * *', $$
+  refresh materialized view concurrently mv_department_performance;
+  refresh materialized view concurrently mv_agent_quality;
+  refresh materialized view concurrently mv_coverage;
+$$);</pre>
+
+  <div class="grid g4" style="margin-top:1.25rem">
+    <div class="card"><h4>Overview</h4><p class="small">Volume, open/in-progress/resolved/overdue, and the <b>created-vs-resolved crossover</b> — the single clearest health signal. Trend over 7/30/90 days.</p></div>
+    <div class="card"><h4>Departments</h4><p class="small">From <code>mv_department_performance</code>, ranked, with movement vs last period. <b>Sorted by satisfaction, not closure count</b> — closing fast at 30% satisfaction must look worse than closing slowly at 90%.</p></div>
+    <div class="card"><h4>Coverage map</h4><p class="small">From <code>mv_coverage</code>. Choropleth by tier — where officers are onboarded vs where issues pile up unheard. This is the business dashboard, not just an ops one.</p></div>
+    <div class="card"><h4>AI quality</h4><p class="small">From <code>mv_agent_quality</code>. Override rate per agent over time is the honest measure; confidence is only a signal. A rising override rate is a regression alarm.</p></div>
+  </div>
+
+  <h3 style="margin-top:2rem">11.3 Public statistics — the accountability output</h3>
+  <div class="grid g2" style="margin-top:.75rem">
+    <div>
+      <ul class="req">
+        <li><b>Per-ward public page</b> at <code>/stats/[jurisdiction]</code>, server-rendered and indexable, reading the same materialized views.</li>
+        <li><b>Publishes resolution rate, median time and satisfaction</b> — the PRD treats department performance as publishable, so this is a feature, not a leak.</li>
+        <li><b>Also publishes moderation volume</b> — items removed per period, per §20's transparency rule.</li>
+        <li><b>Feeds <span class="tid">H3</span></b>: the weekly newspaper and the national map are views over this same data, not a separate pipeline.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="note warn">
+        <b>Two rules for every dashboard number</b>
+        <b style="display:inline">1 · Never mix issue count with report count.</b> "27 people affected" is reports; "how many problems exist" is issues. Conflating them destroys both numbers and it is the easiest mistake to make in a GROUP BY.
+        <br><br>
+        <b style="display:inline">2 · Tier-2 and Tier-3 issues have no SLA.</b> Exclude them from SLA compliance rather than counting them as breaches — a department that never onboarded cannot breach a promise it never made, and counting it that way makes the metric meaningless.
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= 09 PHASES ================= -->
 <section id="phases" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">09</span><h2>Build phases</h2></div>
+  <div class="sec-head"><span class="sec-num">12</span><h2>Build phases</h2></div>
 
   <div class="note warn">
     <b>Phase 0 scope decision</b>
@@ -817,7 +1195,7 @@ limit 10;</pre>
 
 <!-- ================= 9b COVERAGE ================= -->
 <section id="coverage" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">10</span><h2>PRD coverage matrix</h2></div>
+  <div class="sec-head"><span class="sec-num">13</span><h2>PRD coverage matrix</h2></div>
   <p class="lede">Every product requirement section mapped to the task that implements it. This table exists so alignment is <em>auditable</em> rather than asserted — if a PRD section has no task, that is a planning bug.</p>
 
   <div class="tw" style="margin-top:1.5rem">
@@ -872,7 +1250,7 @@ limit 10;</pre>
 
 <!-- ================= 10 RISKS ================= -->
 <section id="risks" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">11</span><h2>Risk register</h2></div>
+  <div class="sec-head"><span class="sec-num">14</span><h2>Risk register</h2></div>
   <div class="tw">
     <table>
       <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
@@ -892,7 +1270,7 @@ limit 10;</pre>
 
 <!-- ================= 11 NEXT ================= -->
 <section id="next" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">12</span><h2>Immediate next actions</h2></div>
+  <div class="sec-head"><span class="sec-num">15</span><h2>Immediate next actions</h2></div>
   <ol class="steps" style="margin-top:.5rem">
     <li><b>Decide the name.</b> Swaram or Sanchari — <code>swaram_ideas.md</code> says one, everything else says the other. One person, five minutes.</li>
     <li><b>Start <span class="tid">D1</span>.</b> Pull OSM admin boundaries for Karnataka plus BBMP ward GeoJSON. Nothing routes until this exists.</li>
