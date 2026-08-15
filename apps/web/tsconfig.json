@@ -17,12 +17,20 @@
     "paths": {
       "@/*": ["./*"],
 
-      // Sibling workspaces. These resolve once the repo root gets a workspace
-      // manifest; nothing in apps/web *statically* imports them today (see
-      // lib/backend.ts for the lazy bridge into @swaram/backend), so the app
-      // builds and demos standalone.
+      // Sibling workspaces. Subpath imports (@swaram/shared/enums, etc.) resolve
+      // once the repo root gets a workspace manifest — kept as-is, nothing here
+      // uses that form today.
       "@swaram/shared/*": ["../../packages/shared/*"],
-      "@swaram/backend/*": ["../../backend/core/*"]
+      "@swaram/backend/*": ["../../backend/core/*"],
+
+      // Bare-specifier form. components/gov/types.ts does `import type {...}
+      // from '@swaram/shared'` (matches package.json's "." export) — that's a
+      // real, existing static import, not hypothetical, and needs its own
+      // mapping since a trailing "/*" pattern doesn't match a bare specifier.
+      // Type-only, so nothing here needs Next to bundle @swaram/shared at
+      // runtime (transpilePackages in next.config.mjs covers it if that ever
+      // changes).
+      "@swaram/shared": ["../../packages/shared/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

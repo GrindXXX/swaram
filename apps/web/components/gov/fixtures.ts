@@ -20,6 +20,9 @@ import type {
   GovKpis,
   ViewSpec,
   SavedView,
+  CoverageRow,
+  DeptPerformance,
+  TrendPoint,
 } from './types';
 
 /** Fixed "now" for the demo: 15 Aug 2026, 09:00 IST. */
@@ -351,3 +354,95 @@ export function applyView(rows: QueueIssue[], view: SavedView, meId = OFFICER.id
       return rows.filter((r) => !TERMINAL.includes(r.status));
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Coverage — issues grouped by jurisdiction, for the dashboard's district     */
+/* breakdown. Derived from QUEUE (same discipline as GOV_KPIS above) rather    */
+/* than a second hand-authored dataset, so the two views can't drift.         */
+/*                                                                             */
+/* mv_coverage (types.ts) is meant to carry real polygon-backed jurisdictions  */
+/* once boundary data exists. It doesn't yet — see the design review on the   */
+/* citizen map — so `level` here is inferred from the jurisdiction STRING     */
+/* ("· District" suffix), not a real JURISDICTION_LEVEL join. Keep that       */
+/* honest in the UI: this table is "issues by named place", not "by verified  */
+/* administrative boundary."                                                  */
+/* -------------------------------------------------------------------------- */
+export const COVERAGE: CoverageRow[] = (() => {
+  const groups = new Map<string, QueueIssue[]>();
+  QUEUE.forEach((q) => {
+    const key = q.jurisdiction;
+    (groups.get(key) ?? groups.set(key, []).get(key)!).push(q);
+  });
+  return [...groups.entries()]
+    .map(([name, rows], i) => ({
+      id: i + 1,
+      name,
+      level: name.includes('· District') ? 'DISTRICT' : name.includes('Ward') ? 'WARD' : 'ULB',
+      issues: rows.length,
+      tier1: rows.filter((r) => r.routing_tier === 'ONBOARDED').length,
+      tier2: rows.filter((r) => r.routing_tier === 'CONTACTABLE').length,
+      tier3: rows.filter((r) => r.routing_tier === 'UNMAPPED').length,
+    }))
+    .sort((a, b) => b.issues - a.issues);
+})();
+
+/* -------------------------------------------------------------------------- */
+/* Department performance — one row per department represented in QUEUE.      */
+/* total/resolved/resolution_rate/reopened are derived from QUEUE; the SLA/   */
+/* satisfaction figures below aren't reconstructable from the queue fixture   */
+/* alone (they need ack/resolve timestamps this seed data doesn't carry), so  */
+/* they're hand-authored the same way SEEDS above is — plausible, not real.   */
+/* -------------------------------------------------------------------------- */
+const DEPT_HAND_AUTHORED: Record<string, { median_ack_hours: number; median_resolve_days: number; sla_compliance: number; avg_satisfaction: number; satisfaction_delta: number }> = {
+  Roads:            { median_ack_hours: 6.5,  median_resolve_days: 9.2, sla_compliance: 71, avg_satisfaction: 68, satisfaction_delta: 3 },
+  Electricity:      { median_ack_hours: 3.1,  median_resolve_days: 2.4, sla_compliance: 88, avg_satisfaction: 81, satisfaction_delta: 5 },
+  Water:            { median_ack_hours: 5.8,  median_resolve_days: 6.1, sla_compliance: 64, avg_satisfaction: 59, satisfaction_delta: -4 },
+  Sanitation:       { median_ack_hours: 9.4,  median_resolve_days: 4.0, sla_compliance: 77, avg_satisfaction: 72, satisfaction_delta: 1 },
+  Transport:        { median_ack_hours: 4.2,  median_resolve_days: 3.3, sla_compliance: 82, avg_satisfaction: 75, satisfaction_delta: 2 },
+  'PWD (State)':    { median_ack_hours: 30.0, median_resolve_days: 21.0, sla_compliance: 0,  avg_satisfaction: 41, satisfaction_delta: -2 },
+  'State water board': { median_ack_hours: 40.0, median_resolve_days: 28.0, sla_compliance: 0, avg_satisfaction: 33, satisfaction_delta: -6 },
+  Unrouted:         { median_ack_hours: 0,    median_resolve_days: 0,   sla_compliance: 0,  avg_satisfaction: 0,  satisfaction_delta: 0 },
+  Unmapped:         { median_ack_hours: 0,    median_resolve_days: 0,   sla_compliance: 0,  avg_satisfaction: 0,  satisfaction_delta: 0 },
+};
+
+export const DEPT_PERFORMANCE: DeptPerformance[] = (() => {
+  const groups = new Map<string, QueueIssue[]>();
+  QUEUE.forEach((q) => (groups.get(q.department) ?? groups.set(q.department, []).get(q.department)!).push(q));
+  return [...groups.entries()]
+    .map(([name, rows], i) => {
+      const resolved = rows.filter((r) => r.status === 'RESOLVED' || r.status === 'CLOSED').length;
+      const tier1Eligible = rows.filter((r) => r.routing_tier === 'ONBOARDED');
+      const hand = DEPT_HAND_AUTHORED[name] ?? DEPT_HAND_AUTHORED.Roads;
+      const noSla = tier1Eligible.length === 0;
+      return {
+        id: i + 1,
+        name,
+        total: rows.length,
+        resolved,
+        resolution_rate: rows.length ? Math.round((resolved / rows.length) * 100) : 0,
+        median_ack_hours: noSla ? null : hand.median_ack_hours,
+        median_resolve_days: noSla ? null : hand.median_resolve_days,
+        sla_compliance: noSla ? null : hand.sla_compliance,
+        sla_eligible: tier1Eligible.length,
+        avg_satisfaction: hand.avg_satisfaction || null,
+        reopened: rows.filter((r) => r.status === 'REOPENED').length,
+        satisfaction_delta: hand.satisfaction_delta || null,
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+})();
+
+/* -------------------------------------------------------------------------- */
+/* 14-day trend — hand-authored, not derivable from a single-snapshot queue   */
+/* fixture (there's no history of past creates/resolves to replay). Shaped to */
+/* be plausible against QUEUE's totals, not fitted to them exactly.           */
+/* -------------------------------------------------------------------------- */
+export const TREND: TrendPoint[] = Array.from({ length: 14 }, (_, i) => {
+  const dayIndex = 13 - i;
+  const base = 14 + Math.round(6 * Math.sin(dayIndex / 2.3));
+  return {
+    day: d(-dayIndex).slice(0, 10),
+    created: base + (dayIndex % 5 === 0 ? 5 : 0),
+    resolved: Math.max(4, base - 3 + (dayIndex % 4 === 0 ? 4 : 0)),
+  };
+});
