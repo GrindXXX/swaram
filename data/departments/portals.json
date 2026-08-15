@@ -1,0 +1,85 @@
+{
+  "_meta": {
+    "purpose": "Registry of official civic grievance portals discovered per city. scrape_status tells the scraper scaffold what strategy to use. Do NOT scrape complainant personal data (names/phone numbers) from any of these — DPDP Act risk. Public status/ward/department metadata only.",
+    "scrape_status_values": {
+      "unknown": "not yet inspected in DevTools for a JSON/XHR endpoint",
+      "needs_inspection": "portal loads dynamic content; open DevTools > Network > XHR and look for a JSON API before writing an HTML scraper",
+      "html_only": "confirmed server-rendered HTML, needs BeautifulSoup",
+      "has_json_api": "confirmed JSON endpoint found, put it in api_endpoint"
+    }
+  },
+  "cities": [
+    {
+      "city": "Bengaluru",
+      "state": "KARNATAKA",
+      "portal_name": "Sahaaya 2.0 (Namma Bengaluru)",
+      "url": "https://bbmp.sahaaya.in",
+      "departments_covered": ["BBMP", "BESCOM", "BWSSB", "BMTC", "BMRCL", "BMRDA", "BDA"],
+      "scrape_status": "needs_inspection",
+      "api_endpoint": null,
+      "source": "https://apps.karnataka.gov.in (Namma Bengaluru / Sahaaya 2.0 listing)",
+      "caveat": "Deccan Herald reported Sahaaya was pulled from app stores at one point, leaving citizens unable to file complaints — verify the portal is currently live before relying on it, and note this as a reliability data point for the pitch.",
+      "run_notes": "2026-08-15: scrape_portal.py got an SSL verification error in this sandbox specifically (other 4 portals fetched fine) — inconclusive, re-check on a normal machine before ruling it down."
+    },
+    {
+      "city": "Bengaluru",
+      "state": "KARNATAKA",
+      "portal_name": "BBMP Fix Pothole (Raste Gundi Gamana)",
+      "url": null,
+      "departments_covered": ["BBMP"],
+      "scrape_status": "unknown",
+      "api_endpoint": null,
+      "source": "Google Play listing; app-only, no confirmed web portal found yet"
+    },
+    {
+      "city": "Mumbai",
+      "state": "MAHARASHTRA",
+      "portal_name": "MCGM Central Complaint Registration System",
+      "url": "https://portal.mcgm.gov.in/irj/portal/anonymous/qlcomplaintreg",
+      "departments_covered": ["MCGM/BMC"],
+      "scrape_status": "blocked",
+      "api_endpoint": null,
+      "source": "https://dm.mcgm.gov.in/central-complaint-registration-system",
+      "run_notes": "2026-08-15: SAP-based iView portal rejects plain requests.get with 'iView is not compatible with your browser' — needs Playwright with a real browser UA, or find the underlying SAP web service."
+    },
+    {
+      "city": "Hyderabad",
+      "state": "TELANGANA",
+      "portal_name": "My GHMC",
+      "url": "https://www.ghmc.gov.in",
+      "departments_covered": ["GHMC"],
+      "scrape_status": "html_only",
+      "api_endpoint": null,
+      "source": "https://www.ghmc.gov.in/howdoi.aspx",
+      "run_notes": "2026-08-15: fetched fine (101KB), server-rendered — BeautifulSoup should work directly."
+    },
+    {
+      "city": "Delhi",
+      "state": "DELHI",
+      "portal_name": "MCD 311",
+      "url": "https://mcd.everythingcivic.com",
+      "departments_covered": ["MCD"],
+      "scrape_status": "needs_inspection",
+      "api_endpoint": null,
+      "source": "https://mcdonline.nic.in/portal/mService; app built by EverythingCivic/BeyondM",
+      "run_notes": "2026-08-15: confirmed React SPA (672-byte shell, empty #root div) — open DevTools > Network > XHR on mcd.everythingcivic.com to find the JSON API before scraping."
+    },
+    {
+      "city": "Chennai",
+      "state": "TAMIL NADU",
+      "portal_name": "GCC Public Grievance Redressal System (Namma Chennai)",
+      "url": "https://gccservices.in/pgr",
+      "departments_covered": ["Greater Chennai Corporation"],
+      "scrape_status": "html_only",
+      "api_endpoint": null,
+      "source": "https://gccservices.in/pgr",
+      "run_notes": "2026-08-15: fetched fine (34KB), server-rendered — BeautifulSoup should work directly."
+    }
+  ],
+  "national": {
+    "portal_name": "Swachhata-MoHUA",
+    "operator": "Ministry of Housing and Urban Affairs / Janaagraha IChangeMyCity",
+    "note": "Routes to whichever ULB owns the ward — not a fixed department list. Useful as an intake-volume reference, not a department directory.",
+    "scrape_status": "unknown"
+  }
+}

@@ -1,0 +1,37 @@
+state_code,state_name,water_authority_name,water_authority_scope,discom_names,fire_dept_name,verified,notes
+35,ANDAMAN AND NICOBAR ISLANDS,PWD Water Works Division,statewide,Electricity Department A&N Administration,A&N Fire and Emergency Services,FALSE,TODO verify
+28,ANDHRA PRADESH,Public Health Engineering Dept (rural) / city water works,mixed,APEPDCL;APSPDCL,AP State Disaster Response & Fire Services Dept,FALSE,DISCOMs split post-2022 restructuring; verify current names
+12,ARUNACHAL PRADESH,PHED Arunachal Pradesh,statewide,Department of Power Arunachal Pradesh,Arunachal Pradesh Fire Service,FALSE,TODO verify
+18,ASSAM,PHED Assam,statewide,Assam Power Distribution Company Ltd (APDCL),Assam Fire and Emergency Service,FALSE,TODO verify
+10,BIHAR,PHED Bihar,statewide,North Bihar Power Distribution Company (NBPDCL);South Bihar Power Distribution Company (SBPDCL),Bihar Fire Service,FALSE,TODO verify
+4,CHANDIGARH,Chandigarh Municipal Corporation Public Health Wing,city,UT Chandigarh Electricity Department,Chandigarh Fire Brigade,FALSE,TODO verify
+22,CHHATTISGARH,PHED Chhattisgarh,statewide,Chhattisgarh State Power Distribution Co Ltd (CSPDCL),Chhattisgarh Fire Service,FALSE,TODO verify
+7,DELHI,Delhi Jal Board (DJB),city,BSES Rajdhani Power Ltd;BSES Yamuna Power Ltd;Tata Power Delhi Distribution Ltd (TPDDL);New Delhi Municipal Council (NDMC area),Delhi Fire Service,FALSE,DISCOM depends on zone within Delhi; verify boundary map
+30,GOA,Public Works Dept (Water Supply Div) Goa,statewide,Goa Electricity Department,Goa Fire and Emergency Services,FALSE,TODO verify
+24,GUJARAT,Gujarat Water Supply and Sewerage Board (GWSSB) / AMC (Ahmedabad),mixed,Uttar Gujarat Vij Company (UGVCL);Madhya Gujarat Vij Company (MGVCL);Dakshin Gujarat Vij Company (DGVCL);Paschim Gujarat Vij Company (PGVCL);Torrent Power (Ahmedabad/Surat licensed areas),Gujarat Fire and Emergency Services,FALSE,TODO verify zone boundaries for 4 DISCOMs
+6,HARYANA,Public Health Engineering Dept Haryana,statewide,Dakshin Haryana Bijli Vitran Nigam (DHBVN);Uttar Haryana Bijli Vitran Nigam (UHBVN),Haryana Fire Service,FALSE,TODO verify
+2,HIMACHAL PRADESH,Irrigation & Public Health Dept (IPH) HP,statewide,HP State Electricity Board Ltd (HPSEBL),HP Fire and Emergency Services,FALSE,TODO verify
+1,JAMMU AND KASHMIR,Jal Shakti Dept (PHE Wing) J&K,statewide,Jammu & Kashmir Power Distribution Corporation Ltd (JKPDCL),J&K Fire and Emergency Services,FALSE,TODO verify
+20,JHARKHAND,Drinking Water and Sanitation Dept Jharkhand,statewide,Jharkhand Bijli Vitran Nigam Ltd (JBVNL),Jharkhand Fire Service,FALSE,TODO verify
+29,KARNATAKA,Bangalore Water Supply and Sewerage Board (BWSSB, Bengaluru only) / Karnataka Urban Water Supply Board (other cities),mixed,Bangalore Electricity Supply Company (BESCOM);Mangalore Electricity Supply Company (MESCOM);Hubli Electricity Supply Company (HESCOM);Gulbarga Electricity Supply Company (GESCOM);Chamundeshwari Electricity Supply Corp (CESC Mysuru),Karnataka Fire and Emergency Services,FALSE,BWSSB only covers Bengaluru; other cities use KUWSDB. Verify DISCOM district boundaries
+32,KERALA,Kerala Water Authority (KWA),statewide,Kerala State Electricity Board (KSEB),Kerala Fire and Rescue Services,FALSE,TODO verify
+37,LADAKH,PHE Dept Ladakh,statewide,Power Development Dept Ladakh,Ladakh Fire and Emergency Services,FALSE,TODO verify
+31,LAKSHADWEEP,PWD Water Works Lakshadweep,statewide,Electricity Department Lakshadweep,Lakshadweep Fire Service,FALSE,TODO verify
+23,MADHYA PRADESH,PHED Madhya Pradesh,statewide,Madhya Pradesh Poorv Kshetra Vidyut Vitaran Co (MPPKVVCL);Madhya Pradesh Madhya Kshetra Vidyut Vitaran Co (MPMKVVCL);Madhya Pradesh Paschim Kshetra Vidyut Vitaran Co (MPPKVVCL West),Madhya Pradesh Fire Service,FALSE,3 regional DISCOMs; verify district-to-DISCOM mapping
+27,MAHARASHTRA,Maharashtra Jeevan Pradhikaran (MJP) / Mumbai: BMC Water Dept,mixed,Maharashtra State Electricity Distribution Co (MSEDCL);BEST (Mumbai city);Tata Power / Adani Electricity (parts of Mumbai),Maharashtra Fire Service,FALSE,Mumbai has multiple co-existing DISCOMs; verify licensed-area map
+14,MANIPUR,PHED Manipur,statewide,Manipur State Power Distribution Company Ltd (MSPDCL),Manipur Fire Service,FALSE,TODO verify
+17,MEGHALAYA,PHE Dept Meghalaya,statewide,Meghalaya Power Distribution Corporation Ltd (MePDCL),Meghalaya Fire and Emergency Services,FALSE,TODO verify
+15,MIZORAM,PHE Dept Mizoram,statewide,Power and Electricity Dept Mizoram,Mizoram Fire and Emergency Services,FALSE,TODO verify
+13,NAGALAND,PHE Dept Nagaland,statewide,Dept of Power Nagaland,Nagaland Fire and Emergency Services,FALSE,TODO verify
+21,ODISHA,PHED Odisha,statewide,TP Central Odisha Distribution (TPCODL);TP Northern Odisha Distribution (TPNODL);TP Southern Odisha Distribution (TPSODL);TP Western Odisha Distribution (TPWODL),Odisha Fire Service,FALSE,All 4 DISCOMs now Tata Power JV; verify current names
+34,PUDUCHERRY,PWD Water Supply Wing Puducherry,statewide,Electricity Department Puducherry,Puducherry Fire and Rescue Services,FALSE,TODO verify
+3,PUNJAB,Punjab Water Supply and Sewerage Board (PWSSB),statewide,Punjab State Power Corporation Ltd (PSPCL),Punjab Fire and Emergency Services,FALSE,TODO verify
+8,RAJASTHAN,Public Health Engineering Dept (PHED) Rajasthan,statewide,Jaipur Vidyut Vitran Nigam (JVVNL);Ajmer Vidyut Vitran Nigam (AVVNL);Jodhpur Vidyut Vitran Nigam (JdVVNL),Rajasthan Fire Service,FALSE,3 regional DISCOMs; verify district-to-DISCOM mapping
+11,SIKKIM,PHE Dept Sikkim,statewide,Energy and Power Dept Sikkim,Sikkim Fire and Emergency Services,FALSE,TODO verify
+33,TAMIL NADU,Tamil Nadu Water Supply and Drainage Board (TWAD) / Chennai Metrowater (Chennai only),mixed,Tamil Nadu Generation and Distribution Corp (TANGEDCO),Tamil Nadu Fire and Rescue Services,FALSE,Chennai Metrowater is separate from TWAD; verify
+36,TELANGANA,Hyderabad Metropolitan Water Supply and Sewerage Board (HMWSSB, Hyderabad only) / Mission Bhagiratha (rest of state),mixed,Telangana State Southern Power Distribution Co (TSSPDCL);Telangana State Northern Power Distribution Co (TSNPDCL),Telangana State Disaster Response and Fire Services Dept,FALSE,TODO verify
+38,THE DADRA AND NAGAR HAVELI AND DAMAN AND DIU,PWD Water Supply Division,statewide,Electricity Department DNH & DD,DNH & DD Fire Service,FALSE,TODO verify
+16,TRIPURA,PHE Dept Tripura,statewide,Tripura State Electricity Corporation Ltd (TSECL),Tripura Fire and Emergency Services,FALSE,TODO verify
+5,UTTARAKHAND,Uttarakhand Jal Sansthan / Uttarakhand Peyjal Nigam,statewide,Power Transmission Corporation of Uttarakhand (PTCUL) - distribution via UPCL,Uttarakhand Fire and Emergency Services,FALSE,TODO verify
+9,UTTAR PRADESH,UP Jal Nigam,statewide,Purvanchal Vidyut Vitran Nigam (PuVVNL);Paschimanchal Vidyut Vitran Nigam (PVVNL);Madhyanchal Vidyut Vitran Nigam (MVVNL);Dakshinanchal Vidyut Vitran Nigam (DVVNL);Kanpur Electricity Supply Co (KESCO),Uttar Pradesh Fire Service,FALSE,5 DISCOMs; verify district-to-DISCOM mapping
+19,WEST BENGAL,Kolkata: KMC Water Supply Dept / rest of state: Public Health Engineering Dept (PHED) WB,mixed,West Bengal State Electricity Distribution Co (WBSEDCL);Calcutta Electric Supply Corp (CESC, Kolkata city),West Bengal Fire and Emergency Services,FALSE,TODO verify

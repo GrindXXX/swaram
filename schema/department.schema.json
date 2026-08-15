@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Department",
+  "description": "A concrete, named authority resolved for a location — the output of joining data/departments/taxonomy.json + data/raw/lgd/urban_local_bodies.csv + data/departments/state_agencies.csv against a point.",
+  "type": "object",
+  "required": ["authority_type", "name", "jurisdiction_level", "confidence"],
+  "properties": {
+    "authority_type": {
+      "type": "string",
+      "description": "One of the keys in taxonomy.json._meta.authority_types"
+    },
+    "name": {
+      "type": "string",
+      "description": "The resolved department/agency name, e.g. 'Bruhat Bengaluru Mahanagara Palike' or 'BESCOM'"
+    },
+    "jurisdiction_level": {
+      "type": "string",
+      "enum": ["ULB", "STATE", "NATIONAL"]
+    },
+    "state_code": { "type": "integer", "description": "LGD state code" },
+    "local_body_code": { "type": "integer", "description": "LGD local body code, null for state/national-level authorities" },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "How confident the resolver is in this match. Below the app's threshold, route to the ULB's general grievance cell instead of guessing, and surface the guess to the user for confirmation."
+    },
+    "source": { "type": "string", "description": "Where this row came from — LGD file path, state_agencies.csv row, or a scraped portal" }
+  }
+}
