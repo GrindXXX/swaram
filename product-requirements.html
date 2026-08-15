@@ -1836,6 +1836,11 @@ promotion triggers (any two, plus officer or supervisor confirmation):
       <p class="small" style="margin-top:.4rem">One user may hold multiple officer records across departments or wards.</p>
     </div>
     <div class="card">
+      <h4><code>officer_roster_records</code></h4>
+      <p class="small mono">id · source_batch_id · name · designation · department_ref · jurisdiction_ref · phone · email · employee_ref · match_status · matched_user_id · confirmed_at · created_at · deactivated_at</p>
+      <p class="small" style="margin-top:.4rem"><code>match_status</code>: <code>PENDING</code> · <code>MATCHED</code> · <code>CONFIRMED</code> · <code>AMBIGUOUS</code> · <code>UNUSABLE_CONTACT</code>. Government-supplied rows land here first; officer accounts are provisioned only on confirmation.</p>
+    </div>
+    <div class="card">
       <h4><code>jurisdictions</code></h4>
       <p class="small mono">id · name · type · parent_id · geometry · created_at</p>
       <p class="small" style="margin-top:.4rem">Self-referencing hierarchy: State → City → Zone → Ward. <code>geometry</code> holds polygon boundaries for point-in-polygon routing.</p>
@@ -1976,12 +1981,57 @@ promotion triggers (any two, plus officer or supervisor confirmation):
         </table>
       </div>
       <ul class="req" style="margin-top:.75rem">
-        <li><b>Officer accounts are created by invitation</b> from an authenticated department admin, who sets department, jurisdiction and designation. There is no self-service officer signup, and no route by which a citizen account becomes an officer account.</li>
-        <li><b>The authority that grants can revoke.</b> This is what makes transfers, retirements and suspensions work — problems no self-attested identity scheme solves.</li>
-        <li><b>Periodic re-attestation.</b> Department admins confirm their active roster quarterly; unconfirmed accounts go read-only rather than silently retaining power.</li>
-        <li><b>Contractors and representatives follow the same rule</b> — vouched for by the department that engaged them, scoped to specific issues, with an expiry date on the engagement.</li>
+        <li><b>The government roster is the source of truth</b>, ingested in bulk. The phone number is not evidence of anything by itself — it is the <b>join key</b> between a login and a record the government has already vouched for.</li>
+        <li><b>The authority that grants can revoke.</b> Re-syncing the roster is what makes transfers, retirements and suspensions work — problems no self-attested scheme solves.</li>
+        <li><b>Contractors and representatives are vouched for by the engaging department</b>, scoped to specific issues, with an expiry date.</li>
       </ul>
     </div>
+  </div>
+
+  <h4 style="margin-top:1.75rem">Roster matching — how a login becomes an officer</h4>
+  <pre class="flow" style="margin-top:.6rem">  government roster (bulk)          person opens Swaram
+  name · designation · dept                   │
+  jurisdiction · phone · email          phone OTP login
+            │                                 │
+            ▼                                 ▼
+   officer_roster_records  ◄──── match on phone ────┐
+   status: PENDING                                  │
+            │                                       │
+     ┌──────┴──────┐                                │
+   MATCH        NO MATCH ──► stays a citizen ───────┘
+     │                        (claim flow available)
+     ▼
+ "You've been recognised as
+  Officer · Roads · Ward 42"
+  → confirm → role provisioned
+    from the roster record</pre>
+
+  <div class="grid g2" style="margin-top:1rem">
+    <div>
+      <h4>Fallbacks, because rosters are messy</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Roster has an official email, no mobile</b> → email OTP on the government domain, then bind a personal phone to that record on first login.</li>
+        <li><b>Roster has a landline or a shared department number</b> → cannot be used for OTP and cannot identify a person. Falls to the claim flow. <b>Never provision a shared number as a personal officer account</b> — it destroys the single-accountable-Owner rule.</li>
+        <li><b>Officer's personal number differs from the roster</b> — the common case. Claim flow: sign in with any number, enter employee ID and department, then approval by a department admin or countersignature from an already-verified officer in the same department.</li>
+        <li><b>No roster at all for that body</b> → the department admin is onboarded first and adds their own team. This is the slow path, and it is what §12's Tier 1 expansion actually costs.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Rules on the roster itself</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Re-sync on a schedule</b>, and treat removal from the roster as immediate deactivation. A stale roster means a transferred officer keeps power over a ward they left.</li>
+        <li><b>A matched record grants exactly what the roster says</b> — department, jurisdiction and designation are never self-selected at signup.</li>
+        <li><b>Matching is one-to-one.</b> If a phone number matches more than one roster record, provision nothing and route to manual review.</li>
+        <li><b>Confirmation is required</b>, never silent. The person must actively accept the role, so a wrong match cannot quietly hand someone else's authority to them.</li>
+        <li><b>Log every provisioning event</b> with the roster record, source file and match method. Officer role grants are the most security-sensitive events in the system.</li>
+        <li><b>Number reassignment is real</b> — recycled SIMs exist. Re-verify on any long dormancy before restoring officer powers.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note ai" style="margin-top:1rem">
+    <b>Why this matters for coverage, not just security</b>
+    Roster ingestion is the mechanism that converts §12's Tier 2 (we have a contact) into Tier 1 (a real officer is working the queue) at scale. Hand-inviting officers across 4,814 local bodies is not a plan. <b>Every roster obtained is a coverage expansion</b>, which makes roster acquisition a core business activity, not an IT task.
   </div>
 
   <div class="note" style="margin-top:1.25rem">
@@ -2191,6 +2241,7 @@ promotion triggers (any two, plus officer or supervisor confirmation):
       <ul class="req">
         <li><b>Is the product called Swaram or Sanchari?</b> The ideas document says Sanchari throughout; this document and the repository say Swaram. Trivial to fix, expensive to leave ambiguous once schemas, domains and copy are written. <b>Needs a decision now.</b></li>
         <li><b>National ambition vs. one-ward reality.</b> The ideas document is national in scope; §12 shows we have national <em>jurisdiction</em> data but ~129 authority contacts. Proposal: national coverage for reporting, clustering and pressure from day one, but honest tiering on resolution, and deliberately deep onboarding in one city so at least one place demonstrates the full loop.</li>
+        <li><b>Do the government rosters we can obtain actually contain personal mobile numbers?</b> Phone-based roster matching (§17) is the whole scaling path for officer onboarding, and it collapses if directories list only office landlines or shared department emails. <b>Verify this against the datasets already scraped before building on it</b> — the answer determines whether the claim flow is a fallback or the main road.</li>
         <li><b>Should Swaram accept personal-safety complaints at all?</b> The harassment case is the sharpest version of this. A confidential class makes it <em>possible</em>, but a civic-infrastructure product with a 3-day SLA is a bad home for an urgent personal-safety report. Proposal: accept it, route it to the police department as CONFIDENTIAL, and show the 112 interstitial first — but decide this deliberately before launch, not by default.</li>
         <li><b>Who owns an issue that spans two departments?</b> Proposal: a single owning department plus supporting departments as participants, never dual ownership.</li>
         <li><b>Do representatives (corporator, MLA, minister) get accounts at launch?</b> Their presence adds legitimacy and pressure, but also politicises the thread. Proposal: comment-only, clearly badged, and not in the MVP.</li>
