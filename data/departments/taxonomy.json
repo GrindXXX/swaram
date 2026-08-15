@@ -1,0 +1,99 @@
+{
+  "_meta": {
+    "purpose": "Maps a civic issue category to the TYPE of authority responsible for it in India. This is jurisdiction-generic — it does not name a specific department, because that name changes per state/city. Combine this with data/raw/lgd/urban_local_bodies.csv (for ULB-level authorities) and data/departments/state_agencies.csv (for state-level utility boards) to resolve an actual department name for a given lat/lng.",
+    "authority_types": {
+      "ULB_ENGINEERING": "The urban local body's own civil engineering wing (roads, potholes, footpaths within municipal limits)",
+      "ULB_SANITATION": "The ULB's solid waste management / sanitation wing",
+      "ULB_ELECTRICAL": "The ULB's street lighting section (distinct from the state DISCOM, which handles supply to premises)",
+      "ULB_HEALTH": "The ULB's public health department (mosquito breeding, sanitation-linked disease)",
+      "ULB_HORTICULTURE": "The ULB's parks/trees department",
+      "ULB_TOWN_PLANNING": "The ULB's building-plan approval and illegal-construction enforcement wing",
+      "ULB_ANIMAL_HUSBANDRY": "The ULB's stray animal control wing",
+      "STATE_WATER_BOARD": "A state or city-level water & sewerage board, where one exists (see state_agencies.csv). Falls back to ULB_ENGINEERING or state PHED where no dedicated board exists.",
+      "STATE_PHED": "Public Health Engineering Department — handles water supply in states/rural areas without a dedicated water board",
+      "STATE_DISCOM": "The state electricity distribution company — handles supply faults, transformer issues, billing (distinct from ULB_ELECTRICAL streetlights)",
+      "STATE_PWD": "Public Works Department — state highways and roads outside municipal limits",
+      "NHAI": "National Highways Authority of India — national highways only",
+      "TRAFFIC_POLICE": "City traffic police — signals, signage, congestion",
+      "STATE_FIRE": "State Fire & Emergency Services",
+      "REVENUE_DEPT": "District Collector / Revenue Department — encroachment on government land, disputes"
+    }
+  },
+  "categories": [
+    {
+      "id": "pothole_road_damage",
+      "label": "Pothole / Road Damage",
+      "resolution_order": [
+        { "authority_type": "ULB_ENGINEERING", "condition": "within municipal ward boundary" },
+        { "authority_type": "STATE_PWD", "condition": "on a state highway outside municipal limits" },
+        { "authority_type": "NHAI", "condition": "on a national highway" }
+      ]
+    },
+    {
+      "id": "streetlight",
+      "label": "Streetlight Not Working",
+      "resolution_order": [{ "authority_type": "ULB_ELECTRICAL" }]
+    },
+    {
+      "id": "garbage_swm",
+      "label": "Garbage / Solid Waste",
+      "resolution_order": [{ "authority_type": "ULB_SANITATION" }]
+    },
+    {
+      "id": "water_supply",
+      "label": "Water Supply (no supply / low pressure / contamination)",
+      "resolution_order": [
+        { "authority_type": "STATE_WATER_BOARD", "condition": "city has a dedicated water board" },
+        { "authority_type": "STATE_PHED", "condition": "no dedicated board (mostly rural/smaller towns)" }
+      ]
+    },
+    {
+      "id": "sewerage_drainage",
+      "label": "Sewerage / Drainage / Waterlogging",
+      "resolution_order": [
+        { "authority_type": "STATE_WATER_BOARD", "condition": "city has a dedicated water board" },
+        { "authority_type": "ULB_ENGINEERING", "condition": "storm-water drains not under the water board" }
+      ]
+    },
+    {
+      "id": "power_outage",
+      "label": "Electricity Outage / Faulty Line / Transformer",
+      "resolution_order": [{ "authority_type": "STATE_DISCOM" }]
+    },
+    {
+      "id": "traffic_signal_signage",
+      "label": "Traffic Signal / Signage / Road Markings",
+      "resolution_order": [{ "authority_type": "TRAFFIC_POLICE" }, { "authority_type": "ULB_ENGINEERING" }]
+    },
+    {
+      "id": "encroachment",
+      "label": "Encroachment on Public Land",
+      "resolution_order": [{ "authority_type": "ULB_TOWN_PLANNING" }, { "authority_type": "REVENUE_DEPT" }]
+    },
+    {
+      "id": "stray_animals",
+      "label": "Stray Animals",
+      "resolution_order": [{ "authority_type": "ULB_ANIMAL_HUSBANDRY" }]
+    },
+    {
+      "id": "parks_trees",
+      "label": "Parks / Fallen Trees / Green Cover",
+      "resolution_order": [{ "authority_type": "ULB_HORTICULTURE" }]
+    },
+    {
+      "id": "illegal_construction",
+      "label": "Illegal / Unauthorized Construction",
+      "resolution_order": [{ "authority_type": "ULB_TOWN_PLANNING" }]
+    },
+    {
+      "id": "public_health_sanitation",
+      "label": "Public Health (mosquito breeding, open defecation, dead animal removal)",
+      "resolution_order": [{ "authority_type": "ULB_HEALTH" }]
+    },
+    {
+      "id": "fire_hazard",
+      "label": "Fire Hazard",
+      "resolution_order": [{ "authority_type": "STATE_FIRE" }]
+    }
+  ]
+}
