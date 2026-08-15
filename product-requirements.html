@@ -354,6 +354,7 @@ footer .wrap{display:grid;gap:1rem}
       <li><a href="#mine">My Issues, profile &amp; about</a></li>
       <li><a href="#gov">Government portal</a></li>
       <li><a href="#admin">Admin dashboard</a></li>
+      <li><a href="#authority">Authority coverage &amp; escalation</a></li>
       <li><a href="#ai">AI layer &amp; transparency</a></li>
       <li><a href="#responsive">Responsive &amp; device strategy</a></li>
       <li><a href="#system">Design system</a></li>
@@ -547,7 +548,8 @@ footer .wrap{display:grid;gap:1rem}
         <tr><td><span class="pill p-open">OPEN</span></td><td>Created and routed, not yet owned by a named officer</td><td>System</td><td>Reported</td><td>An officer is assigned</td></tr>
         <tr><td><span class="pill p-neu">ASSIGNED</span></td><td>Owned by a named officer, not started</td><td>System / Supervisor</td><td>Assigned</td><td>Officer acknowledges &amp; starts</td></tr>
         <tr><td><span class="pill p-prog">IN_PROGRESS</span></td><td>Work is actively happening</td><td>Officer</td><td>In progress</td><td>Officer uploads resolution evidence</td></tr>
-        <tr><td><span class="pill p-ai">PENDING_VERIFICATION</span></td><td>Officer claims done; AI + citizens verifying</td><td>Officer</td><td>Awaiting confirmation</td><td>Verification passes or fails</td></tr>
+        <tr><td><span class="pill p-ai">RESOLUTION_SUBMITTED</span></td><td>Authority has submitted evidence and an account of what was done</td><td>Officer</td><td>Government has responded</td><td>Enters community verification</td></tr>
+        <tr><td><span class="pill p-ai">AWAITING_VERIFICATION</span></td><td>Affected citizens are judging whether it is actually fixed</td><td>System</td><td>Awaiting community confirmation</td><td>Verification window closes or a quorum responds</td></tr>
         <tr><td><span class="pill p-done">RESOLVED</span></td><td>Verified fixed</td><td>System after verification</td><td>Resolved</td><td>Re-open window (14 days) expires → CLOSED</td></tr>
         <tr><td><span class="pill p-neu">CLOSED</span></td><td>Final. No further state changes</td><td>System</td><td>Closed</td><td>—</td></tr>
         <tr><td><span class="pill p-crit" style="background:var(--crit-soft);color:var(--crit)">REOPENED</span></td><td>Citizens reported it recurring within the window</td><td>Citizen action / Supervisor</td><td>Reopened</td><td>Returns to ASSIGNED</td></tr>
@@ -557,6 +559,39 @@ footer .wrap{display:grid;gap:1rem}
     </table>
   </div>
   <p class="scroll-hint">← scroll table →</p>
+
+  <h3 style="margin-top:2.5rem">Community verification — resolution is not a government declaration</h3>
+  <p class="small muted" style="max-width:68ch">A problem is not resolved because an authority says it is. After a Resolution Submission, the people who actually reported the issue judge it — and the outcome is a distribution, not a boolean.</p>
+
+  <div class="grid g2" style="margin-top:1rem">
+    <div>
+      <h4>What citizens are asked</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Completely fixed</b></li>
+        <li><b>Partially fixed</b> — with a prompt for what remains</li>
+        <li><b>Still exists</b> — with an option to add fresh photo evidence</li>
+        <li><b>New problem created</b> — the repair caused something else</li>
+      </ul>
+      <p class="small muted" style="margin-top:.5rem">Only reporters and followers of that issue are asked, and only those whose location makes them plausible witnesses. Everyone can see the result.</p>
+    </div>
+    <div>
+      <h4>The satisfaction score</h4>
+      <p class="small">The public outcome is the breakdown itself, not a verdict:</p>
+      <pre class="flow" style="margin-top:.5rem;font-size:.68rem">72%  Completely fixed
+19%  Partially fixed
+ 7%  Still exists
+ 2%  New problem created
+
+→ RESOLVED · satisfaction 72%</pre>
+      <ul class="req" style="margin-top:.75rem">
+        <li><b>Quorum:</b> whichever comes first — responses from 20% of reporters, at least 3 people, or a 7-day window.</li>
+        <li><b>Below ~50% "completely fixed"</b> the issue does not close; it returns to active with pressure raised and the officer notified.</li>
+        <li><b>Low turnout closes the issue</b> at the window's end, but records "insufficient verification" rather than manufacturing consent.</li>
+        <li><b>Satisfaction, not closure count, is the department metric.</b> Closing fast with 30% satisfaction must look worse than closing slowly at 90%.</li>
+        <li><b>Tier 2 and 3 issues (§12) can still be community-verified</b> — a citizen confirming a pothole was quietly filled is valuable even when no officer ever logged in.</li>
+      </ul>
+    </div>
+  </div>
 
   <h3 style="margin-top:2.5rem">Location is always required — but precision and publicity are not the same thing</h3>
   <p class="small muted" style="max-width:68ch">Location is not decoration; it is what determines <em>who owns the issue</em>. Without it there is no jurisdiction, so no department, no officer, no SLA and no accountability — the issue has nowhere to go. Even a harassment complaint needs a location, because it decides which police station is answerable. So location stays mandatory. What varies is how precise it is, and who is allowed to see it.</p>
@@ -949,6 +984,34 @@ navigated by push/back. Same data, same actions.</pre>
     </div>
   </div>
 
+  <h3 style="margin-top:2rem">Three numbers that must never collapse into one</h3>
+  <p class="small muted" style="max-width:68ch">The most common failure in a civic platform is letting popularity become importance. A viral complaint about a gated community's driveway must not outrank a sewage overflow next to a school that nobody has tweeted about. So we keep three separate numbers, computed differently, shown differently, and used for different decisions.</p>
+
+  <div class="grid g3" style="margin-top:1rem">
+    <div class="card" style="border-left:3px solid var(--crit)">
+      <h4>Severity <span class="muted small">— objective</span></h4>
+      <p class="small">How dangerous or damaging the problem is, judged from the report content by the intake agent. A live electrical hazard is CRITICAL with one report and zero supporters.</p>
+      <p class="small" style="margin-top:.4rem"><b>Drives:</b> priority, SLA, emergency interception. <b>Never</b> influenced by report count.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--signal)">
+      <h4>Civic pressure <span class="muted small">— social</span></h4>
+      <p class="small">How strongly the community is demanding action: reports, supporters, followers, discussion activity, and how long it has gone unresolved. Shown as a 0–100 score.</p>
+      <p class="small" style="margin-top:.4rem"><b>Drives:</b> feed ranking, escalation candidacy, the weekly digest. <b>Never</b> drives SLA.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--civic)">
+      <h4>People affected <span class="muted small">— estimated</span></h4>
+      <p class="small">An estimate, not a count — inferred from the affected area, locality context, nearby schools or facilities, and refined as reports arrive. "~2,000 people" for a contaminated supply across three complexes.</p>
+      <p class="small" style="margin-top:.4rem"><b>Drives:</b> priority weighting and scale escalation. Always displayed as an estimate with a ~.</p>
+    </div>
+  </div>
+
+  <ul class="req" style="margin-top:1.25rem">
+    <li><b>Pressure rises when a resolution is rejected.</b> If citizens reject the government's submitted resolution, or fresh reports arrive after closure, pressure increases rather than resetting — the issue returns to active with more force than before. This is the accountability loop's teeth.</li>
+    <li><b>Pressure decays</b> when an authority is genuinely engaging: acknowledgement, official replies and progress evidence all dampen it. It measures unmet demand, not hostility.</li>
+    <li><b>Never show pressure to the officer as a leaderboard.</b> On the government surface it is context, not a scoreboard — officers who feel publicly ranked start rejecting issues instead of fixing them.</li>
+    <li><b>Estimated people affected is capped in its influence</b> on priority, and the estimate itself is officer-correctable. An AI estimate of "~50,000 affected" must not be able to hijack a department's whole queue.</li>
+  </ul>
+
   <h3 style="margin-top:2rem">Ranking</h3>
   <p class="small muted" style="max-width:68ch">The feed is not chronological. An issue affecting 500 people must outrank a fresh minor complaint. For V1 a transparent scoring formula beats a learned model — it is explainable, debuggable and demo-able.</p>
 
@@ -1114,8 +1177,14 @@ defaults: w1 .30  w2 .20  w3 .20
 
   <div class="grid g2" style="margin-top:1.5rem">
     <div>
-      <h3>Civic reputation — deliberate restraint</h3>
-      <p class="small muted">A user profile shows reports filed, issues resolved that they reported, and a light "Active reporter" style badge. There are deliberately <strong>no leaderboards and no points</strong>: gamified civic apps reliably produce spam reports, and the cost of a false report is borne by a real officer's day.</p>
+      <h3>Civic reputation — reward outcomes, never volume</h3>
+      <p class="small muted">Badges are in scope, with one non-negotiable constraint: <strong>nothing is ever awarded for submitting reports.</strong> Every badge must be earned on the far side of an outcome the user did not fully control — a verified resolution, a merge that consolidated real duplicates, an issue the community rallied behind. Reward the volume of complaints and you will get volume, and an officer's day pays for it.</p>
+      <ul class="req" style="margin-top:.75rem">
+        <li><b>Outcome-gated:</b> Eyes Open (first <em>verified</em> issue) · Pathfinder (routed and acknowledged) · Community Builder (reports consolidated into a master issue) · Voice of the People (issue reached significant support) · Problem Solver (contributed to a <em>verified</em> resolution) · Local Guardian (sustained high-impact contribution in a district).</li>
+        <li><b>No citizen leaderboards.</b> Badges are personal and appear on your own profile. Ranking citizens against each other turns civic reporting into competition, and competition into noise.</li>
+        <li><b>Leaderboards are for governments, not people.</b> Ranking districts and states by resolution performance is the opposite mechanism — it points accountability upward, where it belongs.</li>
+        <li><b>Badges are invisible on the feed and on issue pages.</b> They never decorate a report or lend it apparent weight.</li>
+      </ul>
     </div>
     <div>
       <h3>About section</h3>
@@ -1216,7 +1285,8 @@ defaults: w1 .30  w2 .20  w3 .20
         <li><b>Tab: Discussion</b> — a single thread with a visibility toggle per message: <span class="pill p-gov">Public</span> (citizens see it) or <span class="pill p-neu">Internal</span> (department only). This toggle must be impossible to get wrong.</li>
         <li><b>Tab: Evidence</b> — initial, progress and resolution media, each geotagged and timestamped.</li>
         <li><b>Tab: Activity</b> — the immutable timeline: who did what, when, and which AI agent decided what with what confidence.</li>
-        <li><b>Resolution requires evidence.</b> Marking resolved is blocked until at least one resolution photo is attached.</li>
+        <li><b>There is no "Mark Resolved" button.</b> The authority files a <b>Resolution Submission</b>: what was done or will be done, plus evidence — before/after photos, work orders, completion reports, documents, GPS-stamped site imagery. A one-click close is what makes existing grievance portals worthless.</li>
+        <li><b>The authority does not get the last word.</b> Submitting a resolution moves the issue to community verification (§03), not to resolved.</li>
       </ul>
     </div>
   </div>
@@ -1318,7 +1388,20 @@ defaults: w1 .30  w2 .20  w3 .20
       </ul>
     </div>
     <div>
-      <h3>Accountability rules</h3>
+      <h3>Civic intelligence — the public-facing output</h3>
+      <p class="small muted">The accumulated data is not just an internal dashboard. Turned outward, it is the product's civic contribution and its distribution engine.</p>
+      <ul class="req" style="margin-top:.75rem">
+        <li><b>Weekly Civic Newspaper</b> — auto-generated each week from the data: most-pressured issues, longest pending, gaining momentum, resolved and verified this week, <em>rejected resolutions</em>, district spotlight, government performance. Shareable, indexable, and the strongest re-engagement mechanism available — a digest of what your area's government did and didn't do. The "rejected resolutions" section is what makes it journalism rather than a changelog.</li>
+        <li><b>Interactive civic map</b> — public, zoomable India → state → district → local. Per level: issues raised, pending, resolved, average resolution time, civic pressure, estimated people affected, satisfaction. This is also the honest way to surface §12 coverage — where Swaram has authorities onboarded versus where issues are accumulating unheard.</li>
+        <li><b>Civic Performance Index</b> — resolution rate + speed + citizen verification + satisfaction, minus overdue and reopened. Deliberately built from <em>verified</em> outcomes so it cannot be gamed by closing tickets fast.</li>
+        <li><b>Historical trends</b> — week-over-week volume and resolution by region, so improvement or decline is visible rather than anecdotal.</li>
+      </ul>
+      <div class="note warn" style="margin-top:.75rem">
+        <b>Editorial responsibility</b>
+        An auto-generated newspaper naming departments and districts is a publication. It needs a factual template with no editorialising adjectives, figures traceable to the underlying issues, a correction mechanism, and a human review gate before the first editions go out. "The AI wrote it" is not a defence.
+      </div>
+
+      <h3 style="margin-top:1.5rem">Accountability rules</h3>
       <ul class="req">
         <li><b>Department performance is publishable.</b> A public statistics page per ward is a first-class feature, not an afterthought — resolution rates are the product's civic output.</li>
         <li><b>No silent metric edits.</b> Admin cannot delete issues to improve numbers; only merge, reject with reason, or close. All are logged with the actor.</li>
@@ -1328,9 +1411,98 @@ defaults: w1 .30  w2 .20  w3 .20
   </div>
 </section>
 
-<!-- ============================ 12 AI ============================ -->
+<!-- ============================ 12 AUTHORITY COVERAGE ============================ -->
+<section id="authority" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">12</span><h2>Authority coverage &amp; the escalation ladder</h2></div>
+  <p class="lede">This section exists because of a hard constraint in our own data, and it changes the product. We can identify <em>where</em> an issue belongs almost everywhere in India. We cannot, in most of India, reach a <em>named officer</em> who will act on it.</p>
+
+  <div class="tw" style="margin-top:1.5rem">
+    <table>
+      <thead><tr><th>Dataset</th><th>Coverage</th><th>Status</th><th>What it lets us do</th></tr></thead>
+      <tbody>
+        <tr><td>Urban local bodies</td><td>4,814 bodies, 99.9% district-matched</td><td><span class="pill p-done">Complete / national</span></td><td>Determine the responsible local body for essentially any location in India</td></tr>
+        <tr><td>Central government contacts</td><td>92 ministries / departments</td><td><span class="pill p-prog">Real but sparse</span></td><td>Escalate to a named grievance officer at the central level only</td></tr>
+        <tr><td>State government contacts</td><td>37 states / UTs</td><td><span class="pill p-prog">Real but sparse</span></td><td>One grievance contact per state — not per department, not per district</td></tr>
+        <tr><td>State utility boards</td><td>36 states / UTs</td><td><span class="pill p-open">Draft / unverified</span></td><td>Nothing yet — must be verified before it routes anything</td></tr>
+        <tr><td>City grievance portals</td><td>5 metros</td><td><span class="pill p-open">Feasibility only</span></td><td>Nothing yet — scrapability checked, no data pulled</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <div class="note warn" style="margin-top:1.25rem">
+    <b>The gap this exposes</b>
+    Jurisdiction coverage is genuinely national. Officer coverage is roughly <b>129 named contacts</b> for the entire country. Everything else in this document — the queue, the assignment, the SLA, the officer replies — assumes an onboarded officer at the other end. For most locations, on day one, <b>there is no such person in the system</b>. A product that only works where an officer has signed up is a product that works in one ward.
+  </div>
+
+  <h3 style="margin-top:2rem">Three routing tiers — the product must work in all three</h3>
+  <div class="grid g3" style="margin-top:.75rem">
+    <div class="card" style="border-left:3px solid var(--moss)">
+      <span class="pill p-done">Tier 1 · Onboarded</span>
+      <h4 style="margin-top:.5rem">A real officer account exists</h4>
+      <p class="small">The full product as specified: assignment, SLA clock, official replies, resolution evidence, community verification. This is the target state, and initially it will be a handful of wards.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <span class="pill p-prog">Tier 2 · Contactable</span>
+      <h4 style="margin-top:.5rem">We have a grievance contact, not an account</h4>
+      <p class="small">The issue is real and routed, but no one is logged in. Swaram emails a formatted grievance to the registry contact, tracks delivery, and shows the citizen <b>"Sent to [authority] · awaiting response"</b>. No fake SLA countdown, no fake assignee.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--ink-3)">
+      <span class="pill p-neu">Tier 3 · Unmapped</span>
+      <h4 style="margin-top:.5rem">Jurisdiction known, no contact at all</h4>
+      <p class="small">The issue is published, clustered and counted. Its function is public pressure and evidence accumulation. Status reads <b>"Published · no authority contact yet"</b> — honestly, not as a pending ticket.</p>
+    </div>
+  </div>
+
+  <ul class="req" style="margin-top:1.25rem">
+    <li><b>Never fabricate an assignee or an SLA.</b> A countdown against a department that has never heard of Swaram is a lie to the citizen and the fastest way to lose them. Tier 2 and 3 issues show what actually happened: sent, or published and waiting.</li>
+    <li><b>Coverage is a first-class product surface.</b> The citizen is told, at report time, what will realistically happen with their report in their area. "We'll notify the Ward 42 Roads officer" and "we'll email the state grievance cell" are different promises and must read differently.</li>
+    <li><b>Tier 3 is not failure — it is the wedge.</b> An unmapped area accumulating 200 clustered, evidenced, publicly-visible issues is precisely the argument for onboarding that body. Coverage grows <em>because</em> the pressure exists, not before it.</li>
+    <li><b>Every tier still gets clustering, pressure and verification.</b> The civic loop does not depend on government participation; only resolution does.</li>
+    <li><b>The utility-board and city-portal datasets must be verified before they route anything.</b> Sending a citizen's report to a wrong or dead address is worse than telling them we have no contact.</li>
+  </ul>
+
+  <h3 style="margin-top:2rem">Scale escalation — a separate ladder from SLA escalation</h3>
+  <p class="small muted" style="max-width:68ch">§10's escalation is <em>temporal</em>: an SLA breached, so a supervisor is notified. This ladder is about <em>scale</em>: an issue outgrowing the authority it was routed to. A pothole stays local forever. A contaminated water supply across three apartment complexes does not.</p>
+  <pre class="flow" style="margin-top:1rem">   Local  →  Ward  →  City  →  District  →  State  →  National
+
+promotion triggers (any two, plus officer or supervisor confirmation):
+   · estimated people affected crosses a tier threshold
+   · reports span multiple wards or bodies
+   · civic pressure sustained above threshold for N days
+   · unresolved past SLA at the current level
+   · category is inherently supra-local (exam irregularity,
+     state utility failure, inter-district infrastructure)</pre>
+  <ul class="req" style="margin-top:1rem">
+    <li><b>Promotion adds an authority, it does not remove one.</b> The ward body stays on the issue as a participant when it escalates to district — otherwise escalation becomes a way to shed responsibility.</li>
+    <li><b>Promotion is never fully automatic.</b> The system proposes; a supervisor confirms. Auto-escalating a neighbourhood complaint to a state ministry destroys credibility with both sides.</li>
+    <li><b>Escalation is visible to citizens</b> on the issue page, as a rung on the ladder — it is one of the most motivating things the product can show.</li>
+    <li><b>Non-geographic large issues</b> — exam irregularities, policy failures — enter at the tier that matches their scope rather than being forced through a local body first.</li>
+  </ul>
+
+  <h3 style="margin-top:2rem">Authority registry</h3>
+  <p class="small muted" style="max-width:68ch">The registry is the spine of all of the above, and it needs a product surface, not just a table.</p>
+  <div class="grid g2" style="margin-top:.75rem">
+    <div class="card">
+      <h4><code>authorities</code></h4>
+      <p class="small mono">id · name · type · department · jurisdiction_id · level · grievance_email · phone · official_handles · responsible_role · verification_status · source · last_verified_at · tier</p>
+      <p class="small" style="margin-top:.4rem"><code>verification_status</code>: <code>VERIFIED</code> · <code>SCRAPED_UNVERIFIED</code> · <code>DRAFT</code>. Only VERIFIED entries may be contacted automatically.</p>
+    </div>
+    <div class="card">
+      <h4>Rules</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li>Every entry carries its source and last-verified date — an unsourced contact is a liability.</li>
+        <li>Bounced or unanswered emails downgrade an entry's status automatically.</li>
+        <li>Registry health (verified %, bounce rate, response rate per authority) is an admin dashboard panel.</li>
+        <li>Public social handles are stored, but <b>Swaram does not auto-post to external platforms</b> at V1. Automated public tagging of officials is a different product with different consequences; keep it a human decision.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 13 AI ============================ -->
 <section id="ai" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">12</span><h2>AI layer &amp; transparency</h2></div>
+  <div class="sec-head"><span class="sec-num">13</span><h2>AI layer &amp; transparency</h2></div>
   <p class="lede">The AI is the bridge between a citizen who doesn't know the bureaucracy and a bureaucracy that can't process fifty phone calls about one pothole. From a product standpoint, its job is to remove questions from the citizen and remove noise from the officer.</p>
 
   <div class="grid g2" style="margin-top:1.5rem">
@@ -1389,7 +1561,7 @@ defaults: w1 .30  w2 .20  w3 .20
         <table style="min-width:440px">
           <thead><tr><th>Agent</th><th>Decides</th><th>Auto-applies when</th></tr></thead>
           <tbody>
-            <tr><td><b>1 · Intake</b><br><span class="muted small">multimodal, one pass</span></td><td>category, subcategory, severity, generated title, emergency flag, visibility class</td><td>conf ≥ 0.80</td></tr>
+            <tr><td><b>1 · Intake</b><br><span class="muted small">multimodal, one pass</span></td><td>category, subcategory, severity, generated title, emergency flag, visibility class, estimated people affected, safety/abuse screen</td><td>conf ≥ 0.80</td></tr>
             <tr><td><b>2 · Clustering</b><br><span class="muted small">the hard one</span></td><td>merge two existing issues</td><td>conf ≥ 0.90 <span class="muted">(0.75–0.90 → officer confirms)</span></td></tr>
             <tr><td><b>3 · Verifier</b><br><span class="muted small">before / after</span></td><td>resolution passed / failed</td><td>never — always advisory</td></tr>
           </tbody>
@@ -1418,6 +1590,10 @@ defaults: w1 .30  w2 .20  w3 .20
         <tr><td>Locate — ward / jurisdiction</td><td>Point-in-polygon geospatial query</td><td>Exact and instant. A model can only make this worse.</td></tr>
         <tr><td>Route — department</td><td><code>category × jurisdiction</code> lookup table</td><td>Once intake gives a category, the owning department is a fact, not a judgment. <em>Fallback agent only for genuinely ambiguous categories — roughly 5% of traffic.</em></td></tr>
         <tr><td>Prioritise</td><td>Scoring formula over severity, report count, road class</td><td>Must be explainable to an officer who disagrees with it, and tunable without a model change.</td></tr>
+        <tr><td>Civic pressure score</td><td>Weighted formula over reports, supporters, discussion, age</td><td>Must be auditable — a "rage score" nobody can explain will be accused of bias the first week.</td></tr>
+        <tr><td>Satisfaction score</td><td>Aggregation of verification responses</td><td>It is arithmetic over citizen votes. A model here would be indefensible.</td></tr>
+        <tr><td>Scale escalation</td><td>Threshold rules + human confirmation</td><td>Promoting an issue to a state ministry must never be a model's unilateral call.</td></tr>
+        <tr><td>Weekly newspaper</td><td>Template filled from queries <span class="muted">(LLM for prose only, on verified figures)</span></td><td>Numbers must come from the database, never be generated. The model phrases; it does not compute.</td></tr>
         <tr><td>Assign officer</td><td>Workload balance within department + ward</td><td>A staffing rule, not a reasoning problem.</td></tr>
         <tr><td>Feed ranking</td><td>Weighted formula (§06)</td><td>Server-side config, tunable live, debuggable per request.</td></tr>
         <tr><td>SLA &amp; escalation</td><td>Timers</td><td>Nothing to decide.</td></tr>
@@ -1496,7 +1672,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 13 RESPONSIVE ============================ -->
 <section id="responsive" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">13</span><h2>Responsive &amp; device strategy</h2></div>
+  <div class="sec-head"><span class="sec-num">14</span><h2>Responsive &amp; device strategy</h2></div>
   <p class="lede">Mobile is not a smaller desktop; it is the primary product for citizens. Desktop is the primary product for government. Both must work on both.</p>
 
   <div class="tw" style="margin-top:1.5rem">
@@ -1549,7 +1725,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 14 DESIGN SYSTEM ============================ -->
 <section id="system" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">14</span><h2>Design system</h2></div>
+  <div class="sec-head"><span class="sec-num">15</span><h2>Design system</h2></div>
 
   <div class="grid g2">
     <div>
@@ -1613,7 +1789,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 15 STATES ============================ -->
 <section id="states" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">15</span><h2>States, errors &amp; edge cases</h2></div>
+  <div class="sec-head"><span class="sec-num">16</span><h2>States, errors &amp; edge cases</h2></div>
 
   <div class="tw">
     <table>
@@ -1639,7 +1815,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 16 DATA MODEL ============================ -->
 <section id="data" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">16</span><h2>Data model</h2></div>
+  <div class="sec-head"><span class="sec-num">17</span><h2>Data model</h2></div>
   <p class="lede">Product-level entity definitions. Field types, indexes and constraints belong in the technical design document.</p>
 
   <div class="grid g2" style="margin-top:1.5rem">
@@ -1665,7 +1841,7 @@ defaults: w1 .30  w2 .20  w3 .20
     </div>
     <div class="card" style="border-left:3px solid var(--signal)">
       <h4><code>issues</code> — the core table</h4>
-      <p class="small mono">id · public_id · title · description · category · subcategory · latitude · longitude · address · location_precision · location_visibility · visibility · severity · priority · status · department_id · jurisdiction_id · owner_officer_id · report_count · follower_count · sla_due_at · created_by · created_at · updated_at · resolved_at · closed_at · merged_into_id · rejection_reason</p>
+      <p class="small mono">id · public_id · title · description · category · subcategory · latitude · longitude · address · location_precision · location_visibility · visibility · severity · civic_pressure · estimated_people_affected · escalation_level · routing_tier · satisfaction_score · priority · status · department_id · jurisdiction_id · authority_id · owner_officer_id · report_count · follower_count · sla_due_at · created_by · created_at · updated_at · resolved_at · closed_at · merged_into_id · rejection_reason</p>
       <p class="small" style="margin-top:.4rem"><code>public_id</code> is the human-facing <code>CIV-#####</code> used in every URL, share and conversation. <code>owner_officer_id</code> is the single accountable officer — everyone <em>else</em> involved lives in <code>issue_participants</code>.</p>
     </div>
     <div class="card" style="border-left:3px solid var(--signal)">
@@ -1692,6 +1868,16 @@ defaults: w1 .30  w2 .20  w3 .20
       <h4><code>comments</code></h4>
       <p class="small mono">id · issue_id · user_id · parent_id · content · visibility · is_official · flag_count · created_at · updated_at</p>
       <p class="small" style="margin-top:.4rem"><code>visibility</code>: <code>PUBLIC</code> · <code>INTERNAL</code>. Internal comments are invisible to citizens by hard rule at the query layer.</p>
+    </div>
+    <div class="card">
+      <h4><code>resolution_submissions</code></h4>
+      <p class="small mono">id · issue_id · submitted_by · authority_id · action_taken · intent · documents · evidence_ids · submitted_at · verification_opened_at · verification_closed_at · outcome</p>
+      <p class="small" style="margin-top:.4rem">An authority may file more than one over an issue's life — a rejected resolution is a record, not a deletion.</p>
+    </div>
+    <div class="card">
+      <h4><code>verification_responses</code></h4>
+      <p class="small mono">id · resolution_submission_id · user_id · verdict · comment · media_url · created_at</p>
+      <p class="small" style="margin-top:.4rem">Verdicts: <code>COMPLETELY_FIXED</code> · <code>PARTIALLY_FIXED</code> · <code>STILL_EXISTS</code> · <code>NEW_PROBLEM</code>. Aggregated into the satisfaction score.</p>
     </div>
     <div class="card">
       <h4><code>issue_reactions</code></h4>
@@ -1727,7 +1913,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 17 ROLES / NOTIFICATIONS ============================ -->
 <section id="roles" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">17</span><h2>Roles, permissions &amp; notifications</h2></div>
+  <div class="sec-head"><span class="sec-num">18</span><h2>Roles, permissions &amp; notifications</h2></div>
 
   <div class="tw">
     <table>
@@ -1784,7 +1970,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 18 NFR ============================ -->
 <section id="nfr" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">18</span><h2>Non-functional requirements</h2></div>
+  <div class="sec-head"><span class="sec-num">19</span><h2>Non-functional requirements</h2></div>
 
   <div class="grid g3">
     <div class="card"><h4>Performance</h4><ul class="req" style="margin-top:.5rem">
@@ -1828,7 +2014,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 19 TRUST ============================ -->
 <section id="trust" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">19</span><h2>Trust, safety &amp; moderation</h2></div>
+  <div class="sec-head"><span class="sec-num">20</span><h2>Trust, safety &amp; moderation</h2></div>
   <p class="lede">A public civic feed is a target for spam, harassment, political brigading and coordinated false reporting. These are product requirements, not policy afterthoughts.</p>
 
   <div class="grid g2" style="margin-top:1.5rem">
@@ -1859,7 +2045,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 20 METRICS ============================ -->
 <section id="metrics" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">20</span><h2>Success metrics</h2></div>
+  <div class="sec-head"><span class="sec-num">21</span><h2>Success metrics</h2></div>
 
   <div class="tw">
     <table>
@@ -1868,6 +2054,10 @@ defaults: w1 .30  w2 .20  w3 .20
         <tr><td rowspan="3"><b>North star</b></td><td>Verified issues resolved per 1,000 residents / month</td><td>The only number that means the product worked in the real world</td><td>Grow month over month</td></tr>
         <tr><td>Median time to resolve</td><td>The citizen's actual experience of government</td><td>↓ 30% in 6 months</td></tr>
         <tr><td>Re-open rate</td><td>Detects closure without a real fix</td><td>&lt; 10%</td></tr>
+        <tr><td rowspan="2"><b>Verification</b></td><td>Citizen satisfaction score on resolved issues</td><td>The honest measure of whether government action worked — the number closure counts cannot fake</td><td>&gt; 70% "completely fixed"</td></tr>
+        <tr><td>Verification participation rate</td><td>If nobody verifies, the whole accountability loop is decorative</td><td>&gt; 20% of reporters respond</td></tr>
+        <tr><td rowspan="2"><b>Coverage</b></td><td>% of issues in Tier 1 (onboarded authority)</td><td>The growth constraint from §12 — everything else is capped by this</td><td>Grow month over month</td></tr>
+        <tr><td>Authority registry verified %</td><td>Unverified contacts route reports into the void</td><td>&gt; 90% of contacted entries verified</td></tr>
         <tr><td rowspan="3"><b>Citizen</b></td><td>Report completion rate (started → submitted)</td><td>Measures friction in the capture flow</td><td>&gt; 85%</td></tr>
         <tr><td>Reports per issue (clustering ratio)</td><td>Proves the crowd mechanic is working</td><td>&gt; 3.0 in active wards</td></tr>
         <tr><td>D30 return rate of reporters</td><td>Did we deliver visible value?</td><td>&gt; 35%</td></tr>
@@ -1885,7 +2075,7 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 21 SCOPE ============================ -->
 <section id="scope" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">21</span><h2>Scope: MVP → V1 → later</h2></div>
+  <div class="sec-head"><span class="sec-num">22</span><h2>Scope: MVP → V1 → later</h2></div>
 
   <div class="grid g3">
     <div class="card" style="border-left:3px solid var(--signal)">
@@ -1909,6 +2099,9 @@ defaults: w1 .30  w2 .20  w3 .20
         <li>SLA engine, escalation, overdue views</li>
         <li>Resolution evidence + AI verification + citizen confirmation</li>
         <li>Notifications (push + digest), reopen flow</li>
+        <li>Resolution Submissions + community verification with satisfaction scores</li>
+        <li>Authority registry with the three routing tiers (§12), email escalation for Tier 2</li>
+        <li>Civic pressure score, separated from severity</li>
         <li>Officer field mode, admin dashboard, moderation queue</li>
         <li>PWA install, offline queue</li>
       </ul>
@@ -1917,6 +2110,11 @@ defaults: w1 .30  w2 .20  w3 .20
       <span class="kicker">Phase 2+ · Later</span>
       <h4 style="margin-top:.4rem">Scale &amp; depth</h4>
       <ul class="req" style="margin-top:.5rem">
+        <li>Weekly Civic Newspaper, auto-generated</li>
+        <li>Public interactive map: India → state → district → local</li>
+        <li>Civic Performance Index &amp; district/state leaderboards</li>
+        <li>3D civic landscape visualisation</li>
+        <li>Historical trend analysis per region</li>
         <li>Learned feed ranking replacing the formula</li>
         <li>Ward-level public transparency pages &amp; open data API</li>
         <li>Predictive maintenance from recurrence patterns</li>
@@ -1936,12 +2134,14 @@ defaults: w1 .30  w2 .20  w3 .20
 
 <!-- ============================ 22 RISKS ============================ -->
 <section id="risks" class="wrap rv">
-  <div class="sec-head"><span class="sec-num">22</span><h2>Open questions &amp; risks</h2></div>
+  <div class="sec-head"><span class="sec-num">23</span><h2>Open questions &amp; risks</h2></div>
 
   <div class="grid g2">
     <div>
       <h3>Open questions</h3>
       <ul class="req">
+        <li><b>Is the product called Swaram or Sanchari?</b> The ideas document says Sanchari throughout; this document and the repository say Swaram. Trivial to fix, expensive to leave ambiguous once schemas, domains and copy are written. <b>Needs a decision now.</b></li>
+        <li><b>National ambition vs. one-ward reality.</b> The ideas document is national in scope; §12 shows we have national <em>jurisdiction</em> data but ~129 authority contacts. Proposal: national coverage for reporting, clustering and pressure from day one, but honest tiering on resolution, and deliberately deep onboarding in one city so at least one place demonstrates the full loop.</li>
         <li><b>Should Swaram accept personal-safety complaints at all?</b> The harassment case is the sharpest version of this. A confidential class makes it <em>possible</em>, but a civic-infrastructure product with a 3-day SLA is a bad home for an urgent personal-safety report. Proposal: accept it, route it to the police department as CONFIDENTIAL, and show the 112 interstitial first — but decide this deliberately before launch, not by default.</li>
         <li><b>Who owns an issue that spans two departments?</b> Proposal: a single owning department plus supporting departments as participants, never dual ownership.</li>
         <li><b>Do representatives (corporator, MLA, minister) get accounts at launch?</b> Their presence adds legitimacy and pressure, but also politicises the thread. Proposal: comment-only, clearly badged, and not in the MVP.</li>
@@ -1955,6 +2155,8 @@ defaults: w1 .30  w2 .20  w3 .20
     <div>
       <h3>Risks</h3>
       <ul class="req">
+        <li><b>Promising resolution we cannot deliver</b> — with ~129 authority contacts nationally, most reports have no one to act on them. If the UI implies otherwise, we burn citizen trust at national scale. §12's tiering exists specifically to prevent this, and it is the single most important thing to get right in the first build.</li>
+        <li><b>The newspaper as a legal surface</b> — auto-generated content naming departments and districts invites defamation and RTI exposure. Human review gate before the first edition, no exceptions.</li>
         <li><b>Government non-adoption</b> — the highest risk by far. A public feed with no officers responding is worse than nothing. Mitigation: launch in one ward with a committed department, and never make the public feed live before officers are onboarded.</li>
         <li><b>False merges eroding trust</b> — see §12. Officer split action is not optional.</li>
         <li><b>The empty-feed cold start</b> — a feed with 3 issues looks dead. Mitigation: seed with historical municipal data where available; launch geographically narrow so density is high.</li>
