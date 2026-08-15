@@ -7,12 +7,17 @@ export function WeeklyRecord() {
   const navigate = useNavigate();
   const maxWeek = Math.max(...w.spotlightWeeks);
 
+  async function shareRecord() {
+    if (navigator.share) await navigator.share({ title: 'Swaram Weekly Record', url: window.location.href });
+    else await navigator.clipboard.writeText(window.location.href);
+  }
+
   const footer = (
     <div className="flex gap-2.5 border-t border-border-strong bg-[#EAE0C8] px-4 py-3">
       <button onClick={() => navigate('/')} className="flex-1 rounded-full bg-ink py-3 font-mono text-[13px] font-bold text-paper">
         Open the threads
       </button>
-      <button className="flex w-14 items-center justify-center rounded-full border-[1.5px] border-ink">
+      <button aria-label="Share weekly record" onClick={() => void shareRecord()} className="flex w-14 items-center justify-center rounded-full border-[1.5px] border-ink">
         <ShareIcon size={19} className="text-ink" />
       </button>
     </div>
@@ -35,7 +40,7 @@ export function WeeklyRecord() {
           <Stat value={w.waiting.toLocaleString()} label="waiting" tone="text-rage" />
         </div>
 
-        <button onClick={() => navigate('/thread/CIV-11290')} className="block w-full border-b border-border-strong py-3.5 text-left">
+        <button onClick={() => navigate('/i/CIV-11290')} className="block w-full border-b border-border-strong py-3.5 text-left">
           <div className="font-display text-xl leading-tight">{w.leadTitle}</div>
           <div className="mt-1.5 font-mono text-[11px] text-muted">{w.leadDetail}</div>
           <p className="mt-2 text-[13.5px] leading-relaxed">{w.leadBody}</p>

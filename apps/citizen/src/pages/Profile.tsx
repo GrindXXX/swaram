@@ -84,11 +84,13 @@ export function Profile() {
           <span className="font-mono text-[11px] font-bold text-rage-glow">See →</span>
         </button>
 
-        <div className="mb-2 mt-5 font-mono text-[11.5px] font-bold tracking-wide text-muted">YOUR THREADS</div>
+        <button onClick={() => navigate('/me/issues')} className="mb-2 mt-5 flex w-full items-center justify-between font-mono text-[11.5px] font-bold tracking-wide text-muted">
+          <span>YOUR ISSUES</span><span className="text-rage">Created &amp; following →</span>
+        </button>
         {myThreads.map(({ issue, status, tag }) => (
           <button
             key={issue.id}
-            onClick={() => navigate(`/thread/${issue.id}`)}
+            onClick={() => navigate(`/i/${issue.id}`)}
             className="flex w-full items-center justify-between border-t border-border-light py-3 text-left"
           >
             <div>

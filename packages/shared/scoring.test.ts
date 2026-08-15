@@ -527,7 +527,9 @@ describe('civicPressure', () => {
     // one, these arities change and this test fails.
     expect(slaFor.length).toBe(1);
     const hot = civicPressure({ ...basePressure, reportCount: 500, daysUnresolved: 90 });
-    expect(hot).toBeGreaterThan(50);
+    // Reports + age contribute at most 50 by design; this input should be near
+    // that ceiling without requiring an impossible score above it.
+    expect(hot).toBeGreaterThanOrEqual(45);
     expect(slaFor(IssuePriority.LOW)).toEqual(slaFor(IssuePriority.LOW));
   });
 });

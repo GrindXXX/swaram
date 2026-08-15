@@ -45,13 +45,26 @@ select lives_ok(
   'an authenticated citizen can atomically submit'
 );
 
-select is((select count(*)::int from issues), 1, 'reporter can read the created issue');
-select is((select count(*)::int from reports), 1, 'reporter can read the created report');
+select is(
+  (select count(issue_id)::int from citizen_my_issue_ids() where relation = 'created'),
+  1,
+  'reporter can read the created issue'
+);
+select ok(
+  (select has_reported from citizen_issue_state(
+    (select public_id from issues where title = 'A drain is overflowing across the road.')
+  )),
+  'reporter can read the created report'
+);
 
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon"}', true);
 select set_config('request.jwt.claim.sub', '', true);
-select is((select count(*)::int from issues), 0, 'anon cannot read an unpublished issue');
+select is(
+  (select count(id)::int from issues where title = 'A drain is overflowing across the road.'),
+  0,
+  'anon cannot read an unpublished issue'
+);
 
 set local role authenticated;
 select set_config(
@@ -60,7 +73,11 @@ select set_config(
   true
 );
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
-select is((select count(*)::int from issues), 0, 'another citizen cannot read an unpublished issue');
+select is(
+  (select count(id)::int from issues where title = 'A drain is overflowing across the road.'),
+  0,
+  'another citizen cannot read an unpublished issue'
+);
 
 select set_config(
   'request.jwt.claims',
@@ -79,8 +96,16 @@ select lives_ok(
 );
 
 reset role;
-select is((select count(*)::int from issues), 1, 'idempotent retry creates no second issue');
-select is((select count(*)::int from reports), 1, 'idempotent retry creates no second report');
+select is(
+  (select count(*)::int from issues where created_by = '10000000-0000-4000-8000-000000000001'),
+  1,
+  'idempotent retry creates no second issue'
+);
+select is(
+  (select count(*)::int from reports where client_report_id = '30000000-0000-4000-8000-000000000003'),
+  1,
+  'idempotent retry creates no second report'
+);
 select is(
   (select count(*)::int from reports where client_report_id = '30000000-0000-4000-8000-000000000003'),
   1,

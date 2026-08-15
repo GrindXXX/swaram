@@ -44,6 +44,7 @@ export interface Reply {
 
 export interface Issue {
   id: string; // "CIV-10482"
+  internalId?: string;
   title: string;
   body: string;
   category: string;

@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Pill } from '../components/ui/Pill';
 import { GovBuildingIcon, ChevronLeftIcon, ShareIcon, CheckIcon, XIcon } from '../components/ui/Icons';
 import { issues } from '../lib/mock-data';
+import { shareIssue } from '../lib/share';
 
 const VERDICTS = [
   { label: 'Completely fixed', pct: 72, tone: 'text-resolved', bar: 'bg-resolved' },
@@ -37,7 +38,7 @@ export function RepairVerification() {
           <ChevronLeftIcon size={22} />
         </button>
         <span className="font-mono text-[13px] font-bold">Thread</span>
-        <ShareIcon size={22} className="text-muted-strong" />
+        <button aria-label="Share issue" onClick={() => void shareIssue(issue.id, issue.title)}><ShareIcon size={22} className="text-muted-strong" /></button>
       </header>
 
       <div className="px-4 pb-6 pt-3.5">

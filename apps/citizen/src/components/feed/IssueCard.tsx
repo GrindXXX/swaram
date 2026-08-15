@@ -6,6 +6,7 @@ import { RageMeter } from '../ui/RageMeter';
 import { PhotoPlaceholder } from '../ui/PhotoPlaceholder';
 import { Button } from '../ui/Button';
 import { ChatIcon, SupportHandIcon, SparkleIcon, ShareIcon } from '../ui/Icons';
+import { shareIssue } from '../../lib/share';
 
 export function IssueCard({ issue }: { issue: Issue }) {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export function IssueCard({ issue }: { issue: Issue }) {
       <Avatar initials={initials} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 font-mono text-xs text-muted">
-          <button onClick={() => navigate(`/thread/${issue.id}`)} className="font-bold text-ink">
+          <button onClick={() => navigate(`/i/${issue.id}`)} className="font-bold text-ink">
             {issue.authorHandle}
           </button>
           <span>·</span>
@@ -27,7 +28,7 @@ export function IssueCard({ issue }: { issue: Issue }) {
           <Pill>{issue.category}</Pill>
         </div>
 
-        <button onClick={() => navigate(`/thread/${issue.id}`)} className="block text-left">
+        <button onClick={() => navigate(`/i/${issue.id}`)} className="block text-left">
           <h2 className="mt-2 font-display text-lg leading-tight">{issue.title}</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-muted-strong">{issue.body}</p>
         </button>
@@ -60,10 +61,15 @@ export function IssueCard({ issue }: { issue: Issue }) {
             <SupportHandIcon size={19} /> {issue.standingWithCount}
           </span>
           <SparkleIcon size={19} />
-          <ShareIcon size={19} />
+          <button aria-label="Share issue" onClick={() => void shareIssue(issue.id, issue.title)}><ShareIcon size={19} /></button>
         </div>
 
-        <Button variant="rage" className="mt-3 rounded-full" icon={<SupportHandIcon size={18} />}>
+        <Button
+          variant="rage"
+          className="mt-3 rounded-full"
+          icon={<SupportHandIcon size={18} />}
+          onClick={() => navigate(`/i/${issue.id}?action=facing`)}
+        >
           I'm facing this too
         </Button>
       </div>

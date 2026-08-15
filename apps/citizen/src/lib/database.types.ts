@@ -70,6 +70,7 @@ export interface Database {
         is_anonymous: boolean;
         source: 'CITIZEN_APP' | 'OFFICER' | 'IMPORT';
         created_at: string;
+        is_facing_too: boolean;
       }>;
       comments: Table<{
         id: string;
@@ -88,6 +89,12 @@ export interface Database {
       categories: Table<{ id: string; label: string }>;
       departments: Table<{ id: number; name: string }>;
       jurisdictions: Table<{ id: number; name: string }>;
+      issue_followers: Table<{
+        issue_id: string;
+        user_id: string;
+        muted: boolean;
+        created_at: string;
+      }>;
     };
     Views: Record<string, never>;
     Functions: {
@@ -113,6 +120,30 @@ export interface Database {
           jurisdiction_match_method: JurisdictionMatchMethod;
           published_at: string | null;
         }[];
+      };
+      citizen_issue_state: {
+        Args: { p_public_id: string };
+        Returns: { is_following: boolean; has_reported: boolean }[];
+      };
+      citizen_my_issue_ids: {
+        Args: Record<string, never>;
+        Returns: { issue_id: string; relation: 'created' | 'following' }[];
+      };
+      citizen_issue_descriptions: {
+        Args: { p_issue_ids: string[] };
+        Returns: { issue_id: string; description: string | null }[];
+      };
+      set_citizen_issue_following: {
+        Args: { p_public_id: string; p_following: boolean };
+        Returns: { is_following: boolean; follower_count: number }[];
+      };
+      create_citizen_comment: {
+        Args: { p_public_id: string; p_content: string };
+        Returns: string;
+      };
+      add_citizen_issue_report: {
+        Args: { p_public_id: string; p_client_report_id: string };
+        Returns: { inserted: boolean; report_count: number }[];
       };
     };
     Enums: {

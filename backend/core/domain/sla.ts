@@ -195,7 +195,7 @@ export async function applySla(
 ): Promise<SlaDeadlines> {
   const deadlines = computeDeadlines(args);
 
-  const patch: Record<string, string | null> = {
+  const patch = {
     sla_ack_due_at: deadlines.ackDueAt,
     sla_due_at: deadlines.resolveDueAt,
   };

@@ -17,9 +17,7 @@ type IssueRow = {
   id: string;
   public_id: string;
   title: string | null;
-  description: string | null;
   category_id: string | null;
-  address: string | null;
   location_precision: Issue['locationPrecision'];
   location_visibility: Issue['locationVisibility'];
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -34,7 +32,6 @@ type IssueRow = {
   sla_due_at: string | null;
   report_count: number;
   follower_count: number;
-  created_by: string | null;
   created_at: string;
 };
 
@@ -42,9 +39,7 @@ const ISSUE_COLUMNS = [
   'id',
   'public_id',
   'title',
-  'description',
   'category_id',
-  'address',
   'location_precision',
   'location_visibility',
   'severity',
@@ -59,7 +54,6 @@ const ISSUE_COLUMNS = [
   'sla_due_at',
   'report_count',
   'follower_count',
-  'created_by',
   'created_at',
 ].join(',');
 
@@ -70,12 +64,12 @@ export async function getSession(): Promise<Session | null> {
   return data.session;
 }
 
-export async function signInWithEmail(email: string): Promise<void> {
+export async function signInWithEmail(email: string, returnPath = '/report/confirm'): Promise<void> {
   if (!supabase) throw new Error('Supabase is not configured for this build.');
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${window.location.origin}/report/confirm` },
+    options: { emailRedirectTo: `${window.location.origin}${returnPath}` },
   });
   if (error) throw error;
 }
@@ -114,7 +108,64 @@ export async function getIssue(publicId: string): Promise<Issue | null> {
   return loaded[0] ?? null;
 }
 
-async function loadIssues(publicId?: string): Promise<Issue[]> {
+export async function getCitizenIssueState(publicId: string) {
+  if (!supabase) return { isFollowing: false, hasReported: false };
+  const { data, error } = await supabase.rpc('citizen_issue_state', { p_public_id: publicId });
+  if (error) throw error;
+  return {
+    isFollowing: data[0]?.is_following ?? false,
+    hasReported: data[0]?.has_reported ?? false,
+  };
+}
+
+export async function setIssueFollowing(publicId: string, following: boolean) {
+  if (!supabase) throw new Error('Live actions are unavailable in demo mode.');
+  const { data, error } = await supabase.rpc('set_citizen_issue_following', {
+    p_public_id: publicId,
+    p_following: following,
+  });
+  if (error) throw error;
+  return data[0];
+}
+
+export async function createPublicComment(publicId: string, content: string) {
+  if (!supabase) throw new Error('Live actions are unavailable in demo mode.');
+  const { error } = await supabase.rpc('create_citizen_comment', {
+    p_public_id: publicId,
+    p_content: content,
+  });
+  if (error) throw error;
+}
+
+export async function addFacingTooReport(publicId: string, clientReportId: string) {
+  if (!supabase) throw new Error('Live actions are unavailable in demo mode.');
+  const { data, error } = await supabase.rpc('add_citizen_issue_report', {
+    p_public_id: publicId,
+    p_client_report_id: clientReportId,
+  });
+  if (error) throw error;
+  return data[0];
+}
+
+export async function getMyIssues(): Promise<{ created: Issue[]; following: Issue[] }> {
+  if (!supabase) {
+    return { created: fixtureIssues.slice(0, 2), following: fixtureIssues.slice(2, 5) };
+  }
+  const session = await getSession();
+  if (!session) throw new Error('Sign in to see issues you created or follow.');
+
+  const { data, error } = await supabase.rpc('citizen_my_issue_ids');
+  if (error) throw error;
+  const createdIds = (data ?? []).filter((row) => row.relation === 'created').map((row) => row.issue_id);
+  const followingIds = (data ?? []).filter((row) => row.relation === 'following').map((row) => row.issue_id);
+  const loaded = await loadIssues(undefined, unique([...createdIds, ...followingIds]));
+  return {
+    created: loaded.filter((issue) => issue.internalId && createdIds.includes(issue.internalId)),
+    following: loaded.filter((issue) => issue.internalId && followingIds.includes(issue.internalId)),
+  };
+}
+
+async function loadIssues(publicId?: string, internalIds?: string[]): Promise<Issue[]> {
   if (!supabase) return fixtureIssues;
 
   let query = supabase
@@ -124,6 +175,10 @@ async function loadIssues(publicId?: string): Promise<Issue[]> {
     .limit(publicId ? 1 : 30);
 
   if (publicId) query = query.eq('public_id', publicId);
+  if (internalIds) {
+    if (internalIds.length === 0) return [];
+    query = query.in('id', internalIds).limit(100);
+  }
 
   const { data, error } = await query;
   if (error) throw error;
@@ -136,7 +191,7 @@ async function loadIssues(publicId?: string): Promise<Issue[]> {
   const jurisdictionIds = unique(rows.map((row) => row.jurisdiction_id));
   const departmentIds = unique(rows.map((row) => row.department_id));
 
-  const [commentsResult, reportsResult, historyResult, categoriesResult, jurisdictionsResult, departmentsResult] =
+  const [commentsResult, reportsResult, historyResult, categoriesResult, jurisdictionsResult, departmentsResult, descriptionsResult] =
     await Promise.all([
       supabase
         .from('comments')
@@ -158,6 +213,7 @@ async function loadIssues(publicId?: string): Promise<Issue[]> {
       departmentIds.length
         ? supabase.from('departments').select('id,name').in('id', departmentIds)
         : Promise.resolve({ data: [], error: null }),
+      supabase.rpc('citizen_issue_descriptions', { p_issue_ids: issueIds }),
     ]);
 
   const firstError = [
@@ -167,12 +223,14 @@ async function loadIssues(publicId?: string): Promise<Issue[]> {
     categoriesResult.error,
     jurisdictionsResult.error,
     departmentsResult.error,
+    descriptionsResult.error,
   ].find(Boolean);
   if (firstError) throw firstError;
 
   const categories = new Map((categoriesResult.data ?? []).map((row) => [row.id, row.label]));
   const jurisdictions = new Map((jurisdictionsResult.data ?? []).map((row) => [row.id, row.name]));
   const departments = new Map((departmentsResult.data ?? []).map((row) => [row.id, row.name]));
+  const descriptions = new Map((descriptionsResult.data ?? []).map((row) => [row.issue_id, row.description]));
 
   return rows.map((row) => {
     const replies: Reply[] = (commentsResult.data ?? [])
@@ -198,13 +256,14 @@ async function loadIssues(publicId?: string): Promise<Issue[]> {
 
     return {
       id: row.public_id,
+      internalId: row.id,
       title: row.title ?? 'Civic issue reported',
-      body: row.description ?? 'Details are restricted to the reporter and responsible authority.',
+      body: descriptions.get(row.id) ?? 'Details are restricted to the reporter and responsible authority.',
       category: (row.category_id && categories.get(row.category_id)) ?? 'Unclassified',
       ward: jurisdictionLabel(jurisdiction, row.jurisdiction_match_method),
-      city: row.address ?? 'Location recorded',
+      city: 'Location recorded',
       status: row.status,
-      authorHandle: citizenHandle(row.created_by),
+      authorHandle: 'Citizen reporter',
       timeAgo: relativeTime(row.created_at),
       filedOn: new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short' }).format(
         new Date(row.created_at),

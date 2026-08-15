@@ -5,7 +5,7 @@ import { FAB } from '../components/layout/FAB';
 import { IssueCard } from '../components/feed/IssueCard';
 import { Avatar } from '../components/ui/Avatar';
 import { FlameIcon, SearchIcon, TrendUpIcon, ClockIcon } from '../components/ui/Icons';
-import { getIssues, trendingHeatingUp, trendingMomentum, trendingWaitingLongest, currentUser } from '../lib/queries';
+import { getIssues, isSupabaseConfigured, trendingHeatingUp, trendingMomentum, trendingWaitingLongest, currentUser } from '../lib/queries';
 import type { Issue } from '../lib/types';
 
 const TABS = ['For you', 'Near you', 'Trending', 'Following'] as const;
@@ -62,9 +62,12 @@ export function Feed() {
 
       <div className="px-3.5 pb-28">
         {tab === 'Trending' ? (
-          <TrendingContent onOpen={(id) => navigate(`/thread/${id}`)} />
+          <TrendingContent onOpen={(id) => navigate(`/i/${id}`)} />
         ) : (
-          <FeedIssues issues={issues} loading={loading} error={error} />
+          <>
+            {!isSupabaseConfigured && <p className="pt-3 text-center font-mono text-[10px] font-bold text-rage">DEMO DATA · LIVE ACTIONS DISABLED</p>}
+            <FeedIssues issues={issues} loading={loading} error={error} />
+          </>
         )}
       </div>
 

@@ -64,7 +64,7 @@ export function ReportStep2() {
 
       const accepted = await submitReport(draft);
       clearReportDraft();
-      navigate(`/thread/${accepted.public_id}`, { replace: true });
+      navigate(`/i/${accepted.public_id}`, { replace: true });
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'The report could not be submitted.');
       setSubmitting(false);
