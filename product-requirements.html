@@ -1383,21 +1383,19 @@ defaults: w1 .30  w2 .20  w3 .20
                   CLOSED</pre>
     </div>
     <div>
-      <h3>Agent responsibilities</h3>
-      <div class="tw">
+      <h3>How many agents? Three.</h3>
+      <p class="small muted">Only work requiring genuine judgment over unstructured input gets an agent. Everything else in the pipeline is a query, a table or a formula — and should stay that way.</p>
+      <div class="tw" style="margin-top:.75rem">
         <table style="min-width:440px">
           <thead><tr><th>Agent</th><th>Decides</th><th>Auto-applies when</th></tr></thead>
           <tbody>
-            <tr><td>Classifier</td><td>category, subcategory, severity</td><td>conf ≥ 0.80</td></tr>
-            <tr><td>Locator</td><td>ward / jurisdiction</td><td>GPS inside a polygon</td></tr>
-            <tr><td>Clustering agent</td><td>merge two existing issues</td><td>conf ≥ 0.90 <span class="muted">(0.75–0.90 → officer confirms)</span></td></tr>
-            <tr><td>Router</td><td>department</td><td>conf ≥ 0.85</td></tr>
-            <tr><td>Prioritiser</td><td>priority</td><td>always (officer may override)</td></tr>
-            <tr><td>Assigner</td><td>officer</td><td>exactly one eligible officer</td></tr>
-            <tr><td>Verifier</td><td>resolution passed / failed</td><td>never — always advisory</td></tr>
+            <tr><td><b>1 · Intake</b><br><span class="muted small">multimodal, one pass</span></td><td>category, subcategory, severity, generated title, emergency flag, visibility class</td><td>conf ≥ 0.80</td></tr>
+            <tr><td><b>2 · Clustering</b><br><span class="muted small">the hard one</span></td><td>merge two existing issues</td><td>conf ≥ 0.90 <span class="muted">(0.75–0.90 → officer confirms)</span></td></tr>
+            <tr><td><b>3 · Verifier</b><br><span class="muted small">before / after</span></td><td>resolution passed / failed</td><td>never — always advisory</td></tr>
           </tbody>
         </table>
       </div>
+      <p class="small muted" style="margin-top:.5rem">Intake is deliberately <em>one</em> agent, not four. Classifying a pothole photo, reading its severity and titling it are a single reasoning pass over a single input — splitting them buys nothing and costs three round trips.</p>
       <h3 style="margin-top:1.5rem">Transparency requirements</h3>
       <ul class="req">
         <li><b>Every AI decision is logged</b> with input, output, confidence, model and latency, and is visible in the ticket's AI trace.</li>
@@ -1407,6 +1405,44 @@ defaults: w1 .30  w2 .20  w3 .20
         <li><b>The AI never closes an issue.</b> The verifier produces a recommendation; a human confirms. Auto-closing is the fastest way to lose citizen trust permanently.</li>
         <li><b>Citizens can dispute a decision</b> — "This isn't a Roads problem" — which flags the issue for re-routing.</li>
       </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">What is deliberately not an agent</h3>
+  <p class="small muted" style="max-width:68ch">An agent per box in the pipeline diagram looks impressive and is a mistake. Each one adds latency, cost, a confidence threshold to tune and a new way to be wrong about a pothole. The following steps are deterministic, and being deterministic is a feature — they are fast, free, testable and explainable.</p>
+
+  <div class="tw" style="margin-top:1rem">
+    <table>
+      <thead><tr><th>Pipeline step</th><th>Implementation</th><th>Why not an agent</th></tr></thead>
+      <tbody>
+        <tr><td>Locate — ward / jurisdiction</td><td>Point-in-polygon geospatial query</td><td>Exact and instant. A model can only make this worse.</td></tr>
+        <tr><td>Route — department</td><td><code>category × jurisdiction</code> lookup table</td><td>Once intake gives a category, the owning department is a fact, not a judgment. <em>Fallback agent only for genuinely ambiguous categories — roughly 5% of traffic.</em></td></tr>
+        <tr><td>Prioritise</td><td>Scoring formula over severity, report count, road class</td><td>Must be explainable to an officer who disagrees with it, and tunable without a model change.</td></tr>
+        <tr><td>Assign officer</td><td>Workload balance within department + ward</td><td>A staffing rule, not a reasoning problem.</td></tr>
+        <tr><td>Feed ranking</td><td>Weighted formula (§06)</td><td>Server-side config, tunable live, debuggable per request.</td></tr>
+        <tr><td>SLA &amp; escalation</td><td>Timers</td><td>Nothing to decide.</td></tr>
+        <tr><td>Duplicate <em>candidate retrieval</em></td><td>Geo query + vector similarity search</td><td>Retrieval narrows the field cheaply; agent 2 does the actual judging on the shortlist. Embeddings are a model call, not an agent.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <h4>V1 adds three more — total six</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>4 · Moderation &amp; safety</b> — spam, abuse, off-topic and personal-safety detection. Separate from intake because it must also run on every comment, not just on reports.</li>
+        <li><b>5 · Summariser</b> — synthesises 27 reports into one coherent public description. Cannot live inside intake: it re-runs as reports accumulate.</li>
+        <li><b>6 · Routing fallback</b> — invoked only when the lookup table is ambiguous or the category is new.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Supporting model calls — not agents</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Speech-to-text</b> for voice reports in four languages. A service with one job.</li>
+        <li><b>Embeddings</b> over descriptions and images, for clustering candidate retrieval and search.</li>
+      </ul>
+      <p class="small muted" style="margin-top:.5rem">Both are infrastructure. Counting them as agents inflates the architecture without adding a decision-maker.</p>
     </div>
   </div>
 
@@ -1858,7 +1894,7 @@ defaults: w1 .30  w2 .20  w3 .20
       <ul class="req" style="margin-top:.5rem">
         <li>Feed with distance + status filters, ranked by the scoring formula</li>
         <li>Report flow with photo + text (voice if time allows)</li>
-        <li>AI: classify → locate → route → prioritise on submit, then cluster asynchronously, all with visible confidence</li>
+        <li>AI: the intake agent on submit, then the clustering agent asynchronously — 2 of the 3 agents, with visible confidence. Locate, route, prioritise and assign are deterministic (§12) and need no model.</li>
         <li>Public issue page with crowd count, ladder, discussion and "I'm facing this too"</li>
         <li>Officer queue + ticket with status change and one official reply</li>
         <li>The demo moment: two issues are posted independently, the clustering agent merges them live on screen with its three signal scores shown, and the crowd count ticks 26 → 27</li>
