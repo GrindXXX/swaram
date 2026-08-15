@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#241F19;background-image:radial-gradient(ellipse at 50% 0%,#3a332a 0%,#1c1814 70%)}
+a{color:#9E351B;text-decoration:none}
+a:hover{color:#c4703a}
+@keyframes swFlick{0%,100%{transform:translateY(0) scaleY(1) rotate(-3deg);opacity:.92}35%{transform:translateY(-1px) scaleY(1.22) rotate(3deg);opacity:1}70%{transform:translateY(0) scaleY(.92) rotate(-1deg);opacity:.85}}
+@keyframes swEmber{0%{transform:translateY(2px) scale(.7);opacity:0}25%{opacity:.85}100%{transform:translateY(-20px) scale(.3);opacity:0}}
+@keyframes swHeat{0%,100%{box-shadow:0 0 6px rgba(158,53,27,.35)}50%{box-shadow:0 0 14px rgba(196,112,58,.65)}}
+@keyframes swGlow{0%,100%{opacity:.35}50%{opacity:.75}}
+@keyframes swBurnAway{0%{-webkit-mask-size:12% 12%;mask-size:12% 12%}100%{-webkit-mask-size:330% 330%;mask-size:330% 330%}}
+@keyframes swBurnEdge{0%{width:60px;height:60px;opacity:.95}100%{width:900px;height:900px;opacity:0}}
+@keyframes swChar{0%{transform:scale(.06)}100%{transform:scale(2.4)}}
+@keyframes swSmoke{0%{transform:translate(0,0) scale(.5);opacity:0}22%{opacity:.45}100%{transform:translate(-26px,-86px) scale(1.7);opacity:0}}
+@keyframes swCount{0%{transform:translateY(4px);opacity:.4}100%{transform:none;opacity:1}}
+</style>
+</helmet>
+
+<div style="padding:56px 56px 90px;font-family:'Courier Prime',ui-monospace,monospace;color:#E8D8B8">
+
+<div style="border-bottom:1px solid #4a4237;padding-bottom:22px;display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap">
+<div>
+<div style="font-family:'Special Elite',cursive;font-size:44px;letter-spacing:.26em;text-indent:.26em;line-height:1">SWARAM</div>
+<div style="margin-top:10px;font-size:10px;letter-spacing:.4em;color:#9c917b">A CIVIC SOCIAL NETWORK · PRINTED ON OLD PAPER</div>
+</div>
+<div style="font-family:'Libre Baskerville',Georgia,serif;font-size:12px;line-height:1.8;color:#9c917b;max-width:440px;text-wrap:pretty;text-align:right">Rounded corners, icons instead of label soup, larger type, and a report flow that finishes in three taps. Government replies live inside the thread. The Rage Meter burns.</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:58px;margin-top:44px">
+
+<!-- ══════ ROW 1 · FEED & DISCOVERY ══════ -->
+<section style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #4a4237;padding-bottom:9px">
+<span style="font-size:11px;letter-spacing:.3em;color:#9E351B;font-weight:700">01</span>
+<span style="font-size:15px;letter-spacing:.24em">FEED &amp; DISCOVERY</span>
+<span style="font-family:'Libre Baskerville',serif;font-size:11.5px;color:#867c67;font-style:italic">Open it, see what's wrong nearby, tap once to stand with someone.</span>
+</div>
+<div style="display:flex;gap:42px;flex-wrap:wrap;align-items:flex-start">
+
+<!-- 01 FEED -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px),radial-gradient(circle at 80% 6%,rgba(206,186,148,.5),transparent 50%);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px">
+<span style="font-family:'Special Elite',cursive;font-size:22px;letter-spacing:.14em">SWARAM</span>
+<div style="display:flex;gap:14px;align-items:center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+<div style="width:32px;height:32px;border-radius:50%;background:#E6DAC0;border:1px solid #29251F;display:flex;align-items:center;justify-content:center;font:700 10px 'Courier Prime',monospace">A82F</div>
+</div>
+</div>
+<div style="display:flex;gap:24px;padding:0 18px;border-bottom:1px solid #D8CCB0">
+<span style="font:700 12.5px 'Courier Prime',monospace;padding-bottom:10px;border-bottom:3px solid #9E351B">For you</span>
+<span style="font:400 12.5px 'Courier Prime',monospace;color:#6d6353;padding-bottom:10px">Near you</span>
+<span style="font:400 12.5px 'Courier Prime',monospace;color:#6d6353;padding-bottom:10px">Trending</span>
+<span style="font:400 12.5px 'Courier Prime',monospace;color:#6d6353;padding-bottom:10px">Following</span>
+</div>
+
+<div style="flex:1;overflow:hidden;padding:0 14px">
+<article style="display:flex;gap:12px;padding:15px 4px 14px;border-bottom:1px solid #DFD3B6">
+<div style="width:44px;height:44px;flex:none;border-radius:50%;background:#E6DAC0;border:1px solid #29251F;display:flex;align-items:center;justify-content:center;font:700 11px 'Courier Prime',monospace">A82F</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:center;gap:7px;font:400 12px 'Courier Prime',monospace;color:#6d6353"><span style="color:#29251F;font-weight:700">Citizen #A82F</span><span>·</span><span>12m</span></div>
+<div style="display:flex;align-items:center;gap:7px;margin-top:5px;font:400 11px 'Courier Prime',monospace;color:#6d6353">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.8"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+<span>Whitefield</span><span style="background:#E9DEC4;border-radius:99px;padding:2px 9px;color:#4a4237">Roads</span>
+</div>
+<h2 style="margin:9px 0 5px;font-family:'Special Elite',cursive;font-size:19px;line-height:1.25;font-weight:400">The pothole that won't go away</h2>
+<p style="margin:0 0 11px;font-size:14px;line-height:1.6;color:#3c352b;text-wrap:pretty">Twelve days now on Whitefield Main Road. Bikes swerve into the next lane every evening.</p>
+<div style="height:146px;border-radius:10px;background:#E4D8BC;background-image:repeating-linear-gradient(45deg,rgba(41,37,31,.09) 0 1px,transparent 1px 7px);border:1px solid #CFC2A4;display:flex;align-items:flex-end;padding:10px">
+<span style="background:rgba(41,37,31,.75);color:#F5EDDC;border-radius:99px;padding:4px 10px;font:400 10px 'Courier Prime',monospace">27 photos</span>
+<span style="margin-left:auto;transform:rotate(-7deg);border:2px solid #9E351B;color:#9E351B;background:rgba(245,237,220,.55);padding:3px 9px;font:700 10px 'Courier Prime',monospace;letter-spacing:.14em;align-self:flex-start">OVERDUE</span>
+</div>
+
+<!-- RAGE GAUGE · on fire -->
+<div style="margin-top:12px;background:#EDE2C8;border-radius:10px;padding:11px 13px 12px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 84% 100%,rgba(196,112,58,.5),transparent 60%);animation:swGlow 2.4s ease-in-out infinite;pointer-events:none"></div>
+<div style="display:flex;align-items:center;gap:8px;position:relative">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="#9E351B" style="animation:swFlick 1.5s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<span style="font:700 11.5px 'Courier Prime',monospace;letter-spacing:.08em;color:#9E351B;flex:1">{{ pressureLabel }}</span>
+<span style="font:700 18px 'Courier Prime',monospace;color:#9E351B">87</span>
+</div>
+<div style="position:relative;height:11px;border-radius:99px;background:rgba(158,53,27,.16);margin-top:9px">
+<div style="position:absolute;inset:0;width:87%;border-radius:99px;background:linear-gradient(90deg,#7c2915,#9E351B 55%,#C4703A);animation:swHeat 2s ease-in-out infinite"></div>
+<svg width="20" height="24" viewBox="0 0 24 24" fill="#C4703A" style="position:absolute;left:calc(87% - 10px);bottom:5px;animation:swFlick 1.1s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<svg width="13" height="16" viewBox="0 0 24 24" fill="#E0A45C" style="position:absolute;left:calc(87% - 16px);bottom:4px;animation:swFlick 1.7s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<span style="position:absolute;left:calc(87% - 2px);bottom:9px;width:4px;height:4px;border-radius:50%;background:#C4703A;animation:swEmber 2.2s linear infinite"></span>
+<span style="position:absolute;left:calc(87% - 12px);bottom:9px;width:3px;height:3px;border-radius:50%;background:#E0A45C;animation:swEmber 2.9s linear .6s infinite"></span>
+</div>
+<div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:8px;position:relative">1,482 affected · 82 reports · <span style="color:#9E351B;font-weight:700">heating up</span></div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:13px">
+<div style="display:flex;align-items:center;gap:6px;color:#4a4237"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" stroke-linejoin="round"><path d="M20 12a7.5 7.5 0 0 1-10.9 6.7L4 20l1.4-4.7A7.5 7.5 0 1 1 20 12z"></path></svg><span style="font:400 12px 'Courier Prime',monospace">82</span></div>
+<div style="display:flex;align-items:center;gap:6px;color:#4a4237"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" stroke-linejoin="round"><path d="M4 20V11l4.5-6a1.8 1.8 0 0 1 3 2l-1.2 3.4H17a2.2 2.2 0 0 1 2.1 2.8l-1.5 5.3A2.6 2.6 0 0 1 15 20z"></path></svg><span style="font:400 12px 'Courier Prime',monospace">347</span></div>
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" stroke-linejoin="round"><path d="M12 4l2.3 4.9 5.2.7-3.8 3.7.9 5.3-4.6-2.6-4.6 2.6.9-5.3L4.5 9.6l5.2-.7z"></path></svg>
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12v7h12v-7"></path><path d="M12 15V4"></path><path d="M8.5 7.5L12 4l3.5 3.5"></path></svg>
+</div>
+<button style="width:100%;margin-top:12px;min-height:50px;border:0;border-radius:99px;background:#29251F;color:#F5EDDC;font:700 13.5px 'Courier Prime',monospace;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5EDDC" stroke-width="1.8" stroke-linejoin="round"><path d="M4 20V11l4.5-6a1.8 1.8 0 0 1 3 2l-1.2 3.4H17a2.2 2.2 0 0 1 2.1 2.8l-1.5 5.3A2.6 2.6 0 0 1 15 20z"></path></svg>
+I'm facing this too</button>
+</div>
+</article>
+
+<article style="display:flex;gap:12px;padding:13px;margin-top:13px;border-radius:12px;background:rgba(48,76,80,.09);border:1px solid rgba(48,76,80,.32)">
+<div style="width:44px;height:44px;flex:none;border-radius:50%;background:#DDE6E4;border:1px solid #304C50;display:flex;align-items:center;justify-content:center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#304C50" stroke-width="1.6" stroke-linejoin="round"><path d="M4 10l8-5 8 5"></path><path d="M6 10v8M10 10v8M14 10v8M18 10v8"></path><path d="M3.5 19h17"></path></svg>
+</div>
+<div style="flex:1">
+<div style="display:flex;align-items:center;gap:6px;font:400 12px 'Courier Prime',monospace;color:#6d6353">
+<span style="color:#304C50;font-weight:700">Roads Department</span>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="#304C50"><path d="M12 2l2.3 1.6 2.8-.2.9 2.7 2.3 1.6-1 2.6 1 2.6-2.3 1.6-.9 2.7-2.8-.2L12 19l-2.3-1.6-2.8.2-.9-2.7L3.7 13l1-2.6-1-2.6L6 6.2l.9-2.7 2.8.2z"></path><path d="M10.6 14.4l-2.5-2.5 1-1 1.5 1.5 3.8-3.8 1 1z" fill="#DDE6E4"></path></svg>
+<span>· 2h</span>
+</div>
+<p style="margin:8px 0 0;font-size:14px;line-height:1.6;color:#2b3a3c">Resurfacing of the ITPL stretch is scheduled for 18 August. Work order raised this morning.</p>
+</div>
+</article>
+</div>
+
+<div style="position:absolute;right:18px;bottom:100px;width:62px;height:62px;border-radius:50%;background:#9E351B;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 rgba(23,21,18,.35)">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5EDDC" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+</div>
+
+<nav style="display:flex;align-items:center;justify-content:space-around;padding:12px 8px 20px;background:#EFE6D0;border-top:1px solid #CFC2A4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9E351B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9E351B" stroke-width="1.8" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"></path></svg><span style="font:700 10px 'Courier Prime',monospace">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M9 5L4 7v12l5-2 6 2 5-2V5l-5 2z"></path><path d="M9 5v12M15 7v12"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Map</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Record</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353;position:relative"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M6 17V11a6 6 0 1 1 12 0v6l1.5 2h-15z"></path><path d="M10.5 19a1.5 1.5 0 0 0 3 0"></path></svg><span style="position:absolute;top:-2px;right:8px;width:9px;height:9px;border-radius:50%;background:#9E351B"></span><span style="font:400 10px 'Courier Prime',monospace">Alerts</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"></circle><path d="M5.5 19.5a6.8 6.8 0 0 1 13 0"></path></svg><span style="font:400 10px 'Courier Prime',monospace">You</span></div>
+</nav>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">01 · FEED</figcaption>
+</figure>
+
+<!-- 02 TRENDING -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px">
+<span style="font-family:'Special Elite',cursive;font-size:22px;letter-spacing:.14em">SWARAM</span>
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+</div>
+<div style="display:flex;gap:24px;padding:0 18px;border-bottom:1px solid #D8CCB0">
+<span style="font:400 12.5px 'Courier Prime',monospace;color:#6d6353;padding-bottom:10px">For you</span>
+<span style="font:400 12.5px 'Courier Prime',monospace;color:#6d6353;padding-bottom:10px">Near you</span>
+<span style="font:700 12.5px 'Courier Prime',monospace;padding-bottom:10px;border-bottom:3px solid #9E351B">Trending</span>
+<span style="font:400 12.5px 'Courier Prime',monospace;color:#6d6353;padding-bottom:10px">Following</span>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:11px">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="#9E351B" style="animation:swFlick 1.5s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<span style="font:700 12.5px 'Courier Prime',monospace;letter-spacing:.08em;color:#9E351B">Heating up</span>
+</div>
+<div style="border-radius:12px;background:#EDE2C8;padding:14px;margin-bottom:11px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;font:400 11px 'Courier Prime',monospace;color:#6d6353"><span>1 · Mysuru · Water</span><span style="font:700 21px 'Courier Prime',monospace;color:#9E351B">94</span></div>
+<div style="font-family:'Special Elite',cursive;font-size:19px;line-height:1.25;margin-top:5px">Fourth day without supply in Kuvempunagar</div>
+<div style="height:8px;border-radius:99px;background:rgba(158,53,27,.16);margin-top:10px;overflow:hidden"><div style="height:100%;width:94%;background:linear-gradient(90deg,#7c2915,#C4703A);animation:swHeat 2s ease-in-out infinite"></div></div>
+<div style="font:400 11.5px 'Courier Prime',monospace;color:#6d6353;margin-top:8px">28,400 affected · 1,204 posts</div>
+</div>
+<div style="border-radius:12px;background:#EDE2C8;padding:14px;margin-bottom:11px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;font:400 11px 'Courier Prime',monospace;color:#6d6353"><span>2 · Bengaluru · Roads</span><span style="font:700 21px 'Courier Prime',monospace;color:#9E351B">87</span></div>
+<div style="font-family:'Special Elite',cursive;font-size:19px;line-height:1.25;margin-top:5px">The pothole that won't go away</div>
+<div style="height:8px;border-radius:99px;background:rgba(158,53,27,.16);margin-top:10px;overflow:hidden"><div style="height:100%;width:87%;background:linear-gradient(90deg,#7c2915,#C4703A)"></div></div>
+<div style="font:400 11.5px 'Courier Prime',monospace;color:#6d6353;margin-top:8px">1,482 affected · 347 standing with it</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin:20px 0 10px">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-5 3.5 3.5L20 8"></path><path d="M15 8h5v5"></path></svg>
+<span style="font:700 12.5px 'Courier Prime',monospace;letter-spacing:.08em;color:#4a4237">Gaining momentum</span>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #DFD3B6"><div><div style="font-size:14px">Drainage overflow, Kochi</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">+1,120 affected in 48h</div></div><span style="font:700 13px 'Courier Prime',monospace;color:#9E351B">▲ 62</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0"><div><div style="font-size:14px">Exam centre irregularities, Patna</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">+890 posts in 24h</div></div><span style="font:700 13px 'Courier Prime',monospace;color:#9E351B">▲ 58</span></div>
+<div style="display:flex;align-items:center;gap:8px;margin:20px 0 10px">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><path d="M12 7.5V12l3 2"></path></svg>
+<span style="font:700 12.5px 'Courier Prime',monospace;letter-spacing:.08em;color:#4a4237">Waiting longest</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #DFD3B6;font-size:14px"><span>Garbage collection, Ward 12</span><span style="font:700 12px 'Courier Prime',monospace">47d</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #DFD3B6;font-size:14px"><span>Drainage, Chembur</span><span style="font:700 12px 'Courier Prime',monospace">42d</span></div>
+<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px"><span>Road repair, Ward 42</span><span style="font:700 12px 'Courier Prime',monospace">39d</span></div>
+</div>
+<nav style="display:flex;align-items:center;justify-content:space-around;padding:12px 8px 20px;background:#EFE6D0;border-top:1px solid #CFC2A4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9E351B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9E351B" stroke-width="1.8" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"></path></svg><span style="font:700 10px 'Courier Prime',monospace">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M9 5L4 7v12l5-2 6 2 5-2V5l-5 2z"></path><path d="M9 5v12M15 7v12"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Map</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Record</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M6 17V11a6 6 0 1 1 12 0v6l1.5 2h-15z"></path><path d="M10.5 19a1.5 1.5 0 0 0 3 0"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Alerts</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"></circle><path d="M5.5 19.5a6.8 6.8 0 0 1 13 0"></path></svg><span style="font:400 10px 'Courier Prime',monospace">You</span></div>
+</nav>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">02 · TRENDING</figcaption>
+</figure>
+
+<!-- 03 ALERTS -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="padding:6px 18px 14px;border-bottom:1px solid #D8CCB0;display:flex;align-items:center;justify-content:space-between">
+<span style="font-family:'Special Elite',cursive;font-size:22px;letter-spacing:.1em">Alerts</span>
+<span style="font:400 12px 'Courier Prime',monospace;color:#6d6353;background:#E9DEC4;border-radius:99px;padding:5px 12px">All</span>
+</div>
+<div style="flex:1;overflow:hidden;padding:12px 14px">
+<div style="display:flex;gap:12px;padding:13px;border-radius:12px;background:rgba(158,53,27,.08);margin-bottom:10px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="#9E351B" style="flex:none;animation:swFlick 1.6s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<div><div style="font-size:14px;line-height:1.55"><strong>347 people</strong> are now facing the pothole you reported.</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:5px">Rage rose to 87 · 2h</div></div>
+</div>
+<div style="display:flex;gap:12px;padding:13px;border-radius:12px;background:rgba(48,76,80,.09);margin-bottom:10px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#304C50" stroke-width="1.6" stroke-linejoin="round" style="flex:none"><path d="M4 10l8-5 8 5"></path><path d="M6 10v8M10 10v8M14 10v8M18 10v8"></path><path d="M3.5 19h17"></path></svg>
+<div><div style="font-size:14px;line-height:1.55"><strong>Roads Department</strong> replied in your thread.</div><div style="font-size:13px;font-style:italic;color:#4a4237;margin-top:4px">"Resurfacing scheduled for 18 August."</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:5px">2h</div></div>
+</div>
+<div style="display:flex;gap:12px;padding:13px;border-radius:12px;background:rgba(82,97,58,.1);margin-bottom:10px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#52613A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.5 12.3l2.4 2.4 4.6-4.9"></path></svg>
+<div><div style="font-size:14px;line-height:1.55">A repair was submitted on <strong>the drain at 9th Cross</strong>.</div><div style="font:700 11.5px 'Courier Prime',monospace;color:#52613A;margin-top:6px">Tap to say if it's actually fixed →</div></div>
+</div>
+<div style="display:flex;gap:12px;padding:13px;border-bottom:1px solid #DFD3B6">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.6" stroke-linejoin="round" style="flex:none"><path d="M20 12a7.5 7.5 0 0 1-10.9 6.7L4 20l1.4-4.7A7.5 7.5 0 1 1 20 12z"></path></svg>
+<div><div style="font-size:14px;line-height:1.55"><strong>#B72D</strong> and 11 others replied to a thread you follow.</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:5px">9h</div></div>
+</div>
+<div style="display:flex;gap:12px;padding:13px;border-bottom:1px solid #DFD3B6">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.6" stroke-linejoin="round" style="flex:none"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+<div><div style="font-size:14px;line-height:1.55">Two reports near you joined a record you support.</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:5px">1d</div></div>
+</div>
+<div style="display:flex;gap:12px;padding:13px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.6" stroke-linejoin="round" style="flex:none"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg>
+<div><div style="font-size:14px;line-height:1.55">This week's <strong>Weekly Record</strong> is ready to read.</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:5px">1w</div></div>
+</div>
+</div>
+<nav style="display:flex;align-items:center;justify-content:space-around;padding:12px 8px 20px;background:#EFE6D0;border-top:1px solid #CFC2A4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M9 5L4 7v12l5-2 6 2 5-2V5l-5 2z"></path><path d="M9 5v12M15 7v12"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Map</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Record</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9E351B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9E351B" stroke-width="1.8" stroke-linejoin="round"><path d="M6 17V11a6 6 0 1 1 12 0v6l1.5 2h-15z"></path><path d="M10.5 19a1.5 1.5 0 0 0 3 0"></path></svg><span style="font:700 10px 'Courier Prime',monospace">Alerts</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"></circle><path d="M5.5 19.5a6.8 6.8 0 0 1 13 0"></path></svg><span style="font:400 10px 'Courier Prime',monospace">You</span></div>
+</nav>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">03 · ALERTS</figcaption>
+</figure>
+
+</div>
+</section>
+
+<!-- ══════ ROW 2 · THE THREAD ══════ -->
+<section style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #4a4237;padding-bottom:9px">
+<span style="font-size:11px;letter-spacing:.3em;color:#9E351B;font-weight:700">02</span>
+<span style="font-size:15px;letter-spacing:.24em">THE THREAD</span>
+<span style="font-family:'Libre Baskerville',serif;font-size:11.5px;color:#867c67;font-style:italic">Citizens, the department and the evidence in one conversation.</span>
+</div>
+<div style="display:flex;gap:42px;flex-wrap:wrap;align-items:flex-start">
+
+<!-- 04 THREAD TOP -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px;border-bottom:1px solid #D8CCB0">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"></path></svg>
+<span style="font:700 13px 'Courier Prime',monospace;letter-spacing:.06em">Thread</span>
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12v7h12v-7"></path><path d="M12 15V4"></path><path d="M8.5 7.5L12 4l3.5 3.5"></path></svg>
+</div>
+<div style="flex:1;overflow:hidden;padding:0 16px">
+<div style="display:flex;gap:12px;align-items:center;padding-top:15px">
+<div style="width:46px;height:46px;border-radius:50%;background:#E6DAC0;border:1px solid #29251F;display:flex;align-items:center;justify-content:center;font:700 11px 'Courier Prime',monospace">A82F</div>
+<div><div style="font:700 13px 'Courier Prime',monospace">Citizen #A82F</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">Whitefield · Ward 42 · 12 days ago</div></div>
+</div>
+<h2 style="margin:13px 0 8px;font-family:'Special Elite',cursive;font-size:24px;line-height:1.2;font-weight:400">The pothole that won't go away</h2>
+<p style="margin:0 0 12px;font-size:14.5px;line-height:1.65;color:#3c352b;text-wrap:pretty">Twelve days. Every evening two-wheelers swing into the oncoming lane to miss it.</p>
+<div style="height:104px;border-radius:10px;background:#E4D8BC;background-image:repeating-linear-gradient(45deg,rgba(41,37,31,.09) 0 1px,transparent 1px 7px);border:1px solid #CFC2A4"></div>
+
+<div style="margin-top:13px;background:#EDE2C8;border-radius:10px;padding:12px 14px 13px;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 84% 100%,rgba(196,112,58,.5),transparent 60%);animation:swGlow 2.4s ease-in-out infinite"></div>
+<div style="display:flex;align-items:center;gap:9px;position:relative">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="#9E351B" style="animation:swFlick 1.4s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<span style="font:700 12px 'Courier Prime',monospace;letter-spacing:.08em;color:#9E351B;flex:1">{{ pressureLabel }}</span>
+<span style="font:700 24px 'Courier Prime',monospace;color:#9E351B">87</span>
+</div>
+<div style="position:relative;height:13px;border-radius:99px;background:rgba(158,53,27,.16);margin-top:10px">
+<div style="position:absolute;inset:0;width:87%;border-radius:99px;background:linear-gradient(90deg,#7c2915,#9E351B 55%,#C4703A);animation:swHeat 2s ease-in-out infinite"></div>
+<svg width="24" height="28" viewBox="0 0 24 24" fill="#C4703A" style="position:absolute;left:calc(87% - 12px);bottom:6px;animation:swFlick 1.1s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<svg width="15" height="18" viewBox="0 0 24 24" fill="#E0A45C" style="position:absolute;left:calc(87% - 20px);bottom:5px;animation:swFlick 1.8s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<span style="position:absolute;left:calc(87% - 1px);bottom:11px;width:4px;height:4px;border-radius:50%;background:#C4703A;animation:swEmber 2.2s linear infinite"></span>
+<span style="position:absolute;left:calc(87% - 14px);bottom:11px;width:3px;height:3px;border-radius:50%;background:#E0A45C;animation:swEmber 3s linear .7s infinite"></span>
+</div>
+<div style="display:flex;justify-content:space-between;font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:9px;position:relative"><span>Severity: high</span><span style="color:#9E351B;font-weight:700">+14 this week</span></div>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:12px">
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:10px;text-align:center"><div style="font:700 16px 'Courier Prime',monospace">1,482</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">affected</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:10px;text-align:center"><div style="font:700 16px 'Courier Prime',monospace">82</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">reports</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:10px;text-align:center"><div style="font:700 16px 'Courier Prime',monospace">347</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">with you</div></div>
+</div>
+
+<div style="font:700 11.5px 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353;margin:14px 0 2px">82 REPLIES</div>
+<div style="display:flex;gap:11px;padding:10px 0;border-top:1px solid #DFD3B6">
+<div style="width:36px;height:36px;flex:none;border-radius:50%;background:#E9DEC4;border:1px solid #CFC2A4;display:flex;align-items:center;justify-content:center;font:700 9.5px 'Courier Prime',monospace;color:#4a4237">B72D</div>
+<div><div style="font:400 11.5px 'Courier Prime',monospace;color:#6d6353"><span style="color:#29251F;font-weight:700">#B72D</span> · 9d</div><p style="margin:5px 0 0;font-size:14px;line-height:1.6">Nearly went under a bus here yesterday.</p></div>
+</div>
+<div style="display:flex;gap:12px;padding:13px;border-radius:12px;background:rgba(48,76,80,.09);border:1px solid rgba(48,76,80,.32);margin-top:6px">
+<div style="width:36px;height:36px;flex:none;border-radius:50%;background:#DDE6E4;border:1px solid #304C50;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#304C50" stroke-width="1.6" stroke-linejoin="round"><path d="M4 10l8-5 8 5"></path><path d="M6 10v8M10 10v8M14 10v8M18 10v8"></path><path d="M3.5 19h17"></path></svg></div>
+<div><div style="display:flex;align-items:center;gap:5px;font:400 11.5px 'Courier Prime',monospace;color:#6d6353"><span style="color:#304C50;font-weight:700">Roads Department</span><svg width="13" height="13" viewBox="0 0 24 24" fill="#304C50"><circle cx="12" cy="12" r="10"></circle><path d="M10.6 16.4l-3.5-3.5 1.2-1.2 2.3 2.3 5-5 1.2 1.2z" fill="#DDE6E4"></path></svg><span>· 5d</span></div><p style="margin:6px 0 0;font-size:14px;line-height:1.6;color:#2b3a3c">Inspected on 8 August. Resurfacing scheduled 18 August, work order BBMP/RD/8842.</p></div>
+</div>
+</div>
+<div style="border-top:1px solid #CFC2A4;background:#EFE6D0;padding:12px 16px 20px;display:flex;gap:10px;align-items:center">
+<div style="flex:1;border-radius:99px;background:#F5EDDC;border:1px solid #CFC2A4;padding:13px 16px;font:400 12.5px 'Courier Prime',monospace;color:#8a7f6b">Add to this thread…</div>
+<button style="min-height:48px;border:0;border-radius:99px;background:#29251F;color:#F5EDDC;padding:0 18px;font:700 12.5px 'Courier Prime',monospace;cursor:pointer">Me too</button>
+</div>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">04 · THREAD</figcaption>
+</figure>
+
+<!-- 05 RESOLUTION + VERIFY -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px;border-bottom:1px solid #D8CCB0">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"></path></svg>
+<span style="font:700 13px 'Courier Prime',monospace;letter-spacing:.06em">Thread</span>
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12v7h12v-7"></path><path d="M12 15V4"></path><path d="M8.5 7.5L12 4l3.5 3.5"></path></svg>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 16px">
+<div style="border-radius:10px;background:rgba(48,76,80,.09);border:1px solid rgba(48,76,80,.32);padding:14px">
+<div style="display:flex;align-items:center;gap:8px">
+<div style="width:36px;height:36px;border-radius:50%;background:#DDE6E4;border:1px solid #304C50;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#304C50" stroke-width="1.6" stroke-linejoin="round"><path d="M4 10l8-5 8 5"></path><path d="M6 10v8M10 10v8M14 10v8M18 10v8"></path><path d="M3.5 19h17"></path></svg></div>
+<div style="flex:1"><div style="font:700 12px 'Courier Prime',monospace;color:#304C50">Roads Department</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:2px">18 Aug · repair submitted</div></div>
+</div>
+<p style="margin:10px 0 11px;font-size:14px;line-height:1.6;color:#2b3a3c">Patch completed this morning. 40 sq.m resurfaced and compacted.</p>
+<div style="display:flex;gap:9px">
+<div style="flex:1"><div style="height:88px;border-radius:10px;background:#E4D8BC;background-image:repeating-linear-gradient(45deg,rgba(41,37,31,.09) 0 1px,transparent 1px 7px);border:1px solid #CFC2A4"></div><div style="font:400 10.5px 'Courier Prime',monospace;color:#6d6353;margin-top:5px;text-align:center">Before · 3 Aug</div></div>
+<div style="flex:1"><div style="height:88px;border-radius:10px;background:#E4D8BC;background-image:repeating-linear-gradient(45deg,rgba(41,37,31,.09) 0 1px,transparent 1px 7px);border:1px solid #CFC2A4"></div><div style="font:400 10.5px 'Courier Prime',monospace;color:#6d6353;margin-top:5px;text-align:center">After · 18 Aug</div></div>
+</div>
+<div style="display:flex;align-items:center;gap:7px;margin-top:11px;font:400 11px 'Courier Prime',monospace;color:#4a4237">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#52613A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+<span>Photo location matches the report</span>
+</div>
+</div>
+
+<div style="border-radius:10px;background:rgba(82,97,58,.1);border:1px solid rgba(82,97,58,.3);padding:15px;margin-top:14px">
+<div style="font-family:'Special Elite',cursive;font-size:20px;line-height:1.2">Is it actually fixed?</div>
+<p style="margin:7px 0 13px;font-size:13.5px;line-height:1.6;color:#3c352b">214 of 347 people have answered.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div><div style="display:flex;justify-content:space-between;font:400 12px 'Courier Prime',monospace"><span>Completely fixed</span><span style="font-weight:700;color:#52613A">72%</span></div><div style="height:9px;border-radius:99px;background:rgba(82,97,58,.18);margin-top:5px;overflow:hidden"><div style="height:100%;width:72%;background:#52613A;border-radius:99px"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;font:400 12px 'Courier Prime',monospace"><span>Partly fixed</span><span style="font-weight:700">19%</span></div><div style="height:9px;border-radius:99px;background:rgba(41,37,31,.12);margin-top:5px;overflow:hidden"><div style="height:100%;width:19%;background:#6d6353;border-radius:99px"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;font:400 12px 'Courier Prime',monospace"><span>Still there</span><span style="font-weight:700;color:#9E351B">9%</span></div><div style="height:9px;border-radius:99px;background:rgba(158,53,27,.15);margin-top:5px;overflow:hidden"><div style="height:100%;width:9%;background:#9E351B;border-radius:99px"></div></div></div>
+</div>
+<div style="display:flex;gap:10px;margin-top:15px">
+<button style="flex:1;min-height:52px;border:0;border-radius:99px;background:#52613A;color:#F5EDDC;font:700 13px 'Courier Prime',monospace;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5EDDC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>Fixed</button>
+<button style="flex:1;min-height:52px;border:1.5px solid #9E351B;border-radius:99px;background:transparent;color:#9E351B;font:700 13px 'Courier Prime',monospace;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9E351B" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"></path></svg>Not fixed</button>
+</div>
+</div>
+
+<div style="margin-top:16px">
+<div style="font:700 11.5px 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353;margin-bottom:9px">HOW THIS RECORD MOVED</div>
+<div style="display:flex;flex-wrap:wrap;gap:7px;font:400 11px 'Courier Prime',monospace">
+<span style="border-radius:99px;background:#E9DEC4;padding:5px 11px;color:#4a4237">Reported</span>
+<span style="border-radius:99px;background:#E9DEC4;padding:5px 11px;color:#4a4237">Routed</span>
+<span style="border-radius:99px;background:rgba(158,53,27,.14);padding:5px 11px;color:#9E351B">Rage 87</span>
+<span style="border-radius:99px;background:rgba(48,76,80,.14);padding:5px 11px;color:#304C50">Response</span>
+<span style="border-radius:99px;background:rgba(48,76,80,.14);padding:5px 11px;color:#304C50">Evidence</span>
+<span style="border-radius:99px;background:#52613A;padding:5px 11px;color:#F5EDDC;font-weight:700">Verifying</span>
+</div>
+</div>
+</div>
+<div style="border-top:1px solid #CFC2A4;background:#EFE6D0;padding:12px 16px 20px;display:flex;gap:10px;align-items:center">
+<div style="flex:1;border-radius:99px;background:#F5EDDC;border:1px solid #CFC2A4;padding:13px 16px;font:400 12.5px 'Courier Prime',monospace;color:#8a7f6b">Add to this thread…</div>
+<button style="min-height:48px;border:0;border-radius:99px;background:#52613A;color:#F5EDDC;padding:0 18px;font:700 12.5px 'Courier Prime',monospace;cursor:pointer">Verify</button>
+</div>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">05 · REPAIR &amp; VERIFICATION</figcaption>
+</figure>
+
+<!-- 06 MAP -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="padding:6px 18px 12px;display:flex;align-items:center;justify-content:space-between">
+<span style="font-family:'Special Elite',cursive;font-size:22px;letter-spacing:.1em">The Map</span>
+<span style="font:400 12px 'Courier Prime',monospace;color:#6d6353;background:#E9DEC4;border-radius:99px;padding:6px 13px">Ward 42 ▾</span>
+</div>
+<div style="flex:1;position:relative;margin:0 14px;border-radius:10px;overflow:hidden;border:1px solid #CFC2A4;background:#D9C193;background-image:radial-gradient(ellipse at 30% 25%,rgba(214,196,158,.9),transparent 55%),repeating-linear-gradient(0deg,rgba(90,70,40,.07) 0 1px,transparent 1px 36px),repeating-linear-gradient(90deg,rgba(90,70,40,.07) 0 1px,transparent 1px 36px)">
+<div style="position:absolute;inset:0;background-image:repeating-linear-gradient(63deg,rgba(90,70,40,.42) 0 2px,transparent 2px 92px),repeating-linear-gradient(-24deg,rgba(90,70,40,.32) 0 2px,transparent 2px 124px)"></div>
+<div style="position:absolute;left:70px;top:150px;display:flex;flex-direction:column;align-items:center">
+<div style="width:16px;height:56px;border-radius:99px 99px 4px 4px;background:linear-gradient(180deg,#C4703A,#7c2915);animation:swHeat 2.2s ease-in-out infinite"></div>
+<span style="font:700 11px 'Courier Prime',monospace;color:#7c2915;margin-top:4px">87</span>
+</div>
+<div style="position:absolute;left:150px;top:210px;display:flex;flex-direction:column;align-items:center">
+<div style="width:14px;height:34px;border-radius:99px 99px 4px 4px;background:linear-gradient(180deg,#C99A5E,#8a6a3f)"></div>
+<span style="font:700 10px 'Courier Prime',monospace;color:#6d5334;margin-top:4px">61</span>
+</div>
+<div style="position:absolute;left:228px;top:300px;display:flex;flex-direction:column;align-items:center">
+<div style="width:14px;height:22px;border-radius:99px 99px 4px 4px;background:linear-gradient(180deg,#7f8f60,#52613A)"></div>
+<span style="font:700 10px 'Courier Prime',monospace;color:#3f4b2c;margin-top:4px">fixed</span>
+</div>
+<div style="position:absolute;left:96px;top:330px;font:400 10px 'Courier Prime',monospace;letter-spacing:.3em;color:rgba(70,52,28,.6)">WHITEFIELD</div>
+<div style="position:absolute;left:12px;bottom:12px;right:12px;border-radius:10px;background:rgba(239,226,200,.94);padding:11px 13px;display:flex;align-items:center;gap:12px">
+<div style="flex:1"><div style="font:700 12px 'Courier Prime',monospace">Columns = issues raised</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:4px">Colour = rage · tap to zoom in</div></div>
+<span style="border-radius:99px;background:#29251F;color:#F5EDDC;padding:9px 13px;font:700 11px 'Courier Prime',monospace">3D</span>
+</div>
+</div>
+<div style="display:flex;gap:9px;padding:13px 14px 0">
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:11px;text-align:center"><div style="font:700 16px 'Courier Prime',monospace">318</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">open</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:11px;text-align:center"><div style="font:700 16px 'Courier Prime',monospace;color:#9E351B">47</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">overdue</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:11px;text-align:center"><div style="font:700 16px 'Courier Prime',monospace;color:#52613A">71%</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">resolved</div></div>
+</div>
+<nav style="display:flex;align-items:center;justify-content:space-around;padding:12px 8px 20px;margin-top:13px;background:#EFE6D0;border-top:1px solid #CFC2A4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9E351B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9E351B" stroke-width="1.8" stroke-linejoin="round"><path d="M9 5L4 7v12l5-2 6 2 5-2V5l-5 2z"></path><path d="M9 5v12M15 7v12"></path></svg><span style="font:700 10px 'Courier Prime',monospace">Map</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Record</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M6 17V11a6 6 0 1 1 12 0v6l1.5 2h-15z"></path><path d="M10.5 19a1.5 1.5 0 0 0 3 0"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Alerts</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"></circle><path d="M5.5 19.5a6.8 6.8 0 0 1 13 0"></path></svg><span style="font:400 10px 'Courier Prime',monospace">You</span></div>
+</nav>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">06 · MAP</figcaption>
+</figure>
+
+</div>
+</section>
+
+<!-- ══════ ROW 3 · REPORTING & YOU ══════ -->
+<section style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #4a4237;padding-bottom:9px">
+<span style="font-size:11px;letter-spacing:.3em;color:#9E351B;font-weight:700">03</span>
+<span style="font-size:15px;letter-spacing:.24em">REPORTING &amp; YOU</span>
+<span style="font-family:'Libre Baskerville',serif;font-size:11.5px;color:#867c67;font-style:italic">Three big taps. Large type, no forms, no jargon — usable at seventy.</span>
+</div>
+<div style="display:flex;gap:42px;flex-wrap:wrap;align-items:flex-start">
+
+<!-- 07 REPORT -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px 14px">
+<span style="font:400 13px 'Courier Prime',monospace;color:#6d6353">Cancel</span>
+<span style="font:700 13px 'Courier Prime',monospace">Step 1 of 2</span>
+<span style="width:44px"></span>
+</div>
+<div style="flex:1;padding:4px 20px;display:flex;flex-direction:column;gap:16px">
+<div>
+<h2 style="margin:0;font-family:'Special Elite',cursive;font-size:28px;line-height:1.2;font-weight:400">What's the problem?</h2>
+<p style="margin:9px 0 0;font-size:15px;line-height:1.6;color:#4a4237">Take a photo, or just speak. We'll handle the rest.</p>
+</div>
+<button style="border:0;border-radius:10px;background:#9E351B;color:#F5EDDC;padding:26px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;text-align:left;box-shadow:0 5px 0 rgba(23,21,18,.3)">
+<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#F5EDDC" stroke-width="1.5" stroke-linejoin="round"><path d="M4 8.5h3.5L9 6.5h6L16.5 8.5H20v10H4z"></path><circle cx="12" cy="13" r="3.4"></circle></svg>
+<span><span style="display:block;font:700 19px 'Courier Prime',monospace">Take a photo</span><span style="display:block;font-size:13px;margin-top:4px;opacity:.85">Most people start here</span></span>
+</button>
+<button style="border:1.5px solid #29251F;border-radius:10px;background:#F5EDDC;color:#29251F;padding:22px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;text-align:left">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#29251F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 12a6.5 6.5 0 0 0 13 0"></path><path d="M12 18.5V21"></path></svg>
+<span><span style="display:block;font:700 19px 'Courier Prime',monospace">Speak instead</span><span style="display:block;font-size:13px;margin-top:4px;color:#6d6353">ಕನ್ನಡ · हिन्दी · English</span></span>
+</button>
+<button style="border:1.5px solid #CFC2A4;border-radius:10px;background:#F5EDDC;color:#4a4237;padding:20px;display:flex;align-items:center;gap:16px;cursor:pointer;text-align:left">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.5" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h9"></path></svg>
+<span style="font:700 17px 'Courier Prime',monospace">Type it out</span>
+</button>
+<div style="border-radius:12px;background:#EDE2C8;padding:14px 15px;display:flex;align-items:center;gap:12px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" style="flex:none"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+<div style="flex:1"><div style="font-size:14.5px">Whitefield Main Road</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">Found from your phone · Ward 42</div></div>
+<span style="font:700 11.5px 'Courier Prime',monospace;color:#9E351B">Change</span>
+</div>
+<div style="display:flex;align-items:center;gap:11px;margin-top:auto;margin-bottom:6px;padding:13px 15px;border-radius:12px;background:rgba(48,76,80,.08)">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#304C50" stroke-width="1.6" stroke-linecap="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.6v.1"></path></svg>
+<div style="font-size:13px;line-height:1.55;color:#2b3a3c">You post as <strong>Citizen #A82F</strong>. Your name is never shown.</div>
+</div>
+</div>
+<div style="padding:0 20px 22px">
+<button style="width:100%;min-height:58px;border:0;border-radius:99px;background:#29251F;color:#F5EDDC;font:700 16px 'Courier Prime',monospace;letter-spacing:.06em;cursor:pointer">Next</button>
+</div>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">07 · REPORT · STEP 1</figcaption>
+</figure>
+
+<!-- 08 REPORT CONFIRM -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 18px 14px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"></path></svg>
+<span style="font:700 13px 'Courier Prime',monospace">Step 2 of 2</span>
+<span style="width:22px"></span>
+</div>
+<div style="flex:1;padding:4px 20px;display:flex;flex-direction:column;gap:15px">
+<div style="height:170px;border-radius:10px;background:#E4D8BC;background-image:repeating-linear-gradient(45deg,rgba(41,37,31,.09) 0 1px,transparent 1px 7px);border:1px solid #CFC2A4;position:relative">
+<span style="position:absolute;top:12px;right:12px;background:rgba(41,37,31,.75);color:#F5EDDC;border-radius:99px;padding:6px 12px;font:400 11px 'Courier Prime',monospace">Retake</span>
+</div>
+<div>
+<div style="font:700 11.5px 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353;margin-bottom:7px">WHAT YOU SAID</div>
+<p style="margin:0;font-size:15px;line-height:1.65;font-style:italic;color:#3c352b">"There's a huge pothole right before the Whitefield signal. Nearly two weeks now. Bikes are swerving into the next lane."</p>
+</div>
+<div style="border-radius:10px;background:rgba(48,76,80,.08);border:1px solid rgba(48,76,80,.28);padding:15px">
+<div style="display:flex;align-items:center;gap:9px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#304C50" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l2 4.6 4.6 2-4.6 2-2 4.6-2-4.6-4.6-2 4.6-2z"></path><path d="M18 15.5l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9z"></path></svg>
+<span style="font:700 12.5px 'Courier Prime',monospace;color:#304C50;flex:1">Swaram understood</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font:400 12px 'Courier Prime',monospace">
+<span style="border-radius:99px;background:#DDE6E4;padding:7px 13px;color:#2b3a3c">Roads</span>
+<span style="border-radius:99px;background:#DDE6E4;padding:7px 13px;color:#2b3a3c">Ward 42</span>
+<span style="border-radius:99px;background:#DDE6E4;padding:7px 13px;color:#2b3a3c">Urgent</span>
+<span style="border-radius:99px;background:#DDE6E4;padding:7px 13px;color:#2b3a3c">~1,400 affected</span>
+</div>
+<div style="font-size:13px;line-height:1.55;color:#2b3a3c;margin-top:12px">It will reach the <strong>BBMP Roads desk, Ward 42</strong>. Tap any tag to change it.</div>
+</div>
+<div style="border-radius:10px;background:#EDE2C8;padding:15px;display:flex;align-items:center;gap:13px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9E351B" stroke-width="1.6" stroke-linejoin="round" style="flex:none"><path d="M4 20V11l4.5-6a1.8 1.8 0 0 1 3 2l-1.2 3.4H17a2.2 2.2 0 0 1 2.1 2.8l-1.5 5.3A2.6 2.6 0 0 1 15 20z"></path></svg>
+<div style="flex:1"><div style="font-size:14.5px;line-height:1.5"><strong>81 neighbours</strong> already posted this.</div><div style="font:400 11.5px 'Courier Prime',monospace;color:#6d6353;margin-top:4px">Join them — it carries more weight together.</div></div>
+</div>
+</div>
+<div style="padding:0 20px 22px;display:flex;flex-direction:column;gap:10px">
+<button style="width:100%;min-height:58px;border:0;border-radius:99px;background:#9E351B;color:#F5EDDC;font:700 16px 'Courier Prime',monospace;letter-spacing:.06em;cursor:pointer">Join the 81</button>
+<button style="width:100%;min-height:52px;border:1.5px solid #29251F;border-radius:99px;background:transparent;color:#29251F;font:700 14px 'Courier Prime',monospace;cursor:pointer">Post as a new problem</button>
+</div>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">08 · REPORT · STEP 2</figcaption>
+</figure>
+
+<!-- 09 WEEKLY RECORD -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F2E7CE;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.025) 0 1px,transparent 1px 3px),radial-gradient(circle at 70% 12%,rgba(206,186,148,.6),transparent 50%);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#171512;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Saved offline</span></div>
+<div style="flex:1;overflow:hidden;padding:0 18px">
+<div style="text-align:center;border-bottom:3px double #171512;padding:12px 0 12px">
+<div style="font:400 9px 'Courier Prime',monospace;letter-spacing:.3em;color:#6d6353">THE WEEKLY RECORD</div>
+<div style="font-family:'Special Elite',cursive;font-size:34px;letter-spacing:.16em;text-indent:.16em;margin-top:7px;line-height:1">SWARAM</div>
+<div style="margin-top:8px;font:400 10px 'Courier Prime',monospace;letter-spacing:.14em;color:#6d6353">Issue 33 · 15 August 2026</div>
+</div>
+<div style="display:flex;text-align:center;padding:13px 0;border-bottom:1px solid #CFC2A4">
+<div style="flex:1"><div style="font:700 19px 'Courier Prime',monospace">12,482</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">posted</div></div>
+<div style="flex:1"><div style="font:700 19px 'Courier Prime',monospace;color:#52613A">8,921</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">resolved</div></div>
+<div style="flex:1"><div style="font:700 19px 'Courier Prime',monospace;color:#9E351B">3,210</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">waiting</div></div>
+</div>
+<div style="padding:13px 0 12px;border-bottom:1px solid #CFC2A4">
+<div style="font-family:'Special Elite',cursive;font-size:23px;line-height:1.2">Mysuru goes four days dry</div>
+<div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:6px">28,400 affected · rage 94 · 1,204 posts</div>
+<p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;text-wrap:pretty">The week's largest thread began with one post from Kuvempunagar on Monday. By Thursday the board had answered — a tanker schedule, and a promise.</p>
+</div>
+<div style="display:flex;gap:14px;padding:13px 0;border-bottom:1px solid #CFC2A4">
+<div style="flex:1">
+<div style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#9E351B"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg><span style="font:700 11px 'Courier Prime',monospace;color:#9E351B">Hottest</span></div>
+<div style="margin-top:8px;font:400 11.5px/2 'Courier Prime',monospace"><div>94 <span style="color:#4a4237">Mysuru water</span></div><div>87 <span style="color:#4a4237">Whitefield road</span></div><div>85 <span style="color:#4a4237">Hyderabad lights</span></div></div>
+</div>
+<div style="flex:1;border-left:1px solid #CFC2A4;padding-left:13px">
+<div style="display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#52613A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg><span style="font:700 11px 'Courier Prime',monospace;color:#52613A">Fastest fixed</span></div>
+<div style="margin-top:8px;font:400 11.5px/2 'Courier Prime',monospace"><div>2.4d <span style="color:#4a4237">Mysuru</span></div><div>3.1d <span style="color:#4a4237">Surat</span></div><div>3.8d <span style="color:#4a4237">Kochi</span></div></div>
+</div>
+</div>
+<div style="padding:12px 0;border-bottom:1px solid #CFC2A4">
+<div style="font:700 11px 'Courier Prime',monospace;letter-spacing:.14em;color:#6d6353">TURNED DOWN BY THE PUBLIC</div>
+<p style="margin:8px 0 0;font-size:13.5px;line-height:1.6">Four repairs were rejected this week. In Pune, 63% of verifiers said the drain overflow returned within nine days.</p>
+</div>
+<div style="padding:12px 0">
+<div style="font:700 11px 'Courier Prime',monospace;letter-spacing:.14em;color:#6d6353">DISTRICT SPOTLIGHT · MYSURU</div>
+<div style="display:flex;align-items:flex-end;gap:5px;height:30px;margin-top:10px">
+<div style="flex:1;height:40%;border-radius:4px 4px 0 0;background:#CFC2A4"></div><div style="flex:1;height:55%;border-radius:4px 4px 0 0;background:#CFC2A4"></div><div style="flex:1;height:48%;border-radius:4px 4px 0 0;background:#CFC2A4"></div><div style="flex:1;height:70%;border-radius:4px 4px 0 0;background:#a89b81"></div><div style="flex:1;height:86%;border-radius:4px 4px 0 0;background:#52613A"></div><div style="flex:1;height:100%;border-radius:4px 4px 0 0;background:#52613A"></div>
+<span style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-left:7px">6 weeks</span>
+</div>
+</div>
+</div>
+<div style="padding:12px 18px 20px;background:#EAE0C8;border-top:1px solid #CFC2A4;display:flex;gap:10px">
+<button style="flex:1;min-height:50px;border:0;border-radius:99px;background:#29251F;color:#F5EDDC;font:700 13px 'Courier Prime',monospace;cursor:pointer">Open the threads</button>
+<button style="width:56px;min-height:50px;border:1.5px solid #29251F;border-radius:99px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#29251F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12v7h12v-7"></path><path d="M12 15V4"></path><path d="M8.5 7.5L12 4l3.5 3.5"></path></svg></button>
+</div>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">09 · WEEKLY RECORD</figcaption>
+</figure>
+
+<!-- 10 PROFILE -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:10px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="flex:1;overflow:hidden;padding:8px 18px 0">
+<div style="display:flex;align-items:center;gap:14px">
+<div style="width:66px;height:66px;border-radius:50%;background:#E6DAC0;border:1.5px solid #29251F;display:flex;align-items:center;justify-content:center;font:700 15px 'Courier Prime',monospace">A82F</div>
+<div style="flex:1">
+<div style="font-family:'Special Elite',cursive;font-size:22px;line-height:1.15">Citizen #A82F</div>
+<div style="display:flex;align-items:center;gap:6px;font:400 11.5px 'Courier Prime',monospace;color:#6d6353;margin-top:5px">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#304C50" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg>
+<span>Verified · Ward 42 · since Mar 2026</span>
+</div>
+</div>
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 4.5v2M12 17.5v2M4.5 12h2M17.5 12h2M6.7 6.7l1.4 1.4M15.9 15.9l1.4 1.4M17.3 6.7l-1.4 1.4M8.1 15.9l-1.4 1.4"></path></svg>
+</div>
+<div style="display:flex;gap:9px;margin-top:16px">
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:13px;text-align:center"><div style="font:700 20px 'Courier Prime',monospace">9</div><div style="font:400 10.5px 'Courier Prime',monospace;color:#6d6353;margin-top:4px">posted</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:13px;text-align:center"><div style="font:700 20px 'Courier Prime',monospace;color:#52613A">6</div><div style="font:400 10.5px 'Courier Prime',monospace;color:#6d6353;margin-top:4px">fixed</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:13px;text-align:center"><div style="font:700 20px 'Courier Prime',monospace">2,140</div><div style="font:400 10.5px 'Courier Prime',monospace;color:#6d6353;margin-top:4px">helped</div></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px">
+<span style="font:700 11.5px 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353">MARKS OF SERVICE</span>
+<span style="font:400 11px 'Courier Prime',monospace;color:#9E351B">3 of 7 earned</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center">
+<div>
+<svg width="66" height="66" viewBox="0 0 48 48" style="transform:rotate(-6deg)">
+<path d="M24 5l4.4 8 9-1.1-1.1 9 8 4.4-8 4.4 1.1 9-9-1.1L24 45l-4.4-8-9 1.1 1.1-9-8-4.4 8-4.4-1.1-9 9 1.1z" fill="#52613A" stroke="#33401f" stroke-width="1.2" stroke-linejoin="round"></path>
+<circle cx="24" cy="25" r="9" fill="#F5EDDC" stroke="#33401f" stroke-width="1"></circle>
+<path d="M16.4 25s3-4.3 7.6-4.3S31.6 25 31.6 25s-3 4.3-7.6 4.3S16.4 25 16.4 25z" fill="none" stroke="#33401f" stroke-width="1.3"></path>
+<circle cx="24" cy="25" r="2" fill="#33401f"></circle>
+</svg>
+<div style="font:700 9px 'Courier Prime',monospace;color:#3f4b2c;letter-spacing:.02em">EYES OPEN</div>
+</div>
+<div>
+<svg width="66" height="66" viewBox="0 0 48 48" style="transform:rotate(4deg)">
+<path d="M24 5l4.4 8 9-1.1-1.1 9 8 4.4-8 4.4 1.1 9-9-1.1L24 45l-4.4-8-9 1.1 1.1-9-8-4.4 8-4.4-1.1-9 9 1.1z" fill="#304C50" stroke="#1e3134" stroke-width="1.2" stroke-linejoin="round"></path>
+<circle cx="24" cy="25" r="9" fill="#F5EDDC" stroke="#1e3134" stroke-width="1"></circle>
+<path d="M24 31.4s4.7-4.2 4.7-7.5a4.7 4.7 0 0 0-9.4 0c0 3.3 4.7 7.5 4.7 7.5z" fill="none" stroke="#1e3134" stroke-width="1.3" stroke-linejoin="round"></path>
+<circle cx="24" cy="23.6" r="1.6" fill="#1e3134"></circle>
+</svg>
+<div style="font:700 9px 'Courier Prime',monospace;color:#22383b">PATHFINDER</div>
+</div>
+<div>
+<svg width="66" height="66" viewBox="0 0 48 48" style="transform:rotate(-3deg)">
+<path d="M24 5l4.4 8 9-1.1-1.1 9 8 4.4-8 4.4 1.1 9-9-1.1L24 45l-4.4-8-9 1.1 1.1-9-8-4.4 8-4.4-1.1-9 9 1.1z" fill="#9E351B" stroke="#6d2411" stroke-width="1.2" stroke-linejoin="round"></path>
+<circle cx="24" cy="25" r="9" fill="#F5EDDC" stroke="#6d2411" stroke-width="1"></circle>
+<path d="M24 18.6c.7 2-1 2.9-1 4.4 0 1 .7 1.6 1 1.9.4-.6.8-1.3.8-2.2 1.4 1.1 2.2 2.6 2.2 4.2a3.7 3.7 0 1 1-7.4 0c0-3.3 2.8-5.5 4.4-8.3z" fill="#9E351B" style="animation:swFlick 1.9s ease-in-out infinite;transform-origin:50% 72%"></path>
+</svg>
+<div style="font:700 9px 'Courier Prime',monospace;color:#7c2915">THE VOICE</div>
+</div>
+<div style="opacity:.45">
+<svg width="66" height="66" viewBox="0 0 48 48" style="transform:rotate(5deg)">
+<path d="M24 5l4.4 8 9-1.1-1.1 9 8 4.4-8 4.4 1.1 9-9-1.1L24 45l-4.4-8-9 1.1 1.1-9-8-4.4 8-4.4-1.1-9 9 1.1z" fill="none" stroke="#6d6353" stroke-width="1.4" stroke-dasharray="3 2.4" stroke-linejoin="round"></path>
+<circle cx="24" cy="25" r="9" fill="none" stroke="#6d6353" stroke-width="1"></circle>
+<path d="M24 19.6l4.8 2v3.8c0 2.9-2 5.2-4.8 6-2.8-.8-4.8-3.1-4.8-6v-3.8z" fill="none" stroke="#6d6353" stroke-width="1.3" stroke-linejoin="round"></path>
+</svg>
+<div style="font:700 9px 'Courier Prime',monospace;color:#6d6353">GUARDIAN</div>
+</div>
+</div>
+<div style="font:400 10.5px 'Courier Prime',monospace;color:#8a7f6b;margin-top:8px;text-align:center">Pinned only when a repair is verified — never for posting.</div>
+<div style="display:flex;align-items:center;gap:12px;margin-top:16px;padding:13px 15px;border-radius:12px;background:#2B2620;color:#F5EDDC;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 92% 130%,rgba(196,112,58,.5),transparent 62%);animation:swGlow 2.8s ease-in-out infinite"></div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="#E0A45C" style="flex:none;position:relative;animation:swFlick 1.6s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<div style="flex:1;position:relative"><div style="font:700 15px 'Courier Prime',monospace">3,480 smoke</div><div style="font:400 11px 'Courier Prime',monospace;color:#C0B49A;margin-top:3px">Kindling · 620 to Blaze</div></div>
+<span style="position:relative;font:700 11px 'Courier Prime',monospace;color:#E0A45C">See →</span>
+</div>
+<div style="font:700 11.5px 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353;margin:18px 0 8px">YOUR THREADS</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #DFD3B6">
+<div><div style="font-size:14px">The pothole that won't go away</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">Verifying · 347 with you</div></div>
+<span style="font:700 13px 'Courier Prime',monospace;color:#9E351B">87</span>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #DFD3B6">
+<div><div style="font-size:14px">Supply cut without notice, 3rd Block</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">Officer assigned · 6 days</div></div>
+<span style="font:700 13px 'Courier Prime',monospace;color:#6d6353">54</span>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #DFD3B6">
+<div><div style="font-size:14px">Drain overflow at 9th Cross</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">Waiting for your verdict</div></div>
+<span style="transform:rotate(-5deg);border:2px solid #52613A;color:#52613A;padding:3px 8px;font:700 9.5px 'Courier Prime',monospace;letter-spacing:.14em">VERIFY ME</span>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #DFD3B6;border-bottom:1px solid #DFD3B6">
+<div><div style="font-size:14px">Garbage pile at the park gate</div><div style="font:400 11px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">Closed in 3 days · 91% satisfied</div></div>
+<span style="transform:rotate(4deg);border:2px solid #7c2915;color:#7c2915;padding:3px 8px;font:700 9.5px 'Courier Prime',monospace;letter-spacing:.14em">BURNED</span>
+</div>
+</div>
+<nav style="display:flex;align-items:center;justify-content:space-around;padding:12px 8px 20px;background:#EFE6D0;border-top:1px solid #CFC2A4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M9 5L4 7v12l5-2 6 2 5-2V5l-5 2z"></path><path d="M9 5v12M15 7v12"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Map</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Record</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#6d6353"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.7" stroke-linejoin="round"><path d="M6 17V11a6 6 0 1 1 12 0v6l1.5 2h-15z"></path><path d="M10.5 19a1.5 1.5 0 0 0 3 0"></path></svg><span style="font:400 10px 'Courier Prime',monospace">Alerts</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;color:#9E351B"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9E351B" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="9" r="3.4"></circle><path d="M5.5 19.5a6.8 6.8 0 0 1 13 0"></path></svg><span style="font:700 10px 'Courier Prime',monospace">You</span></div>
+</nav>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">10 · YOUR PROFILE</figcaption>
+</figure>
+
+</div>
+</section>
+
+<!-- ══════ ROW 4 · SMOKE POINTS & BURNED TICKETS ══════ -->
+<section style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #4a4237;padding-bottom:9px">
+<span style="font-size:11px;letter-spacing:.3em;color:#9E351B;font-weight:700">04</span>
+<span style="font-size:15px;letter-spacing:.24em">SMOKE POINTS &amp; BURNED TICKETS</span>
+<span style="font-family:'Libre Baskerville',serif;font-size:11.5px;color:#867c67;font-style:italic">Raise smoke, climb the leagues — and when a record is fixed, the paper burns.</span>
+</div>
+<div style="display:flex;gap:42px;flex-wrap:wrap;align-items:flex-start">
+
+<!-- 11 ANALYTICS -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:20px;background:#F5EDDC;background-image:repeating-linear-gradient(0deg,rgba(41,37,31,.016) 0 1px,transparent 1px 3px);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#29251F;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#6d6353"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 12px;border-bottom:1px solid #D8CCB0">
+<span style="font-family:'Special Elite',cursive;font-size:21px;letter-spacing:.08em">Your smoke</span>
+<span style="font:400 11.5px 'Courier Prime',monospace;color:#6d6353;background:#E9DEC4;border-radius:99px;padding:6px 12px">This year ▾</span>
+</div>
+<div style="flex:1;overflow:hidden;padding:14px 18px">
+
+<div style="position:relative;overflow:hidden;border-radius:14px;background:#2B2620;padding:16px 17px;color:#F5EDDC">
+<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 88% 120%,rgba(196,112,58,.55),transparent 62%);animation:swGlow 2.6s ease-in-out infinite"></div>
+<div style="position:relative;display:flex;align-items:center;gap:9px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="#E0A45C" style="animation:swFlick 1.5s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<span style="font:700 11px 'Courier Prime',monospace;letter-spacing:.18em;color:#D9C49C;flex:1">SMOKE POINTS</span>
+<span style="font:400 10.5px 'Courier Prime',monospace;color:#D9C49C">+310 this week</span>
+</div>
+<div style="position:relative;font:700 42px/1 'Courier Prime',monospace;margin-top:12px;animation:swCount .6s ease-out">3,480</div>
+<div style="position:relative;display:flex;align-items:center;justify-content:space-between;margin-top:16px;font:400 11px 'Courier Prime',monospace;color:#D9C49C"><span>KINDLING · LEAGUE 2</span><span>620 to BLAZE</span></div>
+<div style="position:relative;height:10px;border-radius:99px;background:rgba(245,237,220,.16);margin-top:7px;overflow:hidden"><div style="height:100%;width:68%;border-radius:99px;background:linear-gradient(90deg,#9E351B,#E0A45C);animation:swHeat 2.2s ease-in-out infinite"></div></div>
+</div>
+
+<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px">
+<div style="text-align:center"><svg width="30" height="30" viewBox="0 0 24 24" fill="#8a7f6b"><path d="M12 5c.8 2.4-1.2 3.4-1.2 5.3 0 1.1.8 1.9 1.2 2.3.5-.7 1-1.6 1-2.6 1.6 1.3 2.6 3.1 2.6 5a4.6 4.6 0 1 1-9.2 0C6.4 10.9 10 8 12 5z"></path></svg><div style="font:700 9px 'Courier Prime',monospace;color:#8a7f6b">EMBER</div></div>
+<div style="text-align:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="#9E351B" style="animation:swFlick 1.7s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg><div style="font:700 10px 'Courier Prime',monospace;color:#9E351B">KINDLING</div></div>
+<div style="text-align:center;opacity:.4"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.6"><path d="M12 4c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 10.9 9.6 7.6 12 4z"></path></svg><div style="font:700 9px 'Courier Prime',monospace;color:#6d6353">BLAZE</div></div>
+<div style="text-align:center;opacity:.4"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.6"><path d="M12 4c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 10.9 9.6 7.6 12 4z"></path></svg><div style="font:700 9px 'Courier Prime',monospace;color:#6d6353">WILDFIRE</div></div>
+<div style="text-align:center;opacity:.4"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6d6353" stroke-width="1.6"><path d="M12 4v3M12 17v3M4 12h3M17 12h3M6.5 6.5l2 2M15.5 15.5l2 2M17.5 6.5l-2 2M8.5 15.5l-2 2"></path><circle cx="12" cy="12" r="3"></circle></svg><div style="font:700 9px 'Courier Prime',monospace;color:#6d6353">BEACON</div></div>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:18px">
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:12px;text-align:center"><div style="font:700 19px 'Courier Prime',monospace">9</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">raised</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:12px;text-align:center"><div style="font:700 19px 'Courier Prime',monospace;color:#52613A">6</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">burned</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:12px;text-align:center"><div style="font:700 19px 'Courier Prime',monospace;color:#9E351B">2</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">waiting</div></div>
+<div style="flex:1;background:#EDE2C8;border-radius:10px;padding:12px;text-align:center"><div style="font:700 19px 'Courier Prime',monospace">31</div><div style="font:400 10px 'Courier Prime',monospace;color:#6d6353;margin-top:3px">verdicts</div></div>
+</div>
+
+<div style="font:700 11px 'Courier Prime',monospace;letter-spacing:.14em;color:#6d6353;margin:18px 0 9px">ISSUES YOU RAISED</div>
+<div style="display:flex;align-items:flex-end;gap:7px;height:74px;padding-bottom:2px;border-bottom:1px solid #D8CCB0">
+<div style="flex:1;height:32%;background:#D8CCB0;border-radius:3px 3px 0 0"></div>
+<div style="flex:1;height:54%;background:#D8CCB0;border-radius:3px 3px 0 0"></div>
+<div style="flex:1;height:41%;background:#D8CCB0;border-radius:3px 3px 0 0"></div>
+<div style="flex:1;height:70%;background:#C4703A;border-radius:3px 3px 0 0"></div>
+<div style="flex:1;height:88%;background:#9E351B;border-radius:3px 3px 0 0"></div>
+<div style="flex:1;height:100%;background:#9E351B;border-radius:3px 3px 0 0"></div>
+</div>
+<div style="display:flex;justify-content:space-between;font:400 9.5px 'Courier Prime',monospace;color:#8a7f6b;margin-top:5px"><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AUG</span></div>
+
+<div style="font:700 11px 'Courier Prime',monospace;letter-spacing:.14em;color:#6d6353;margin:16px 0 8px">HOW YOU EARN SMOKE</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #DFD3B6;font-size:13.5px"><span>A repair verified from your post</span><span style="font:700 12px 'Courier Prime',monospace;color:#9E351B">+200</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #DFD3B6;font-size:13.5px"><span>Your post reaches the department</span><span style="font:700 12px 'Courier Prime',monospace;color:#9E351B">+50</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #DFD3B6;font-size:13.5px"><span>You cast an honest verdict</span><span style="font:700 12px 'Courier Prime',monospace;color:#9E351B">+15</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #DFD3B6;font-size:13.5px"><span>Someone joins your record</span><span style="font:700 12px 'Courier Prime',monospace;color:#9E351B">+5</span></div>
+<div style="display:flex;align-items:center;gap:9px;margin-top:12px;padding:11px 13px;border-radius:10px;background:#EDE2C8">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a4237" stroke-width="1.6" stroke-linejoin="round" style="flex:none"><path d="M6 21V9l6-4.5L18 9v12z"></path><path d="M10 21v-5h4v5"></path></svg>
+<div style="font-size:13px;line-height:1.5;flex:1">You are <strong>#12 of 1,204</strong> in Ward 42.</div>
+</div>
+</div>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">11 · SMOKE POINTS &amp; LEAGUES</figcaption>
+</figure>
+
+<!-- 12 BURNED TICKET -->
+<figure style="margin:0;display:flex;flex-direction:column;gap:11px">
+<div style="width:390px;height:840px;position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:20px;background:#2B2620;background-image:radial-gradient(ellipse at 78% 88%,rgba(158,53,27,.35),transparent 60%);border:1px solid #171512;box-shadow:8px 8px 0 rgba(0,0,0,.38);color:#F5EDDC;font-family:'Libre Baskerville',Georgia,serif">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:32px;font:400 10px/1 'Courier Prime',monospace;letter-spacing:.1em;color:#A2977F"><span>9:41</span><span>Bengaluru · 4G</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 22px;position:relative">
+
+<div style="font:700 11px 'Courier Prime',monospace;letter-spacing:.3em;color:#C4703A">RECORD CLOSED</div>
+<div style="font-family:'Special Elite',cursive;font-size:30px;line-height:1.15;text-align:center;margin-top:12px">The pothole is gone</div>
+<div style="font:400 12px 'Courier Prime',monospace;color:#C0B49A;margin-top:9px">Verified by 214 neighbours · 18 Aug</div>
+
+<!-- the burning ticket -->
+<div style="position:relative;width:100%;margin-top:26px;height:250px">
+<div style="position:absolute;inset:0;border-radius:10px;overflow:hidden;background:#F5EDDC;color:#29251F;padding:18px 20px;border:1px solid #CFC2A4">
+<div style="display:flex;justify-content:space-between;font:400 10.5px 'Courier Prime',monospace;letter-spacing:.14em;color:#6d6353;border-bottom:1px solid #DFD3B6;padding-bottom:9px"><span>CIV-10482</span><span>WARD 42</span></div>
+<div style="font-family:'Special Elite',cursive;font-size:21px;line-height:1.2;margin-top:12px">The pothole that won't go away</div>
+<div style="font:400 11.5px 'Courier Prime',monospace;color:#6d6353;margin-top:8px">Filed 3 Aug · 82 reports · 347 supporters</div>
+<div style="font:400 11.5px/1.9 'Courier Prime',monospace;color:#4a4237;margin-top:12px">Roads Department · Kiran R.<br>Work order BBMP/RD/8842<br>Resurfaced 40 sq.m · 18 Aug</div>
+<div style="display:inline-block;margin-top:12px;transform:rotate(-6deg);border:2px solid #52613A;color:#52613A;padding:4px 10px;font:700 11px 'Courier Prime',monospace;letter-spacing:.16em">BURNED</div>
+<div style="position:absolute;right:0;bottom:0;width:300px;height:300px;border-radius:50%;transform-origin:100% 100%;background:radial-gradient(circle at 100% 100%,#2B2620 0 50%,#3d2411 53%,#9E351B 56%,#E0A45C 59%,rgba(224,164,92,.35) 62%,transparent 66%);animation:swChar 7s ease-in-out infinite alternate;pointer-events:none"></div>
+</div>
+<span style="position:absolute;right:40px;bottom:60px;width:26px;height:26px;border-radius:50%;background:rgba(200,190,175,.5);filter:blur(7px);animation:swSmoke 4.5s linear infinite"></span>
+<span style="position:absolute;right:96px;bottom:40px;width:20px;height:20px;border-radius:50%;background:rgba(200,190,175,.45);filter:blur(6px);animation:swSmoke 5.6s linear 1.2s infinite"></span>
+<span style="position:absolute;right:150px;bottom:26px;width:16px;height:16px;border-radius:50%;background:rgba(200,190,175,.4);filter:blur(5px);animation:swSmoke 6.4s linear 2.4s infinite"></span>
+</div>
+
+<div style="display:flex;align-items:center;gap:11px;margin-top:26px;padding:14px 18px;border-radius:14px;background:rgba(245,237,220,.08);border:1px solid rgba(224,164,92,.35)">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="#E0A45C" style="flex:none;animation:swFlick 1.5s ease-in-out infinite;transform-origin:50% 100%"><path d="M12 3c1 3-1.5 4.2-1.5 6.6 0 1.4 1 2.4 1.5 2.9.6-.9 1.2-2 1.2-3.3 2 1.6 3.3 3.9 3.3 6.3a5.5 5.5 0 1 1-11 0C5.5 9.9 9.6 6.6 12 3z"></path></svg>
+<div style="flex:1"><div style="font:700 17px 'Courier Prime',monospace;color:#E0A45C">+200 smoke</div><div style="font:400 11.5px 'Courier Prime',monospace;color:#C0B49A;margin-top:3px">Split with 81 others who filed it</div></div>
+</div>
+<div style="font:400 12.5px/1.7 'Courier Prime',monospace;color:#C0B49A;text-align:center;margin-top:18px">Burned tickets stay in the archive.<br>Nothing is deleted — only closed.</div>
+</div>
+<div style="padding:0 22px 24px;display:flex;gap:10px">
+<button style="flex:1;min-height:52px;border:0;border-radius:99px;background:#F5EDDC;color:#29251F;font:700 13.5px 'Courier Prime',monospace;cursor:pointer">Share the burn</button>
+<button style="width:60px;min-height:52px;border:1.5px solid rgba(245,237,220,.5);border-radius:99px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F5EDDC" stroke-width="1.7" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"></path><path d="M8 10h8M8 14h5"></path></svg></button>
+</div>
+</div>
+<figcaption style="font-size:9.5px;letter-spacing:.18em;color:#8b8069">12 · A BURNED TICKET</figcaption>
+</figure>
+
+</div>
+</section>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;pressureLabel&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;RAGE METER&quot;,&quot;CIVIC PRESSURE&quot;,&quot;PRESSURE INDEX&quot;],&quot;default&quot;:&quot;RAGE METER&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { pressureLabel: this.props.pressureLabel ?? 'RAGE METER' };
+  }
+}
+</script>
+</body>
+</html>
