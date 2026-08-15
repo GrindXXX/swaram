@@ -388,7 +388,7 @@ footer .wrap{display:grid;gap:1rem}
     <div><span>Document</span><b>Product Requirements</b></div>
     <div><span>Version</span><b>1.0 — 15 Aug 2026</b></div>
     <div><span>Primary platform</span><b>Mobile web / PWA</b></div>
-    <div><span>Companion doc</span><b>Technical Design (next)</b></div>
+    <div><span>Platform</span><b>Supabase · Postgres + PostGIS</b></div>
   </div>
 </div>
 
@@ -1580,6 +1580,64 @@ promotion triggers (any two, plus officer or supervisor confirmation):
     </div>
   </div>
 
+  <h3 style="margin-top:2rem">How media becomes model input</h3>
+  <p class="small muted" style="max-width:68ch">A citizen may submit a photo, a voice note, a video, typed text, or several at once. One agent can handle all of it only because a preprocessing pipeline normalises every input type into the same shape first. That pipeline is plumbing, not intelligence.</p>
+
+  <pre class="flow" style="margin-top:1rem">  PHOTO ──► compress ≤1600px · strip EXIF ──────────────┐
+                                                         │
+  VOICE ──► ASR (kn/hi/te/en) ──► transcript ───────────┤
+            keep original audio as evidence              │
+                                                         ├──► ONE
+  VIDEO ──► extract 2–3 keyframes ──────────────────────┤    INTAKE
+            + audio track ──► ASR ──► transcript ───────┤    AGENT
+                                                         │
+  TEXT  ──► as-is ──────────────────────────────────────┤
+                                                         │
+  GEO   ──► reverse geocode ──► address + area context ──┘
+
+  agent input is always the same shape:
+      text + image(s) + location context
+
+  agent output:
+      category · subcategory · severity · title
+      estimated people affected · emergency flag
+      visibility class · safety screen</pre>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <ul class="req">
+        <li><b>Raw audio does not go to the reasoning model.</b> A dedicated ASR service is more accurate for Kannada, Hindi and Telugu, and the transcript is something we need to store, show back to the user and keep as evidence regardless.</li>
+        <li><b>Video is never sent as video.</b> Keyframes plus a transcript carry essentially all the civic signal at a fraction of the cost and latency.</li>
+        <li><b>The original media is always retained</b> alongside the derived text. The transcript is an interpretation; the audio is the evidence.</li>
+        <li><b>Transcripts are shown back to the reporter before submission</b> with an edit affordance — dialect and street noise produce errors, and the citizen is the cheapest, most accurate corrector available.</li>
+        <li><b>Any single input is sufficient.</b> A photo with no text, or a voice note with no photo, must both produce a complete classification.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>The agent tags the category — SQL finds the person</h4>
+      <p class="small muted">The division of labour that keeps this maintainable: the agent decides <em>what kind of problem this is</em>. Everything about <em>who owns it</em> is a query.</p>
+      <pre class="flow" style="margin-top:.6rem;font-size:.68rem">-- 1. GPS pin → most specific jurisdiction
+SELECT id FROM jurisdictions
+WHERE ST_Contains(geometry, ST_Point(:lng, :lat))
+ORDER BY level DESC LIMIT 1;
+
+-- 2. category × jurisdiction → dept → officer
+SELECT o.* FROM government_officers o
+JOIN category_department_map m
+  ON m.department_id = o.department_id
+WHERE m.category = :category
+  AND o.jurisdiction_id = :jurisdiction_id
+  AND o.is_active
+ORDER BY o.current_workload ASC
+LIMIT 1;</pre>
+      <ul class="req" style="margin-top:.75rem">
+        <li><b>The agent emits a category, never a department.</b> Department structures differ between cities — the same problem is Roads in one body and PWD in another. Forcing the model to learn every org chart guarantees drift; a stable universal taxonomy plus a mapping table does not.</li>
+        <li><b>A reorganisation is a row change</b> in <code>category_department_map</code>, not a prompt change or a retrain.</li>
+        <li><b>No officer found is a valid, expected result</b> — that is Tier 2 or Tier 3 in §12, not an error state.</li>
+      </ul>
+    </div>
+  </div>
+
   <h3 style="margin-top:2rem">What is deliberately not an agent</h3>
   <p class="small muted" style="max-width:68ch">An agent per box in the pipeline diagram looks impressive and is a mistake. Each one adds latency, cost, a confidence threshold to tune and a new way to be wrong about a pothole. The following steps are deterministic, and being deterministic is a feature — they are fast, free, testable and explainable.</p>
 
@@ -2147,7 +2205,8 @@ promotion triggers (any two, plus officer or supervisor confirmation):
     <div class="card"><h4>Security</h4><ul class="req" style="margin-top:.5rem">
       <li>Phone OTP for citizens; department-issued invitation + MFA for officers (§17). No self-service officer signup, no privilege escalation path from a citizen account</li>
       <li>No Aadhaar numbers stored — a verification flag and reference token at most</li>
-      <li>Role and jurisdiction enforced server-side on every query, never in the client</li>
+      <li>Role, jurisdiction and visibility class enforced at the data layer on every query, never in the client. On Supabase this means <b>row-level security policies are the enforcement point</b> — the CONFIDENTIAL class, internal comments and cross-department access must be RLS rules, not application code. A client that talks directly to the database has no other line of defence</li>
+      <li>Server-only secrets: ASR, model and geocoding keys never reach the client; media uploads via signed, expiring URLs</li>
       <li>Signed, expiring media URLs</li>
       <li>Full audit log for every government action</li>
     </ul></div>
