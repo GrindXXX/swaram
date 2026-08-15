@@ -534,7 +534,7 @@ footer .wrap{display:grid;gap:1rem}
       </ul>
       <div class="note warn" style="margin-top:1rem">
         <b>Hard rule</b>
-        A citizen can never be blocked from submitting because "a similar issue exists". We always accept the submission; the system decides afterwards whether it became a new Issue or a Report on an existing one, and tells the user which happened.
+        Anyone can create an issue, always. A submission is <em>never</em> blocked, diverted or converted at submit time because "a similar issue exists". Every report creates its own Issue immediately. Clustering happens afterwards, asynchronously, and is decided by the agent — not by a radius rule at the point of capture.
       </div>
     </div>
   </div>
@@ -557,6 +557,55 @@ footer .wrap{display:grid;gap:1rem}
     </table>
   </div>
   <p class="scroll-hint">← scroll table →</p>
+
+  <h3 style="margin-top:2.5rem">Location is always required — but precision and publicity are not the same thing</h3>
+  <p class="small muted" style="max-width:68ch">Location is not decoration; it is what determines <em>who owns the issue</em>. Without it there is no jurisdiction, so no department, no officer, no SLA and no accountability — the issue has nowhere to go. Even a harassment complaint needs a location, because it decides which police station is answerable. So location stays mandatory. What varies is how precise it is, and who is allowed to see it.</p>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <h4>Location precision — three tiers</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Point</b> — a pothole, a broken streetlight, a dumped pile. An exact pin. The default.</li>
+        <li><b>Segment or area</b> — a water outage on a street, a blocked drain along a stretch, a power cut across a block. The issue owns a line or polygon, not a dot, and the feed shows "along 3rd Cross" rather than a misleading single pin.</li>
+        <li><b>Jurisdiction-level</b> — a ward-wide service failure or an administrative grievance where no specific spot exists. Routes on ward alone. Rare, but it must not be forced into a fake pin.</li>
+      </ul>
+      <p class="small muted" style="margin-top:.5rem">Precision is inferred by the classifier from the category and description, and is adjustable by the officer. It also feeds clustering: an area-tier issue uses a far wider candidate net than a point-tier one.</p>
+    </div>
+    <div>
+      <h4>Location visibility — independent of precision</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Exact</b> — shown publicly on the map. Correct for infrastructure.</li>
+        <li><b>Approximate</b> — the public sees a ~200 m blurred area while the officer sees the true point. Used automatically when a report is at or near the reporter's home, so reporting a problem outside your gate does not publish your address.</li>
+        <li><b>Private</b> — the location is never public at any resolution. Only the owning department sees it.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note warn" style="margin-top:1.25rem">
+    <b>What your harassment example actually exposes</b>
+    You were right that location is needed there — but that case breaks something bigger than location. A woman reporting harassment cannot have her report sitting on a public civic feed with a photo, a map pin, a comment thread and a "27 people also facing this" counter. The problem is not the coordinates; it is that <b>the feed is public by default and some issues must never be public at all</b>. See the visibility classes below.
+  </div>
+
+  <h3 style="margin-top:2rem">Issue visibility classes</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Class</th><th>Appears on feed</th><th>Who can see it</th><th>Clustering</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill p-sig">PUBLIC</span><br><span class="muted small">default</span></td><td>Yes</td><td>Everyone, logged out included</td><td>Normal — merges, crowd counts, discussion</td><td>Potholes, garbage, streetlights, drainage, water leaks</td></tr>
+        <tr><td><span class="pill p-prog">RESTRICTED</span></td><td>Yes, redacted</td><td>Title and status public; media, exact location and discussion visible only to the reporter and the department</td><td>Merges allowed, but no public photo gallery</td><td>Issues on private property, reports naming a business, anything with faces in the media</td></tr>
+        <tr><td><span class="pill" style="background:var(--crit-soft);color:var(--crit)">CONFIDENTIAL</span></td><td><b>No</b></td><td>Reporter and the owning department only. No public URL exists.</td><td><b>Never clustered, never merged</b> — no crowd counter, no "others facing this"</td><td>Harassment, threats, safety of a named person, anything involving a minor</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <ul class="req" style="margin-top:1rem">
+    <li><b>The classifier proposes the class; it fails safe.</b> Categories touching personal safety, minors or named individuals default to CONFIDENTIAL, and a human must actively downgrade. Wrongly private is a recoverable mistake; wrongly public is not.</li>
+    <li><b>The reporter can raise the class</b> at any time, on any issue, in one tap — but only a supervisor can lower it, and lowering is logged.</li>
+    <li><b>Confidential issues still get an SLA, an owner and a full timeline.</b> They lose the audience, not the accountability.</li>
+    <li><b>Emergency interception still applies first.</b> An in-progress assault is a 112 call, not a ticket — the interstitial in §08 fires before any of this.</li>
+    <li><b>Whether Swaram should accept this category at all is an open question</b> — see §22. Building a half-serious channel for a serious harm is worse than routing it to the proper authority and saying so.</li>
+  </ul>
 </section>
 
 <!-- ============================ 04 IA ============================ -->
@@ -762,7 +811,7 @@ navigated by push/back. Same data, same actions.</pre>
 
             <div style="border-left:3px solid var(--violet);background:var(--violet-soft);padding:.45rem .55rem;border-radius:0 6px 6px 0;font-size:.6rem;color:var(--ink-2)">
               <b style="font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);display:block">AI preview</b>
-              Roads · Pothole · High · likely matches <b>CIV-10234</b> (27 reports)
+              Roads · Pothole · High · <b>3 similar nearby</b> — we'll check after you post
             </div>
           </div>
           <div style="border-top:1px solid var(--rule);background:var(--paper-2);padding:.5rem .6rem">
@@ -819,22 +868,28 @@ navigated by push/back. Same data, same actions.</pre>
           <div class="status"><span>9:41</span><span>◍ · 4G ▮</span></div>
           <div class="body" style="display:flex;flex-direction:column;justify-content:center;text-align:center;padding:1rem">
             <div style="font-size:2.2rem;margin-bottom:.4rem">✓</div>
-            <div style="font-family:var(--serif);font-weight:700;font-size:1.05rem;line-height:1.2;margin-bottom:.4rem">You joined 26 others reporting this</div>
-            <div style="font-size:.68rem;color:var(--ink-2);margin-bottom:.9rem">Your report was added to <b>CIV-10234</b> instead of creating a duplicate — so it carries more weight.</div>
+            <div style="font-family:var(--serif);font-weight:700;font-size:1.05rem;line-height:1.2;margin-bottom:.3rem">Reported. It's live now.</div>
+            <div style="font-family:var(--mono);font-size:.72rem;color:var(--signal);margin-bottom:.5rem">CIV-10502</div>
+            <div style="font-size:.66rem;color:var(--ink-2);margin-bottom:.8rem">Your issue is public and on its way to the right department.</div>
 
-            <div style="border:1px solid var(--rule);border-radius:9px;padding:.6rem;background:var(--paper-2);text-align:left;margin-bottom:.7rem">
+            <div style="border:1px solid var(--rule);border-radius:9px;padding:.6rem;background:var(--paper-2);text-align:left;margin-bottom:.6rem">
               <div style="font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);margin-bottom:.3rem">What the AI did</div>
               <div style="font-size:.6rem;color:var(--ink-2);line-height:1.6">
                 Classified · <b>Roads › Pothole</b> <span style="color:var(--ink-3)">96%</span><br>
                 Jurisdiction · <b>Ward 42</b> <span style="color:var(--ink-3)">GPS</span><br>
-                Matched · <b>CIV-10234</b> <span style="color:var(--ink-3)">91%</span><br>
-                Priority · <b>High</b> <span style="color:var(--ink-3)">27 reports · arterial road</span>
+                Routed · <b>Roads Dept</b> <span style="color:var(--ink-3)">94%</span><br>
+                Priority · <b>High</b> <span style="color:var(--ink-3)">arterial road</span>
               </div>
               <div style="font-size:.55rem;color:var(--signal);margin-top:.35rem">Wrong? Tell us ›</div>
             </div>
 
-            <div style="background:var(--ink);color:var(--paper);padding:.5rem;border-radius:7px;font-size:.68rem;font-weight:600;margin-bottom:.4rem">Track this issue</div>
-            <div style="font-size:.6rem;color:var(--ink-3)">You'll be notified on every status change.</div>
+            <div style="border:1px solid var(--rule);border-radius:9px;padding:.55rem;background:var(--signal-soft);text-align:left;margin-bottom:.65rem">
+              <div style="font-size:.6rem;color:var(--ink-2);line-height:1.5"><b>3 similar reports nearby.</b> We're checking whether they're the same problem — if they are, we'll combine them so they carry more weight together.</div>
+              <div style="font-size:.55rem;color:var(--signal);margin-top:.25rem">See them ›</div>
+            </div>
+
+            <div style="background:var(--ink);color:var(--paper);padding:.5rem;border-radius:7px;font-size:.68rem;font-weight:600;margin-bottom:.35rem">Track this issue</div>
+            <div style="font-size:.58rem;color:var(--ink-3)">You'll be notified on every status change.</div>
           </div>
         </div>
       </div>
@@ -1011,9 +1066,10 @@ defaults: w1 .30  w2 .20  w3 .20
         <li><b>Tap ＋</b> from anywhere. Camera and location permissions are requested here, in context, with a plain-language reason — never on app launch.</li>
         <li><b>Capture.</b> One screen, four equal inputs: hold-to-speak voice, photo, video, text. Any <em>one</em> is sufficient to submit.</li>
         <li><b>Location.</b> Auto-filled from GPS with a reverse-geocoded address. One tap to adjust the pin. Manual entry if GPS is denied or wrong.</li>
-        <li><b>AI preview.</b> While the user is still on the screen, show the inferred department, category, priority and any likely duplicate. This is a preview, not a gate — it can be wrong and the user can still submit.</li>
-        <li><b>Submit.</b> Optimistic: the UI confirms immediately, upload continues in the background, and failures retry from a local queue.</li>
-        <li><b>Confirmation.</b> Screen 05 — new issue created, or joined an existing crowd, with the AI's reasoning shown.</li>
+        <li><b>AI preview.</b> While the user is still on the screen, show the inferred department, category and priority, plus a passive note if similar reports exist nearby. This is information, never a gate — it cannot stop or redirect the submission.</li>
+        <li><b>Submit.</b> Optimistic: the UI confirms immediately, upload continues in the background, and failures retry from a local queue. <b>The issue is always created.</b></li>
+        <li><b>Confirmation.</b> Screen 05 — the new issue's public ID, what the AI decided and why, and a note that clustering is still being checked.</li>
+        <li><b>Later — the merge notification.</b> If the clustering agent merges the issue, everyone involved gets "Your report was combined with 26 others — CIV-10234". This is where the crowd moment now lands.</li>
       </ol>
     </div>
     <div>
@@ -1122,7 +1178,8 @@ defaults: w1 .30  w2 .20  w3 .20
           <div><span class="muted">Priority</span> · <b style="color:var(--crit)">High</b></div>
           <div><span class="muted">Dept</span> · Roads</div>
           <div><span class="muted">Ward</span> · 42</div>
-          <div><span class="muted">Assignee</span> · Officer Kiran</div>
+          <div><span class="muted">Owner</span> · Officer Kiran</div>
+          <div><span class="muted">With</span> · ABC Infra · 2 crew</div>
           <div><span class="muted">Reports</span> · 27 · <span class="muted">Followers</span> 41</div>
           <div><span class="muted">SLA</span> · <b style="color:var(--amber)">3d left</b></div>
         </div>
@@ -1174,6 +1231,47 @@ defaults: w1 .30  w2 .20  w3 .20
       <h4>Field mode — the mobile officer</h4>
       <p class="small">The portal on a phone is not a shrunken table. It is a task list of today's assigned issues sorted by distance from the officer, with one-tap actions: acknowledge, start work, upload progress photo, mark resolved with photo.</p>
       <p class="small" style="margin-top:.4rem"><b>Requirement:</b> resolution photos capture GPS and time, and the AI verifier compares them against the original report location and imagery.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Many people, one accountable owner</h3>
+  <p class="small muted" style="max-width:68ch">A real pothole repair involves a ward engineer, a road contractor, a field crew, a supervisor watching the SLA, and sometimes a corporator or minister whose constituency it is. A single <code>assigned_officer</code> field cannot express that — but neither can a free-for-all where five people are "on it" and nobody is answerable.</p>
+
+  <div class="note warn" style="margin-top:1rem">
+    <b>The rule that keeps this from becoming a group chat</b>
+    An issue has <em>exactly one</em> Owner at all times. Ownership is transferable but never shared, never null, and never plural. Everyone else is a participant with a defined role. When an SLA breaches, exactly one name is attached to it — otherwise accountability evaporates the moment it matters.
+  </div>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <h4>Participant roles</h4>
+      <div class="tw">
+        <table style="min-width:440px">
+          <thead><tr><th>Role</th><th>Can do</th><th>Public?</th></tr></thead>
+          <tbody>
+            <tr><td><b>Owner</b> <span class="muted">(1, mandatory)</span></td><td>Everything on the issue. Carries the SLA.</td><td>Name + designation</td></tr>
+            <tr><td><b>Assignee</b> <span class="muted">(0–n)</span></td><td>Update status, post official replies, upload evidence</td><td>Designation only</td></tr>
+            <tr><td><b>Contractor</b> <span class="muted">(0–n)</span></td><td>Upload progress and resolution evidence, comment internally. Cannot change status or close.</td><td>Org name</td></tr>
+            <tr><td><b>Field crew</b> <span class="muted">(0–n)</span></td><td>Upload geotagged photos from site, mark work started/done as a <em>claim</em></td><td>Hidden</td></tr>
+            <tr><td><b>Supervisor</b> <span class="muted">(0–n)</span></td><td>Reassign, escalate, override priority, force-reopen</td><td>Hidden by default</td></tr>
+            <tr><td><b>Representative</b> <span class="muted">(0–n)</span></td><td>Corporator, MLA, minister. Read + comment publicly. <b>No operational powers.</b></td><td>Name + title</td></tr>
+            <tr><td><b>Observer</b> <span class="muted">(0–n)</span></td><td>Read + receive notifications. Nothing else.</td><td>Hidden</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="scroll-hint">← scroll table →</p>
+    </div>
+    <div>
+      <h4>Requirements</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Contractors get scoped accounts</b> — they see only the issues they are attached to, never the queue, never the citizen's identity. A contractor login must not become a back door into the whole ward's data.</li>
+        <li><b>A contractor cannot close an issue.</b> They submit resolution evidence; the Owner accepts or rejects it. The party paid to do the work never certifies its own completion.</li>
+        <li><b>Representatives are read-and-comment only.</b> A minister on the thread must not be able to change priority or reassign — political pressure should be visible in the record, not exercised through the tool. Their comments are marked <span class="pill p-gov">Representative</span>, distinct from <span class="pill p-gov">Official</span>.</li>
+        <li><b>Adding a participant is logged</b> with who added them and why, and appears in the activity timeline.</li>
+        <li><b>Ownership transfer is explicit</b> — the new owner must acknowledge, and the SLA clock does not reset on an intra-department handover (only on a genuine cross-department re-route).</li>
+        <li><b>The citizen sees a roster, not a list of strangers</b>: "Roads Dept · Officer Kiran · with ABC Infra (contractor)". Enough to know who is accountable, not enough to harass anyone.</li>
+        <li><b>Notifications respect roles</b> — the contractor is not paged about every citizen comment; the representative is not paged about SLA internals.</li>
+      </ul>
     </div>
   </div>
 
@@ -1249,12 +1347,19 @@ defaults: w1 .30  w2 .20  w3 .20
         └────────────┬────────────┘  → jurisdiction
                      ▼
         ┌─────────────────────────┐
-        │  3. DEDUPLICATE         │  same category +
-        └────────────┬────────────┘  within radius +
-             ┌───────┴───────┐       semantic match
-          MATCH           NO MATCH
+        │  3. CREATE ISSUE        │  always. never blocked,
+        └────────────┬────────────┘  never diverted.
+                     ▼
+        ┌─────────────────────────┐
+        │  3b. CLUSTER  (async)   │  agent compares
+        │      location + image   │  candidates within a
+        │      + description      │  generous radius
+        └────────────┬────────────┘
+             ┌───────┴───────┐
+          MERGE          STAYS SEPARATE
              │               │
-      attach Report    create Issue
+      reports move to        │
+      surviving issue        │
              └───────┬───────┘
                      ▼
         ┌─────────────────────────┐
@@ -1285,7 +1390,7 @@ defaults: w1 .30  w2 .20  w3 .20
           <tbody>
             <tr><td>Classifier</td><td>category, subcategory, severity</td><td>conf ≥ 0.80</td></tr>
             <tr><td>Locator</td><td>ward / jurisdiction</td><td>GPS inside a polygon</td></tr>
-            <tr><td>Duplicate detector</td><td>attach vs create</td><td>conf ≥ 0.85</td></tr>
+            <tr><td>Clustering agent</td><td>merge two existing issues</td><td>conf ≥ 0.90 <span class="muted">(0.75–0.90 → officer confirms)</span></td></tr>
             <tr><td>Router</td><td>department</td><td>conf ≥ 0.85</td></tr>
             <tr><td>Prioritiser</td><td>priority</td><td>always (officer may override)</td></tr>
             <tr><td>Assigner</td><td>officer</td><td>exactly one eligible officer</td></tr>
@@ -1305,9 +1410,49 @@ defaults: w1 .30  w2 .20  w3 .20
     </div>
   </div>
 
+  <h3 style="margin-top:2rem">Clustering — the hardest decision in the system</h3>
+  <p class="small muted" style="max-width:68ch">Anyone can create an issue. Two people standing at the same pothole will create two issues, and that is correct behaviour — the system's job is to reconcile them afterwards, not to interrogate the second person at submit time.</p>
+
+  <div class="note warn" style="margin-top:1rem">
+    <b>Why radius alone cannot do this</b>
+    A pothole and the pothole 40 m down the same road are two different problems. A water main break and a report 300 m away on the same street are one problem. No single distance threshold is correct for both, and no fixed per-category radius survives contact with real geography — a "30 m pothole rule" merges two distinct craters on a wide junction and splits one long trench. Distance is a <em>candidate filter</em>, never the decision.
+  </div>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <h4>The three signals the agent weighs together</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Location</b> — proximity, but also whether the two points sit on the same road segment, the same side of it, and inside the same ward. 80 m along one road is closer, civically, than 20 m across a divider.</li>
+        <li><b>Image</b> — visual similarity of the reported media: is this the same crater, the same pile, the same pole? This is what separates two potholes from one, and it is the signal a radius rule has no access to.</li>
+        <li><b>Description</b> — semantic similarity of text and voice transcripts, including landmark mentions ("near the signal", "opposite the school") that are often more precise than the GPS fix itself.</li>
+      </ul>
+      <p class="small muted" style="margin-top:.6rem">Any one signal alone is unreliable. Location alone over-merges. Description alone merges every pothole in the city. Images alone fail at night and in the rain. The merge decision requires agreement across at least two, with location as a mandatory gate.</p>
+    </div>
+    <div>
+      <h4>Merge policy</h4>
+      <div class="tw">
+        <table style="min-width:400px">
+          <thead><tr><th>Confidence</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td><b>≥ 0.90</b></td><td>Agent merges automatically. Both sets of reports move to the surviving issue; everyone involved is notified.</td></tr>
+            <tr><td><b>0.75 – 0.90</b></td><td>Queued as a <b>suggested merge</b> in the officer's queue with the two photos side by side. One tap to confirm or dismiss.</td></tr>
+            <tr><td><b>&lt; 0.75</b></td><td>Nothing happens. The issues stay separate. Silence is the safe default.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="req" style="margin-top:.75rem">
+        <li><b>The older issue survives</b> a merge, keeping its public ID, its history and its SLA clock. The younger one redirects to it permanently — shared links never break.</li>
+        <li><b>Merges are reversible.</b> "Split issue" is a first-class officer action, and the reports remember which issue they originally belonged to.</li>
+        <li><b>Re-clustering runs continuously</b>, not just at creation. An issue that gets its third report with a clearer photo may become mergeable an hour later.</li>
+        <li><b>Never merge across departments</b> or across a resolved/open boundary without officer confirmation.</li>
+        <li><b>Every merge is logged</b> in <code>agent_runs</code> with all three signal scores, so a bad merge can be explained and the threshold tuned.</li>
+      </ul>
+    </div>
+  </div>
+
   <h3 style="margin-top:2rem">Failure modes to design for</h3>
   <div class="grid g3" style="margin-top:.75rem">
-    <div class="card"><h4>False merge</h4><p class="small">Two distinct potholes 40 m apart merged into one. Officer fixes one and closes both. <b>Mitigation:</b> officer-facing "split issue" action, and merges within 100 m require the officer's confirmation before the citizen sees "joined".</p></div>
+    <div class="card"><h4>False merge</h4><p class="small">Two distinct potholes 40 m apart merged into one. The officer fixes one and closes both, and 12 people are told their problem is solved when it isn't. <b>Mitigation:</b> image similarity is mandatory for auto-merge, the officer "split issue" action is first-class, and any citizen on a merged issue can dispute it in one tap. This is the most damaging error the system can make — the thresholds should be tuned to under-merge.</p></div>
     <div class="card"><h4>Mis-routing</h4><p class="small">A drainage issue sent to Roads. <b>Mitigation:</b> one-tap "not my department" with a suggested destination; re-routing resets the SLA clock and is logged against routing accuracy.</p></div>
     <div class="card"><h4>Bad transcription</h4><p class="small">Dialect or noise produces nonsense. <b>Mitigation:</b> show the transcript back to the user before submit with an edit affordance, and always keep the original audio attached as evidence.</p></div>
   </div>
@@ -1443,7 +1588,8 @@ defaults: w1 .30  w2 .20  w3 .20
         <tr><td>Offline</td><td>Cached feed with a "Showing saved issues" bar; report button still works and queues</td><td>Auto-sync on reconnect with a success toast</td></tr>
         <tr><td>Upload failed</td><td>Card in My Issues marked "Not sent — tap to retry"; media preserved locally</td><td>Manual retry; auto-retry with backoff 3×</td></tr>
         <tr><td>AI low confidence</td><td>Issue is created and shown as "Being routed"; no fake certainty</td><td>Supervisor triage queue resolves it within SLA</td></tr>
-        <tr><td>Duplicate uncertain (0.6–0.85)</td><td>"This may be the same as CIV-10234 — is it?" with photo comparison</td><td>User chooses join or create new</td></tr>
+        <tr><td>Merge confidence uncertain (0.75–0.90)</td><td>Nothing changes for the citizen — both issues stay live and visible</td><td>Officer sees a suggested merge with photos side by side; one tap to confirm or dismiss</td></tr>
+        <tr><td>Issue merged after the fact</td><td>Notification: "Your report was combined with 26 others". Old links redirect to the surviving issue</td><td>"Not the same problem?" link opens a split request to the officer</td></tr>
         <tr><td>Issue rejected by officer</td><td>Notification with the mandatory reason text, shown on the public page</td><td>One appeal, routed to a supervisor</td></tr>
         <tr><td>Resolved but not actually fixed</td><td>"Reopen" available for 14 days to anyone who reported it</td><td>3 reopen signals auto-reopen and flag the officer's closure</td></tr>
         <tr><td>Emergency detected</td><td>Full-screen interstitial: "This may need emergency services" with a call-112 button</td><td>User may continue reporting after dismissing</td></tr>
@@ -1464,7 +1610,7 @@ defaults: w1 .30  w2 .20  w3 .20
     <div class="card">
       <h4><code>users</code></h4>
       <p class="small mono">id · name · email · phone · role · profile_image · home_jurisdiction_id · language · is_verified · created_at · updated_at</p>
-      <p class="small" style="margin-top:.4rem">Roles: <code>CITIZEN</code> · <code>OFFICER</code> · <code>SUPERVISOR</code> · <code>ADMIN</code>. Phone is the identity anchor; email is optional.</p>
+      <p class="small" style="margin-top:.4rem">Roles: <code>CITIZEN</code> · <code>OFFICER</code> · <code>SUPERVISOR</code> · <code>CONTRACTOR</code> · <code>REPRESENTATIVE</code> · <code>ADMIN</code>. Phone is the identity anchor; email is optional. This is the account-level role — <em>per-issue</em> roles live in <code>issue_participants</code>, so an officer can own one issue and merely observe another.</p>
     </div>
     <div class="card">
       <h4><code>departments</code></h4>
@@ -1483,13 +1629,23 @@ defaults: w1 .30  w2 .20  w3 .20
     </div>
     <div class="card" style="border-left:3px solid var(--signal)">
       <h4><code>issues</code> — the core table</h4>
-      <p class="small mono">id · public_id · title · description · category · subcategory · latitude · longitude · address · cluster_radius_m · severity · priority · status · department_id · jurisdiction_id · assigned_officer_id · report_count · follower_count · sla_due_at · created_by · created_at · updated_at · resolved_at · closed_at · merged_into_id · rejection_reason</p>
-      <p class="small" style="margin-top:.4rem"><code>public_id</code> is the human-facing <code>CIV-#####</code> used in every URL, share and conversation.</p>
+      <p class="small mono">id · public_id · title · description · category · subcategory · latitude · longitude · address · location_precision · location_visibility · visibility · severity · priority · status · department_id · jurisdiction_id · owner_officer_id · report_count · follower_count · sla_due_at · created_by · created_at · updated_at · resolved_at · closed_at · merged_into_id · rejection_reason</p>
+      <p class="small" style="margin-top:.4rem"><code>public_id</code> is the human-facing <code>CIV-#####</code> used in every URL, share and conversation. <code>owner_officer_id</code> is the single accountable officer — everyone <em>else</em> involved lives in <code>issue_participants</code>.</p>
     </div>
     <div class="card" style="border-left:3px solid var(--signal)">
       <h4><code>reports</code> — individual experiences</h4>
       <p class="small mono">id · issue_id · user_id · description · transcript · audio_url · media_url · media_type · latitude · longitude · is_anonymous · source · created_at</p>
       <p class="small" style="margin-top:.4rem"><code>source</code>: <code>CITIZEN_APP</code> · <code>OFFICER</code> · <code>IMPORT</code>. Many reports per issue; never merged into the issue row.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--signal)">
+      <h4><code>issue_participants</code> — everyone involved</h4>
+      <p class="small mono">id · issue_id · user_id · org_id · role · added_by · is_public · notify · added_at · removed_at</p>
+      <p class="small" style="margin-top:.4rem">Roles: <code>OWNER</code> · <code>ASSIGNEE</code> · <code>CONTRACTOR</code> · <code>FIELD_CREW</code> · <code>SUPERVISOR</code> · <code>REPRESENTATIVE</code> · <code>OBSERVER</code>. Many rows per issue. <code>is_public</code> controls whether that person appears on the citizen-facing page.</p>
+    </div>
+    <div class="card">
+      <h4><code>organisations</code></h4>
+      <p class="small mono">id · name · type · contact · departments · is_active · created_at</p>
+      <p class="small" style="margin-top:.4rem">Contractors and agencies that do work but are not government staff. A participant may be an org rather than a person.</p>
     </div>
     <div class="card">
       <h4><code>issue_followers</code></h4>
@@ -1548,6 +1704,10 @@ defaults: w1 .30  w2 .20  w3 .20
         <tr><td>Post official / internal replies</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
         <tr><td>Override AI department / category / priority</td><td>—</td><td>—</td><td>✓ own dept</td><td>✓ own zone</td><td>✓ all</td></tr>
         <tr><td>Assign / reassign within department</td><td>—</td><td>—</td><td>✓ self-claim</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Add participants (contractor, crew, observer)</td><td>—</td><td>—</td><td>✓ own issues</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Transfer ownership</td><td>—</td><td>—</td><td>✓ with acceptance</td><td>✓ force</td><td>✓</td></tr>
+        <tr><td>Raise an issue's visibility class</td><td>—</td><td>✓ own reports</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>Lower an issue's visibility class</td><td>—</td><td>—</td><td>—</td><td>✓ logged</td><td>✓ logged</td></tr>
         <tr><td>Merge / split issues</td><td>—</td><td>—</td><td>✓ own dept</td><td>✓</td><td>✓</td></tr>
         <tr><td>Reject with reason</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
         <tr><td>Cross-department reassignment</td><td>—</td><td>—</td><td>propose</td><td>✓</td><td>✓</td></tr>
@@ -1562,7 +1722,7 @@ defaults: w1 .30  w2 .20  w3 .20
   <h3 style="margin-top:2rem">Notification matrix</h3>
   <div class="tw" style="margin-top:.75rem">
     <table>
-      <thead><tr><th>Event</th><th>Reporters</th><th>Followers</th><th>Assigned officer</th><th>Supervisor</th></tr></thead>
+      <thead><tr><th>Event</th><th>Reporters</th><th>Followers</th><th>Owner</th><th>Supervisor</th></tr></thead>
       <tbody>
         <tr><td>Report joined an existing issue</td><td>push</td><td>digest</td><td>in-app badge</td><td>—</td></tr>
         <tr><td>Issue assigned to an officer</td><td>push</td><td>push</td><td>push</td><td>—</td></tr>
@@ -1581,6 +1741,8 @@ defaults: w1 .30  w2 .20  w3 .20
     <li><b>Bundling:</b> never more than 3 pushes per user per day for a single issue; the rest collapse into a daily digest.</li>
     <li><b>Per-type control:</b> the user can mute any category of notification without muting status changes on their own reports.</li>
     <li><b>Channels:</b> push (PWA) → in-app → SMS fallback for critical status changes only, since SMS costs money and annoys.</li>
+    <li><b>Participants are notified by role, not uniformly.</b> Contractors and field crew get work-related events (assigned, evidence rejected, reopened) and nothing else. Representatives and observers get status changes only. Only the Owner is paged on SLA breach.</li>
+    <li><b>Confidential issues never fan out.</b> No follower notifications, no "new issue near you", no digest inclusion — only the reporter and the owning department are ever notified.</li>
   </ul>
 </section>
 
@@ -1696,10 +1858,10 @@ defaults: w1 .30  w2 .20  w3 .20
       <ul class="req" style="margin-top:.5rem">
         <li>Feed with distance + status filters, ranked by the scoring formula</li>
         <li>Report flow with photo + text (voice if time allows)</li>
-        <li>AI: classify → locate → deduplicate → route → prioritise, with visible confidence</li>
+        <li>AI: classify → locate → route → prioritise on submit, then cluster asynchronously, all with visible confidence</li>
         <li>Public issue page with crowd count, ladder, discussion and "I'm facing this too"</li>
         <li>Officer queue + ticket with status change and one official reply</li>
-        <li>The demo moment: a second report visibly joins an existing issue and the count ticks 26 → 27</li>
+        <li>The demo moment: two issues are posted independently, the clustering agent merges them live on screen with its three signal scores shown, and the crowd count ticks 26 → 27</li>
       </ul>
     </div>
     <div class="card">
@@ -1744,9 +1906,12 @@ defaults: w1 .30  w2 .20  w3 .20
     <div>
       <h3>Open questions</h3>
       <ul class="req">
-        <li><b>Who owns an issue that spans two departments?</b> Proposal: a single owning department plus a "supporting department" field, never dual ownership.</li>
+        <li><b>Should Swaram accept personal-safety complaints at all?</b> The harassment case is the sharpest version of this. A confidential class makes it <em>possible</em>, but a civic-infrastructure product with a 3-day SLA is a bad home for an urgent personal-safety report. Proposal: accept it, route it to the police department as CONFIDENTIAL, and show the 112 interstitial first — but decide this deliberately before launch, not by default.</li>
+        <li><b>Who owns an issue that spans two departments?</b> Proposal: a single owning department plus supporting departments as participants, never dual ownership.</li>
+        <li><b>Do representatives (corporator, MLA, minister) get accounts at launch?</b> Their presence adds legitimacy and pressure, but also politicises the thread. Proposal: comment-only, clearly badged, and not in the MVP.</li>
         <li><b>Do we show officer names publicly?</b> Accountability argues yes; officer safety argues designation-only. Proposal: name + designation, no contact details, configurable per city.</li>
-        <li><b>What is the cluster radius per category?</b> A pothole is 30 m; a water supply outage is a whole street. Needs a per-category table.</li>
+        <li><b>What is the candidate radius per category?</b> Not the merge decision — just how wide the agent casts its net before comparing images and descriptions. Generous is safe here, since location no longer decides anything on its own.</li>
+        <li><b>Should citizens see "3 similar nearby" before submitting?</b> It may help them self-identify a duplicate, or it may discourage reporting. Proposal: show it passively, never as a prompt or a question.</li>
         <li><b>Can citizens see internal comments after closure?</b> Proposal: no, but the activity timeline is always public.</li>
         <li><b>Is the feed city-wide or ward-scoped by default?</b> Proposal: distance-based with a ward toggle.</li>
       </ul>
