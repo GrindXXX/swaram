@@ -70,12 +70,33 @@ One nodal grievance officer per state/UT.
 
 Full table (all 37): `data/departments/nodal_officers_state.csv`
 
-**Limitation:** these two tables are ministry-level and state-level — one row per
-department, one row per state, not one row per department per district. A true
-per-district directory (e.g. "BBMP Solid Waste Dept, Bengaluru Urban, email X")
-doesn't exist as a single national source; each district publishes its own
-contact page with no shared format, so that layer would need to be built one
-state at a time.
+## Appellate officers — 88 central departments, escalation contact + email
+
+CPGRAMS has a second layer beyond the first-contact nodal officer above: a named
+appellate authority to escalate to if the nodal officer doesn't resolve the
+grievance. Same organisations as the central table, different (usually more
+senior) officer.
+
+| Department | Appellate Officer | Email |
+|---|---|---|
+| Central Board of Direct Taxes | Dipi Agarwal, Commissioner of Income Tax | delhi.dittps@incometax.gov.in |
+| Central Board of Indirect Taxes and Customs | Dr. Shailendra Kumar Sinha, Director General | shailendra.sinha@gov.in |
+| Department of Agriculture and Farmers Welfare | Smt. S. Rukmani, Joint Secretary | s.rukmani@nic.in |
+| Department of Atomic Energy | Smt. Nidhi Pandey, Additional Secretary | as@dae.gov.in |
+| Department of Commerce | Ms. Priya Nair, Economic Adviser | priyanair.10@gov.in |
+
+Full table (all 88): `data/departments/appeal_officers_central.csv`
+
+**Limitations of the three tables above:** they're ministry-level and
+state-level — one row per department, one row per state, not one row per
+department per district. A true per-district directory (e.g. "BBMP Solid Waste
+Dept, Bengaluru Urban, email X") doesn't exist as a single national source;
+each district publishes its own contact page with no shared format, so that
+layer would need to be built one state at a time. There's also a deeper CPGRAMS
+layer — the full ministry → department → organization tree used to route a
+grievance to a specific sub-office/PSU when filing one — but it's only exposed
+behind a logged-in citizen account on the Lodge Grievance form, so it isn't
+included here.
 
 ## State utility boards — water + electricity, all 36 states/UTs
 

@@ -1,25 +1,36 @@
 """
-Scrapes the two official CPGRAMS nodal-officer directories:
+Scrapes the public CPGRAMS officer directories:
 
-- pgportal.gov.in/Home/NodalPgOfficers        -> central ministries/departments
-- pmopg.gov.in/CitizenReforms/Home/NodalPgOfficersState -> state governments
+- pgportal.gov.in/Home/NodalPgOfficers          -> central ministries/departments,
+  first-contact ("nodal") officer
+- pmopg.gov.in/CitizenReforms/Home/NodalPgOfficersState -> state governments,
+  first-contact officer
+- pgportal.gov.in/Home/NodalAuthorityForAppeal  -> central ministries/departments,
+  second-contact ("appellate") officer — who to escalate to if the nodal
+  officer doesn't resolve it
 
-Both are plain server-rendered HTML tables (no JS, no auth, no robots.txt
-block) published by DARPG (Dept of Administrative Reforms & Public
-Grievances) specifically so the public can reach a named contact per
-department. That makes them the closest thing to a legitimate "department
-directory with names + emails" that's realistically scrapable in a
-hackathon timeframe.
+All three are plain server-rendered HTML tables (no JS, no auth, no
+robots.txt block) published by DARPG specifically so the public can reach a
+named contact. That makes them the closest thing to a legitimate "department
+directory with names + emails" that's realistically scrapable.
 
-They are NOT district-level — one row per ministry (central) or per state
-(state list), not per district. District-level department contacts would
-need a separate scrape per state (each district collectorate site has its
-own "who's who" page, no common format) — out of scope for this pass.
+They are NOT district-level — one row per ministry (central) or per state,
+not per district. District-level department contacts would need a separate
+scrape per state (each district collectorate site has its own "who's who"
+page, no common format) — out of scope for this pass.
+
+There is a fourth, larger layer — CPGRAMS's full ministry -> department ->
+organization tree, used to route a grievance to a specific sub-office/PSU
+when you file one — but the Lodge Grievance page that exposes it requires a
+logged-in citizen account. That's not scraped here; doing so would mean
+authenticating as a citizen just to extract data, which this script
+deliberately does not do.
 
 Usage:
     python3 scrapers/scrape_nodal_officers.py
-Writes data/departments/nodal_officers_central.csv and
-data/departments/nodal_officers_state.csv.
+Writes data/departments/nodal_officers_central.csv,
+data/departments/nodal_officers_state.csv, and
+data/departments/appeal_officers_central.csv.
 """
 
 import csv
@@ -36,6 +47,7 @@ USER_AGENT = "swaram-civic-scraper/0.1 (+hackathon research)"
 SOURCES = {
     "nodal_officers_central.csv": "https://pgportal.gov.in/Home/NodalPgOfficers",
     "nodal_officers_state.csv": "https://pmopg.gov.in/CitizenReforms/Home/NodalPgOfficersState",
+    "appeal_officers_central.csv": "https://pgportal.gov.in/Home/NodalAuthorityForAppeal",
 }
 
 EMAIL_OBFUSCATED = re.compile(r"([\w.+-]+)\[at\]([\w.-]+)\[dot\]([\w.-]+)", re.IGNORECASE)
