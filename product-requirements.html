@@ -1823,7 +1823,7 @@ promotion triggers (any two, plus officer or supervisor confirmation):
       <h4><code>users</code></h4>
       <p class="small mono">id · name · display_name · email · phone · role · profile_image · home_jurisdiction_id · language · phone_verified_at · identity_tier · verification_ref · created_at · updated_at</p>
       <p class="small" style="margin-top:.4rem"><code>identity_tier</code>: <code>PHONE</code> (default, sufficient) · <code>ENHANCED</code> (optional consent-based eKYC). <code>verification_ref</code> is an opaque token — <b>never an Aadhaar number</b>.</p>
-      <p class="small" style="margin-top:.4rem">Roles: <code>CITIZEN</code> · <code>OFFICER</code> · <code>SUPERVISOR</code> · <code>CONTRACTOR</code> · <code>REPRESENTATIVE</code> · <code>ADMIN</code>. Phone is the identity anchor; email is optional. This is the account-level role — <em>per-issue</em> roles live in <code>issue_participants</code>, so an officer can own one issue and merely observe another.</p>
+      <p class="small" style="margin-top:.4rem">Roles — exactly three: <code>CITIZEN</code> · <code>GOVERNMENT</code> · <code>ADMIN</code>. Phone is the identity anchor; email is optional. The account role decides <em>which surface you land on</em>; what you can do to any given issue comes from <code>issue_participants</code>.</p>
     </div>
     <div class="card">
       <h4><code>departments</code></h4>
@@ -1832,8 +1832,8 @@ promotion triggers (any two, plus officer or supervisor confirmation):
     </div>
     <div class="card">
       <h4><code>government_officers</code></h4>
-      <p class="small mono">id · user_id · department_id · jurisdiction_id · designation · employee_ref · invited_by · invitation_accepted_at · last_attested_at · is_active · max_workload · created_at</p>
-      <p class="small" style="margin-top:.4rem">One user may hold multiple officer records across departments or wards.</p>
+      <p class="small mono">id · user_id · department_id · jurisdiction_id · jurisdiction_level · designation · employee_ref · roster_record_id · confirmed_at · last_attested_at · is_active · max_workload · created_at</p>
+      <p class="small" style="margin-top:.4rem"><code>jurisdiction_level</code> (ward / zone / district / state) is what makes a government user a supervisor — there is no separate supervisor role. One user may hold several records across departments or wards.</p>
     </div>
     <div class="card">
       <h4><code>officer_roster_records</code></h4>
@@ -1920,6 +1920,54 @@ promotion triggers (any two, plus officer or supervisor confirmation):
 <!-- ============================ 17 ROLES / NOTIFICATIONS ============================ -->
 <section id="roles" class="wrap rv">
   <div class="sec-head"><span class="sec-num">18</span><h2>Roles, permissions &amp; notifications</h2></div>
+
+  <p class="lede">Three account roles, and no more. Everything finer-grained is <em>scope</em> or <em>per-issue participation</em> — not a new kind of user.</p>
+
+  <div class="grid g3" style="margin-top:1.5rem">
+    <div class="card" style="border-left:3px solid var(--signal)">
+      <span class="pill p-sig">Account role</span>
+      <h4 style="margin-top:.5rem"><code>CITIZEN</code></h4>
+      <p class="small">Lands on the feed. Reports, supports, follows, comments, verifies resolutions. The default for every account — including people who are also contractors or elected representatives.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--civic)">
+      <span class="pill p-gov">Account role</span>
+      <h4 style="margin-top:.5rem"><code>GOVERNMENT</code></h4>
+      <p class="small">Lands on the portal. Provisioned only from a matched roster record, which also supplies department, jurisdiction and designation — never self-selected.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--ink-3)">
+      <span class="pill p-neu">Account role</span>
+      <h4 style="margin-top:.5rem"><code>ADMIN</code></h4>
+      <p class="small">Platform operator. Manages departments, jurisdictions, rosters, moderation and the authority registry. Not a senior officer — a different job entirely.</p>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <h4>What used to be roles, and where they went</h4>
+      <div class="tw">
+        <table style="min-width:400px">
+          <thead><tr><th>Former role</th><th>Now expressed as</th></tr></thead>
+          <tbody>
+            <tr><td>Officer</td><td><code>GOVERNMENT</code>, scoped to a ward</td></tr>
+            <tr><td>Supervisor</td><td><code>GOVERNMENT</code>, scoped to a zone or district — a <b>scope attribute</b>, not a role</td></tr>
+            <tr><td>Contractor</td><td><code>CITIZEN</code> + <code>CONTRACTOR</code> participant on specific issues</td></tr>
+            <tr><td>Representative</td><td><code>CITIZEN</code> + <code>REPRESENTATIVE</code> participant, comment-only</td></tr>
+            <tr><td>Field crew</td><td><code>CITIZEN</code> + <code>FIELD_CREW</code> participant</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted" style="margin-top:.5rem">In the matrix below, <b>Officer</b> and <b>Supervisor</b> stay separate columns for readability — both are <code>GOVERNMENT</code> accounts differing only in jurisdiction scope.</p>
+    </div>
+    <div>
+      <h4>Why two layers instead of one long list</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>A contractor is not a kind of user, it is a relationship to an issue.</b> The same firm may be a contractor on one issue and irrelevant to the next. Encoding that as an account type forces a permanent global identity onto a temporary local fact.</li>
+        <li><b>Scope is data, not a role.</b> A supervisor is a government user whose jurisdiction happens to be a zone. Deriving that from the roster means a promotion or transfer is a roster update, not a manual role change someone forgets to make.</li>
+        <li><b>Every permission check has one shape:</b> what is your account role, and what is your participation on <em>this</em> issue. No special cases, no role explosion.</li>
+        <li><b>Government users are citizens too.</b> An officer reporting a pothole outside their own department does it on the feed, like anyone else.</li>
+      </ul>
+    </div>
+  </div>
 
   <div class="tw">
     <table>
