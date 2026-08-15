@@ -545,6 +545,7 @@ footer .wrap{display:grid;gap:1rem}
     <table>
       <thead><tr><th>Status</th><th>Meaning</th><th>Who sets it</th><th>Citizen-visible label</th><th>Exit condition</th></tr></thead>
       <tbody>
+        <tr><td><span class="pill p-ai">HELD</span></td><td>Created and routed to the department, withheld from the <em>public feed</em> pending a human safety review (§20)</td><td>Intake agent</td><td>Being checked — usually under an hour</td><td>Review clears, redacts or rejects it</td></tr>
         <tr><td><span class="pill p-open">OPEN</span></td><td>Created and routed, not yet owned by a named officer</td><td>System</td><td>Reported</td><td>An officer is assigned</td></tr>
         <tr><td><span class="pill p-neu">ASSIGNED</span></td><td>Owned by a named officer, not started</td><td>System / Supervisor</td><td>Assigned</td><td>Officer acknowledges &amp; starts</td></tr>
         <tr><td><span class="pill p-prog">IN_PROGRESS</span></td><td>Work is actively happening</td><td>Officer</td><td>In progress</td><td>Officer uploads resolution evidence</td></tr>
@@ -559,6 +560,11 @@ footer .wrap{display:grid;gap:1rem}
     </table>
   </div>
   <p class="scroll-hint">← scroll table →</p>
+
+  <div class="note warn" style="margin-top:1rem">
+    <b>HELD is about the feed, never about the department</b>
+    The hard rule above says a submission is never blocked. <code>HELD</code> does not break it: the issue is still created, still classified, still routed, and the officer still sees it and still owes an SLA on it. What is withheld is <em>publication to the public feed</em> while a human checks it. Creation and publication are two separate events, and only the second one is ever gated. Duplicate detection continues to block nothing at all.
+  </div>
 
   <h3 style="margin-top:2.5rem">Community verification — resolution is not a government declaration</h3>
   <p class="small muted" style="max-width:68ch">A problem is not resolved because an authority says it is. After a Resolution Submission, the people who actually reported the issue judge it — and the outcome is a distribution, not a boolean.</p>
@@ -1131,6 +1137,7 @@ defaults: w1 .30  w2 .20  w3 .20
         <li><b>Location.</b> Auto-filled from GPS with a reverse-geocoded address. One tap to adjust the pin. Manual entry if GPS is denied or wrong.</li>
         <li><b>AI preview.</b> While the user is still on the screen, show the inferred department, category and priority, plus a passive note if similar reports exist nearby. This is information, never a gate — it cannot stop or redirect the submission.</li>
         <li><b>Submit.</b> Optimistic: the UI confirms immediately, upload continues in the background, and failures retry from a local queue. <b>The issue is always created.</b></li>
+        <li><b>Safety screen</b> <span class="pill p-ai" style="font-size:.5rem">New</span> — intake runs a harm check in the same pass (§20). Almost always it clears and the issue publishes instantly. Where it does not, the issue is <em>redacted</em> or held from the feed — but it is created, routed and ticking against an SLA either way. The citizen is never told they were "flagged".</li>
         <li><b>Confirmation.</b> Screen 05 — the new issue's public ID, what the AI decided and why, and a note that clustering is still being checked.</li>
         <li><b>Later — the merge notification.</b> If the clustering agent merges the issue, everyone involved gets "Your report was combined with 26 others — CIV-10234". This is where the crowd moment now lands.</li>
       </ol>
@@ -1145,6 +1152,8 @@ defaults: w1 .30  w2 .20  w3 .20
         <li><b>Emergency interception.</b> If the classifier detects fire, injury, crime or gas leak, an interstitial appears with a one-tap call to 112 <em>before</em> submission continues.</li>
         <li><b>Anonymous-to-public toggle.</b> The user chooses whether their display name appears on the public report. Identity is always known to the platform for accountability.</li>
         <li><b>Duplicate handling is never a wall.</b> If a match is found, the copy is "join 26 others" — a benefit, not a rejection.</li>
+        <li><b>The safety screen adds no perceived latency.</b> It runs inside the existing intake pass with a hard budget of ~2 s. If it has not returned by then the issue publishes and the check completes asynchronously — a slow moderator must never become a slow submit button.</li>
+        <li><b>Redaction is preferred to withholding.</b> Blur the face, mask the phone number, publish the pothole. Holding an entire report because one corner of one photo contains a number plate is a failure of the gate, not a success.</li>
       </ul>
     </div>
   </div>
@@ -1561,7 +1570,7 @@ promotion triggers (any two, plus officer or supervisor confirmation):
         <table style="min-width:440px">
           <thead><tr><th>Agent</th><th>Decides</th><th>Auto-applies when</th></tr></thead>
           <tbody>
-            <tr><td><b>1 · Intake</b><br><span class="muted small">multimodal, one pass</span></td><td>category, subcategory, severity, generated title, emergency flag, visibility class, estimated people affected, safety/abuse screen</td><td>conf ≥ 0.80</td></tr>
+            <tr><td><b>1 · Intake</b><br><span class="muted small">multimodal, one pass</span></td><td>category, subcategory, severity, generated title, emergency flag, visibility class, estimated people affected, <b>pre-publication safety verdict (§20)</b></td><td>conf ≥ 0.80 <span class="muted">(safety verdict: clear ≥ 0.98 publishes; anything else → review)</span></td></tr>
             <tr><td><b>2 · Clustering</b><br><span class="muted small">the hard one</span></td><td>merge two existing issues</td><td>conf ≥ 0.90 <span class="muted">(0.75–0.90 → officer confirms)</span></td></tr>
             <tr><td><b>3 · Verifier</b><br><span class="muted small">before / after</span></td><td>resolution passed / failed</td><td>never — always advisory</td></tr>
           </tbody>
@@ -1858,6 +1867,9 @@ LIMIT 1;</pre>
         <tr><td>Offline</td><td>Cached feed with a "Showing saved issues" bar; report button still works and queues</td><td>Auto-sync on reconnect with a success toast</td></tr>
         <tr><td>Upload failed</td><td>Card in My Issues marked "Not sent — tap to retry"; media preserved locally</td><td>Manual retry; auto-retry with backoff 3×</td></tr>
         <tr><td>AI low confidence</td><td>Issue is created and shown as "Being routed"; no fake certainty</td><td>Supervisor triage queue resolves it within SLA</td></tr>
+        <tr><td>Report held by the safety screen</td><td>"Your report is with the Roads department. It isn't on the public feed yet — we're checking it." Never the word "flagged"; the SLA is already running</td><td>Human review inside 4 h; auto-publishes at 24 h if unreviewed; outcome notified either way</td></tr>
+        <tr><td>Media redacted at intake</td><td>"We blurred a face in your photo to protect someone's privacy" with the redacted image shown</td><td>One-tap undo, which routes to human review rather than republishing directly</td></tr>
+        <tr><td>Screening model unavailable</td><td>Nothing — the issue routes to the department normally</td><td>Publication to the feed waits for review. Fail open for the department, closed for the feed</td></tr>
         <tr><td>Merge confidence uncertain (0.75–0.90)</td><td>Nothing changes for the citizen — both issues stay live and visible</td><td>Officer sees a suggested merge with photos side by side; one tap to confirm or dismiss</td></tr>
         <tr><td>Issue merged after the fact</td><td>Notification: "Your report was combined with 26 others". Old links redirect to the surviving issue</td><td>"Not the same problem?" link opens a split request to the officer</td></tr>
         <tr><td>Issue rejected by officer</td><td>Notification with the mandatory reason text, shown on the public page</td><td>One appeal, routed to a supervisor</td></tr>
@@ -1905,7 +1917,7 @@ LIMIT 1;</pre>
     </div>
     <div class="card" style="border-left:3px solid var(--signal)">
       <h4><code>issues</code> — the core table</h4>
-      <p class="small mono">id · public_id · title · description · category · subcategory · latitude · longitude · address · location_precision · location_visibility · visibility · severity · civic_pressure · estimated_people_affected · escalation_level · routing_tier · satisfaction_score · priority · status · department_id · jurisdiction_id · authority_id · owner_officer_id · report_count · follower_count · sla_due_at · created_by · created_at · updated_at · resolved_at · closed_at · merged_into_id · rejection_reason</p>
+      <p class="small mono">id · public_id · title · description · category · subcategory · latitude · longitude · address · location_precision · location_visibility · visibility · severity · civic_pressure · estimated_people_affected · escalation_level · routing_tier · satisfaction_score · priority · status · moderation_verdict · moderation_reviewed_by · published_at · department_id · jurisdiction_id · authority_id · owner_officer_id · report_count · follower_count · sla_due_at · created_by · created_at · updated_at · resolved_at · closed_at · merged_into_id · rejection_reason</p>
       <p class="small" style="margin-top:.4rem"><code>public_id</code> is the human-facing <code>CIV-#####</code> used in every URL, share and conversation. <code>owner_officer_id</code> is the single accountable officer — everyone <em>else</em> involved lives in <code>issue_participants</code>.</p>
     </div>
     <div class="card" style="border-left:3px solid var(--signal)">
@@ -2223,7 +2235,68 @@ LIMIT 1;</pre>
   <div class="sec-head"><span class="sec-num">20</span><h2>Trust, safety &amp; moderation</h2></div>
   <p class="lede">A public civic feed is a target for spam, harassment, political brigading and coordinated false reporting. These are product requirements, not policy afterthoughts.</p>
 
-  <div class="grid g2" style="margin-top:1.5rem">
+  <h3 style="margin-top:2rem">Pre-publication screening</h3>
+  <p class="small muted" style="max-width:68ch">Reactive flagging is too late for the harms that matter most. A doxxed home address or a photograph of a child is damaging the moment it is public, and taking it down an hour later does not undo the hour. So the intake agent screens every submission <em>before</em> it reaches the feed — while leaving the routing path completely untouched.</p>
+
+  <div class="note crit" style="margin-top:1rem">
+    <b>The rule this gate must never break</b>
+    The issue is <b>always</b> created, classified, routed to a department and given an SLA. The screen decides one thing only: whether it appears on the public feed while a human looks at it. A citizen with a legitimate complaint written furiously still gets their pothole fixed. <b>Fail open for the department; fail closed for the feed</b> — if the screening model is unavailable, issues route normally but publish only after review.
+  </div>
+
+  <div class="grid g2" style="margin-top:1.25rem">
+    <div>
+      <h4>Five verdicts</h4>
+      <div class="tw" style="margin-top:.5rem">
+        <table style="min-width:520px">
+          <thead><tr><th>Verdict</th><th>What happens</th><th>What the citizen sees</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill p-done">CLEAR</span><br><span class="muted small">target ≥ 97%</span></td><td>Publishes immediately</td><td>Normal confirmation. No mention of screening.</td></tr>
+            <tr><td><span class="pill p-prog">REDACT</span></td><td>Publishes with the offending element removed — face blurred, number masked, name replaced</td><td>"We blurred a face in your photo to protect someone's privacy." With an undo that routes to review.</td></tr>
+            <tr><td><span class="pill p-ai">HOLD</span></td><td>Routed to the department, withheld from the feed. Human review inside 4 h, 1 h in business hours.</td><td>"Your report is with the Roads department. It isn't on the public feed yet — we're checking it." <b>Never the word "flagged".</b></td></tr>
+            <tr><td><span class="pill p-open">EMERGENCY</span></td><td>112 interstitial fires before submission continues (§08)</td><td>Full-screen call-112 prompt</td></tr>
+            <tr><td><span class="pill p-crit">REJECT</span></td><td>Reserved for content unlawful to host. Reason mandatory.</td><td>Reason in plain language + one-tap appeal to a different reviewer</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="scroll-hint">← scroll table →</p>
+
+      <h4 style="margin-top:1.25rem">What it detects</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Personal information &amp; doxxing</b> — phone numbers, addresses, ID numbers, number plates, and faces of private individuals in media. The most common real hit, and usually a REDACT rather than a HOLD.</li>
+        <li><b>Threats, incitement &amp; harassment</b> — content directed at a person rather than describing a civic problem.</li>
+        <li><b>A named private individual as the target.</b> "The drain outside 4th Cross is blocked" is a civic issue; "Mr Sharma at #12 is dumping garbage" is an accusation about a person, and it is held.</li>
+        <li><b>Vulgar or abusive content</b> — as a <em>redaction</em> concern in public text, never as grounds to discard the underlying report.</li>
+        <li><b>Spam &amp; content farming</b> — repeated near-identical submissions, commercial promotion, link injection.</li>
+        <li><b>Sexual content, and anything involving a minor</b> — the latter fails straight to CONFIDENTIAL under the §03 visibility rules, never to the feed.</li>
+        <li><b>Off-topic political campaigning</b> — party promotion, not criticism of a department. The distinction is deliberate and errs toward publishing.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="note warn">
+        <b>Anger is not abuse</b>
+        The gate detects <em>targets and harms</em>, never sentiment. A report that calls a department incompetent, negligent or corrupt is published unchanged. Criticism of government is the entire point of the product, and a moderation system that softens tone is a moderation system that has been captured. The only question the screen may ask is "does this harm an identifiable person?" — never "is this rude about an institution?"
+      </div>
+
+      <h4 style="margin-top:1.25rem">Precision requirements</h4>
+      <ul class="req" style="margin-top:.5rem">
+        <li><b>Every false hold is a citizen silenced.</b> Budget: under <b>2%</b> of submissions held, and over <b>70%</b> of holds upheld on human review. A gate that holds 10% of reports has stopped being a safety feature and become a participation tax — if it breaches budget, the thresholds loosen, not the review team.</li>
+        <li><b>Held issues are reviewed on a clock, not a queue.</b> An unreviewed hold auto-publishes at 24 h. The failure mode of an under-staffed moderation team must be publication, not silent suppression.</li>
+        <li><b>The reporter is told the outcome either way</b>, including when a hold clears — silence after a hold reads as punishment.</li>
+        <li><b>One appeal, reviewed by a different person</b>, consistent with the appeals rule below.</li>
+        <li><b>Every verdict is logged in <code>agent_runs</code></b> with input, output and confidence, and every human overturn becomes evaluation data. Overturn rate per detection class is reported in the admin AI-quality view.</li>
+        <li><b>Aggregate screening outcomes are published</b> on the public statistics page — how many held, how many upheld, how many overturned. A moderation system nobody can audit will be assumed to be censoring.</li>
+      </ul>
+
+      <div class="note ai" style="margin-top:1rem">
+        <b>Where this lives in the pipeline</b>
+        Not a fourth agent. The screen is an output of the <b>Intake agent</b> (§13) — it is already doing one multimodal pass over the same text, audio and images, and a separate moderation round trip would double intake latency to re-read identical input. Deterministic detectors run alongside it: regex and checksum matching for phone numbers and ID formats, face detection for blurring, perceptual hashing for repeat-content spam.
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Ongoing moderation</h3>
+
+  <div class="grid g2" style="margin-top:1rem">
     <div>
       <ul class="req">
         <li><b>Verified phone required to post.</b> One account per number; rate-limited OTP.</li>
@@ -2239,7 +2312,8 @@ LIMIT 1;</pre>
         <li><b>Flag → auto-hide at 3 flags → human review.</b> Reviewed within 24 h; the flagger and the author both receive the outcome.</li>
         <li><b>Appeals exist.</b> One appeal per rejection or removal, reviewed by a different person.</li>
         <li><b>Coordinated inauthentic reporting</b> — detected via burst patterns from similar devices or accounts; the crowd count is frozen pending review, and the issue is not deleted.</li>
-        <li><b>Transparency:</b> the number of removed items per period is published on the public statistics page.</li>
+        <li><b>Transparency:</b> the number of removed items per period is published on the public statistics page, alongside the screening figures above.</li>
+        <li><b>The two layers do different jobs.</b> Pre-publication screening catches irreversible harms — doxxing, a child's face, a threat — where an hour of exposure cannot be undone. Flagging catches everything else, because it has community context the model does not. Neither replaces the other, and a screen tuned tight enough to make flagging unnecessary would be silencing far too many people.</li>
       </ul>
       <div class="note warn" style="margin-top:1rem">
         <b>The gaming risk to design against</b>
@@ -2264,6 +2338,8 @@ LIMIT 1;</pre>
         <tr><td>Verification participation rate</td><td>If nobody verifies, the whole accountability loop is decorative</td><td>&gt; 20% of reporters respond</td></tr>
         <tr><td rowspan="2"><b>Coverage</b></td><td>% of issues in Tier 1 (onboarded authority)</td><td>The growth constraint from §12 — everything else is capped by this</td><td>Grow month over month</td></tr>
         <tr><td>Authority registry verified %</td><td>Unverified contacts route reports into the void</td><td>&gt; 90% of contacted entries verified</td></tr>
+        <tr><td rowspan="2"><b>Safety</b></td><td>Hold rate / upheld-on-review rate</td><td>Every false hold is a silenced citizen; a gate that over-holds becomes a participation tax</td><td>&lt; 2% held · &gt; 70% upheld</td></tr>
+        <tr><td>Median time to clear a held report</td><td>Silence after a hold reads as punishment, and holds auto-publish at 24 h regardless</td><td>&lt; 4 h</td></tr>
         <tr><td rowspan="3"><b>Citizen</b></td><td>Report completion rate (started → submitted)</td><td>Measures friction in the capture flow</td><td>&gt; 85%</td></tr>
         <tr><td>Reports per issue (clustering ratio)</td><td>Proves the crowd mechanic is working</td><td>&gt; 3.0 in active wards</td></tr>
         <tr><td>D30 return rate of reporters</td><td>Did we deliver visible value?</td><td>&gt; 35%</td></tr>
@@ -2290,7 +2366,7 @@ LIMIT 1;</pre>
       <ul class="req" style="margin-top:.5rem">
         <li>Feed with distance + status filters, ranked by the scoring formula</li>
         <li>Report flow with photo + text (voice if time allows)</li>
-        <li>AI: the intake agent on submit, then the clustering agent asynchronously — 2 of the 3 agents, with visible confidence. Locate, route, prioritise and assign are deterministic (§12) and need no model.</li>
+        <li>AI: the intake agent on submit, then the clustering agent asynchronously — 2 of the 3 agents, with visible confidence. Locate, route, prioritise and assign are deterministic (§12) and need no model. Intake returns a safety verdict from day one, but Phase 0 acts on <em>redaction only</em> — the held-report review queue needs humans on a rota, which a demo does not have.</li>
         <li>Public issue page with crowd count, ladder, discussion and "I'm facing this too"</li>
         <li>Officer queue + ticket with status change and one official reply</li>
         <li>The demo moment: two issues are posted independently, the clustering agent merges them live on screen with its three signal scores shown, and the crowd count ticks 26 → 27</li>
@@ -2308,6 +2384,7 @@ LIMIT 1;</pre>
         <li>Resolution Submissions + community verification with satisfaction scores</li>
         <li>Authority registry with the three routing tiers (§12), email escalation for Tier 2</li>
         <li>Civic pressure score, separated from severity</li>
+        <li>Pre-publication safety screening (§20) with the held-report review queue and its 24 h auto-publish timer</li>
         <li>Officer field mode, admin dashboard, moderation queue</li>
         <li>PWA install, offline queue</li>
       </ul>
@@ -2350,6 +2427,8 @@ LIMIT 1;</pre>
         <li><b>National ambition vs. one-ward reality.</b> The ideas document is national in scope; §12 shows we have national <em>jurisdiction</em> data but ~129 authority contacts. Proposal: national coverage for reporting, clustering and pressure from day one, but honest tiering on resolution, and deliberately deep onboarding in one city so at least one place demonstrates the full loop.</li>
         <li><b>Do the government rosters we can obtain actually contain personal mobile numbers?</b> Phone-based roster matching (§17) is the whole scaling path for officer onboarding, and it collapses if directories list only office landlines or shared department emails. <b>Verify this against the datasets already scraped before building on it</b> — the answer determines whether the claim flow is a fallback or the main road.</li>
         <li><b>Should Swaram accept personal-safety complaints at all?</b> The harassment case is the sharpest version of this. A confidential class makes it <em>possible</em>, but a civic-infrastructure product with a 3-day SLA is a bad home for an urgent personal-safety report. Proposal: accept it, route it to the police department as CONFIDENTIAL, and show the 112 interstitial first — but decide this deliberately before launch, not by default.</li>
+        <li><b>Who reviews held reports, and on whose clock?</b> §20 promises human review inside 4 h with a 24 h auto-publish backstop. At one ward that is one person's side task; at ten cities it is a staffed rota, and the 24 h backstop means an under-staffed team fails toward <em>publishing</em> unreviewed content. Decide before scaling whether the backstop stays at 24 h, and who is accountable when it fires.</li>
+        <li><b>Does "no naming individuals" survive contact with real complaints?</b> A large share of genuine civic problems have a person at the centre — an encroaching shopkeeper, a contractor doing bad work, an official demanding a bribe. A screen that holds every report mentioning a person will hold much of what matters most. Proposal: hold only where the person <em>is</em> the complaint rather than incidental to it, and treat public officials acting in office as never private — but this line needs testing against real submissions, not reasoning.</li>
         <li><b>Who owns an issue that spans two departments?</b> Proposal: a single owning department plus supporting departments as participants, never dual ownership.</li>
         <li><b>Do representatives (corporator, MLA, minister) get accounts at launch?</b> Their presence adds legitimacy and pressure, but also politicises the thread. Proposal: comment-only, clearly badged, and not in the MVP.</li>
         <li><b>Do we show officer names publicly?</b> Accountability argues yes; officer safety argues designation-only. Proposal: name + designation, no contact details, configurable per city.</li>
