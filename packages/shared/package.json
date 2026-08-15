@@ -1,0 +1,29 @@
+{
+  "name": "@swaram/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Swaram shared logic: enums mirrored from the database, civic taxonomy, pure scoring functions, zod schemas and formatters. No DB, no network.",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./enums": "./enums.ts",
+    "./taxonomy": "./taxonomy.ts",
+    "./scoring": "./scoring.ts",
+    "./format": "./format.ts",
+    "./zod": "./zod/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}

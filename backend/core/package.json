@@ -1,0 +1,35 @@
+{
+  "name": "@swaram/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Swaram shared server-side layer: domain logic, agents, services. Imported by apps/web AND backend/workers.",
+  "exports": {
+    "./db/client": "./db/client.ts",
+    "./db/admin": "./db/admin.ts",
+    "./db/types": "./db/types.gen.ts",
+    "./domain/*": "./domain/*.ts",
+    "./agents/*": "./agents/*.ts",
+    "./services/*": "./services/*.ts",
+    "./types/*": "./types/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "gen:types": "supabase gen types typescript --local > db/types.gen.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "exifr": "^7.1.3",
+    "sharp": "^0.33.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
