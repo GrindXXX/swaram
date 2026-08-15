@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:worker": "tsc -p ../workers/tsconfig.json",
     "worker:intake": "SWARAM_LOCAL_FALLBACK=1 tsx ../workers/intake.ts",
+    "test": "vitest run agents",
     "gen:types": "supabase gen types typescript --local > db/types.gen.ts"
   },
   "dependencies": {
@@ -31,7 +32,8 @@
     "@types/node": "^20.14.0",
     "@types/pg": "^8.15.5",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.9"
   },
   "engines": {
     "node": ">=20"
