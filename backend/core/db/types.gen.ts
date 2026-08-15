@@ -512,10 +512,10 @@ export interface Database {
           id: string;
           issue_id: string;
           user_id: string | null;
+          client_report_id: string | null;
           source: Enums['report_source'];
-          body: string | null;
+          description: string | null;
           transcript: string | null;
-          transcript_language: string | null;
           audio_url: string | null;
           media_url: string | null;
           media_type: Enums['media_type'];
@@ -523,21 +523,23 @@ export interface Database {
           location: unknown | null;
           /** vector(1536) — pgvector. Serialised as a JSON array over PostgREST. */
           embedding: number[] | null;
+          is_anonymous: boolean;
           created_at: string;
         };
         Insert: {
           id?: string;
           issue_id: string;
           user_id?: string | null;
+          client_report_id?: string | null;
           source?: Enums['report_source'];
-          body?: string | null;
+          description?: string | null;
           transcript?: string | null;
-          transcript_language?: string | null;
           audio_url?: string | null;
           media_url?: string | null;
           media_type?: Enums['media_type'];
-          location?: unknown | null;
+          location: unknown;
           embedding?: number[] | null;
+          is_anonymous?: boolean;
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['reports']['Insert']>;
@@ -786,6 +788,29 @@ export interface Database {
           department_id: number | null;
           jurisdiction_id: number | null;
           signal: string;
+        }[];
+      };
+      submit_citizen_report: {
+        Args: {
+          p_client_report_id: string;
+          p_description: string;
+          p_lat: number;
+          p_lng: number;
+          p_title?: string | null;
+          p_category_id?: string | null;
+          p_location_precision?: Enums['location_precision'];
+          p_location_visibility?: Enums['location_visibility'];
+          p_is_anonymous?: boolean;
+        };
+        Returns: {
+          issue_id: string;
+          public_id: string;
+          report_id: string;
+          title: string;
+          routing_tier: Enums['routing_tier'];
+          jurisdiction_id: number | null;
+          jurisdiction_match_method: Enums['jurisdiction_match_method'];
+          published_at: string | null;
         }[];
       };
       /** 0007+: PostGIS + pgvector candidate retrieval for clustering (§09 C4). */

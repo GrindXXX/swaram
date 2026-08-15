@@ -18,6 +18,7 @@ import {
   zCoordinates,
   zIssueSeverity,
   zLanguage,
+  zLocationPrecision,
   zLocationVisibility,
   zMediaAsset,
   zPublicId,
@@ -62,6 +63,9 @@ export const zReportSubmission = z
 
     /** Mandatory. See the file header. */
     coordinates: zCoordinates,
+    /** Whether the problem is a point, an area or jurisdiction-wide. This is
+     *  independent of whether the public may see the exact location. */
+    locationPrecision: zLocationPrecision.default('POINT'),
     /** Reverse-geocoded or citizen-corrected. */
     address: z.string().max(500).optional(),
     /** Precision and publicity of location are independent axes (PRD §03).

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { Avatar } from '../components/ui/Avatar';
@@ -5,12 +6,43 @@ import { RageMeter } from '../components/ui/RageMeter';
 import { StatTile } from '../components/ui/StatTile';
 import { PhotoPlaceholder } from '../components/ui/PhotoPlaceholder';
 import { GovBuildingIcon, ShieldCheckIcon, ChevronLeftIcon, ShareIcon } from '../components/ui/Icons';
-import { issues } from '../lib/mock-data';
+import { getIssue } from '../lib/queries';
+import type { Issue } from '../lib/types';
 
 export function Thread() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const issue = issues.find((i) => i.id === id) ?? issues[0];
+  const [issue, setIssue] = useState<Issue | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    if (!id) return;
+    getIssue(id)
+      .then((loaded) => {
+        if (active) setIssue(loaded);
+      })
+      .catch((loadError: unknown) => {
+        if (active) setError(loadError instanceof Error ? loadError.message : 'Could not load this issue.');
+      });
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (error || !issue) {
+    return (
+      <AppShell nav={false}>
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+          <p className={error ? 'text-rage' : 'font-mono text-xs text-muted'}>
+            {error ?? 'Loading issue…'}
+          </p>
+          {error && <button onClick={() => navigate('/')} className="font-mono text-xs font-bold">Back to feed</button>}
+        </div>
+      </AppShell>
+    );
+  }
+
   const initials = issue.authorHandle.replace('Citizen #', '');
 
   const composer = (
@@ -45,6 +77,12 @@ export function Thread() {
 
         <h2 className="mt-3.5 font-display text-2xl leading-tight">{issue.title}</h2>
         <p className="mt-2 text-[14.5px] leading-relaxed text-muted-strong">{issue.body}</p>
+
+        {!issue.publishedToFeed && (
+          <div className="mt-3 rounded-card border border-gov-border bg-gov-bg px-3 py-2 text-sm text-gov-text">
+            Created successfully. Safety review and routing are pending; this is visible to you but not the public feed.
+          </div>
+        )}
 
         <PhotoPlaceholder height={104} className="mt-3" />
 

@@ -57,7 +57,7 @@ create index agent_runs_issue_idx  on agent_runs (issue_id);
 create index agent_runs_report_idx on agent_runs (report_id);
 -- Backs mv_agent_quality, which groups by agent and day.
 create index agent_runs_agent_day_idx
-  on agent_runs (agent_name, date_trunc('day', created_at));
+  on agent_runs (agent_name, date_trunc('day', created_at at time zone 'UTC'));
 -- The "AI unsure" saved view: intake confidence < 0.80, oldest first.
 create index agent_runs_low_confidence_idx on agent_runs (created_at)
   where confidence < 0.80;
