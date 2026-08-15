@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swaram — Technical Implementation Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4EFE4; --paper-2:#EDE6D6; --paper-3:#E3DAC5;
+  --ink:#17140F; --ink-2:#3D372D; --ink-3:#6B6355; --rule:#CFC5AE;
+  --signal:#C93F09; --signal-soft:#F6E3D6;
+  --civic:#164C63; --civic-soft:#DCE8EC;
+  --moss:#3F6212; --moss-soft:#E4EBD5;
+  --amber:#A16207; --amber-soft:#F6EBCF;
+  --crit:#9F1239; --crit-soft:#F7DDE3;
+  --violet:#4C1D95; --violet-soft:#E7E0F5;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --serif:'Fraunces',Georgia,serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sp:clamp(1rem,4vw,2rem); --maxw:1180px;
+  --shadow:0 1px 0 var(--rule), 0 8px 24px -18px rgba(23,20,15,.5);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#131210; --paper-2:#1B1A17; --paper-3:#24221D;
+    --ink:#F0EADC; --ink-2:#CFC7B6; --ink-3:#9A9284; --rule:#35322B;
+    --signal:#F97316; --signal-soft:#3A1D0C;
+    --civic:#7DD3FC; --civic-soft:#0F2A38;
+    --moss:#A3E635; --moss-soft:#1D2A0D;
+    --amber:#FBBF24; --amber-soft:#33260A;
+    --crit:#FB7185; --crit-soft:#3A1018;
+    --violet:#C4B5FD; --violet-soft:#241A3D;
+    --shadow:0 1px 0 var(--rule), 0 8px 24px -18px #000;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:5rem;-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;
+  line-height:1.65;font-weight:350;overflow-x:hidden;
+  background-image:radial-gradient(circle at 12% 8%, color-mix(in srgb,var(--signal) 7%, transparent), transparent 42%),
+    radial-gradient(circle at 88% 4%, color-mix(in srgb,var(--civic) 9%, transparent), transparent 38%);
+  background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.4;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply}
+@media (prefers-color-scheme: dark){ body::before{mix-blend-mode:screen;opacity:.18} }
+h1,h2,h3,h4{font-family:var(--serif);font-weight:700;line-height:1.08;letter-spacing:-.02em}
+h2{font-size:clamp(1.75rem,5.5vw,2.9rem);font-variation-settings:'opsz' 120}
+h3{font-size:clamp(1.2rem,3.6vw,1.6rem);margin-bottom:.5rem}
+h4{font-size:1.02rem;font-family:var(--sans);font-weight:600}
+p{max-width:68ch}
+a{color:var(--signal);text-underline-offset:3px}
+strong,b{font-weight:600;color:var(--ink)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+.lede{font-size:clamp(1.02rem,2.6vw,1.22rem);color:var(--ink-2);max-width:64ch}
+.kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--signal);font-weight:500}
+.muted{color:var(--ink-3)} .small{font-size:.86rem}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--sp)}
+section{padding-block:clamp(2.5rem,8vw,4.5rem);border-top:1px solid var(--rule)}
+.sec-head{display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap;margin-bottom:1.5rem}
+.sec-num{font-family:var(--mono);font-size:.75rem;color:var(--ink-3);border:1px solid var(--rule);padding:.15rem .45rem;border-radius:3px;flex:none}
+.grid{display:grid;gap:1rem}
+@media(min-width:720px){.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.g4{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--paper-2);border:1px solid var(--rule);border-radius:6px;padding:1.15rem 1.25rem;box-shadow:var(--shadow)}
+header.bar{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--paper) 88%, transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--rule)}
+.bar-in{max-width:var(--maxw);margin:0 auto;padding:.6rem var(--sp);display:flex;align-items:center;gap:.75rem}
+.logo{font-family:var(--serif);font-weight:900;font-size:1.1rem;letter-spacing:-.03em;display:flex;align-items:center;gap:.45rem}
+.logo .dot{width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 4px color-mix(in srgb,var(--signal) 18%,transparent)}
+.bar .tag{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--rule);padding:.1rem .4rem;border-radius:3px}
+.bar nav{margin-left:auto;display:none;gap:1.1rem;font-size:.82rem}
+.bar nav a{color:var(--ink-2);text-decoration:none}
+.bar nav a:hover{color:var(--signal)}
+@media(min-width:900px){.bar nav{display:flex}}
+#tocBtn{margin-left:auto;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:0;padding:.5rem .7rem;border-radius:4px;cursor:pointer;min-height:38px}
+@media(min-width:900px){#tocBtn{margin-left:1rem}}
+#toc{position:fixed;inset:0;z-index:200;background:color-mix(in srgb,var(--ink) 55%,transparent);opacity:0;pointer-events:none;transition:opacity .25s}
+#toc[open-drawer]{opacity:1;pointer-events:auto}
+#toc .panel{position:absolute;right:0;top:0;bottom:0;width:min(360px,88vw);background:var(--paper-2);
+  border-left:1px solid var(--rule);padding:1.25rem;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+#toc[open-drawer] .panel{transform:none}
+#toc ol{list-style:none;counter-reset:t}
+#toc li{counter-increment:t;border-bottom:1px dashed var(--rule)}
+#toc a{display:flex;gap:.7rem;padding:.6rem .2rem;text-decoration:none;color:var(--ink-2);font-size:.9rem}
+#toc a::before{content:counter(t,decimal-leading-zero);font-family:var(--mono);font-size:.7rem;color:var(--ink-3);padding-top:.25rem}
+.cover{padding-block:clamp(2.5rem,10vw,5rem) clamp(2rem,7vw,3.5rem)}
+.cover h1{font-size:clamp(2.6rem,11vw,6rem);font-weight:900;font-variation-settings:'opsz' 144;line-height:.9;letter-spacing:-.045em}
+.cover h1 em{font-style:italic;font-weight:300;color:var(--signal)}
+.cover .sub{margin-top:1.25rem;font-size:clamp(1.05rem,3vw,1.4rem);font-family:var(--serif);font-weight:300;color:var(--ink-2);max-width:38ch;line-height:1.3}
+.meta-strip{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem 1rem;margin-top:2rem;padding-top:1.25rem;border-top:2px solid var(--ink)}
+@media(min-width:720px){.meta-strip{grid-template-columns:repeat(4,1fr)}}
+.meta-strip div span{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.meta-strip div b{font-weight:500;font-size:.92rem}
+.pill{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--mono);font-size:.66rem;letter-spacing:.09em;
+  text-transform:uppercase;padding:.22rem .5rem;border-radius:99px;font-weight:500;white-space:nowrap}
+.p-open{background:var(--crit-soft);color:var(--crit)}
+.p-prog{background:var(--amber-soft);color:var(--amber)}
+.p-done{background:var(--moss-soft);color:var(--moss)}
+.p-ai{background:var(--violet-soft);color:var(--violet)}
+.p-gov{background:var(--civic-soft);color:var(--civic)}
+.p-sig{background:var(--signal-soft);color:var(--signal)}
+.p-neu{background:var(--paper-3);color:var(--ink-3)}
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;background:var(--paper-2);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.86rem}
+th,td{text-align:left;padding:.6rem .75rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--mono);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);background:var(--paper-3);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td code{background:var(--paper-3);padding:.08rem .3rem;border-radius:3px}
+.scroll-hint{font-family:var(--mono);font-size:.62rem;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;margin-top:.4rem}
+@media(min-width:760px){.scroll-hint{display:none}}
+pre{font-family:var(--mono);font-size:.72rem;line-height:1.55;background:var(--paper-2);border:1px solid var(--rule);
+  border-radius:6px;padding:1rem;overflow-x:auto;color:var(--ink-2)}
+pre.sql{border-left:3px solid var(--civic)}
+pre.flow{border-left:3px solid var(--ink-3)}
+ul.req{list-style:none;display:grid;gap:.5rem}
+ul.req li{display:flex;gap:.6rem;align-items:flex-start;font-size:.92rem;color:var(--ink-2)}
+ul.req li::before{content:"";width:6px;height:6px;margin-top:.55rem;flex:none;background:var(--signal);border-radius:1px;transform:rotate(45deg)}
+ol.steps{list-style:none;counter-reset:s;display:grid;gap:.6rem}
+ol.steps li{counter-increment:s;display:flex;gap:.7rem;font-size:.92rem;color:var(--ink-2)}
+ol.steps li::before{content:counter(s);font-family:var(--mono);font-size:.66rem;flex:none;width:20px;height:20px;
+  display:grid;place-items:center;border:1px solid var(--rule);border-radius:50%;margin-top:.2rem;color:var(--ink-3)}
+.note{border-left:3px solid var(--civic);background:var(--civic-soft);padding:.85rem 1rem;border-radius:0 5px 5px 0;font-size:.9rem;color:var(--ink-2)}
+.note.warn{border-color:var(--signal);background:var(--signal-soft)}
+.note.ai{border-color:var(--violet);background:var(--violet-soft)}
+.note.crit{border-color:var(--crit);background:var(--crit-soft)}
+.note b{display:block;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.25rem;color:var(--ink)}
+.tid{font-family:var(--mono);font-size:.68rem;font-weight:700;color:var(--signal);border:1px solid var(--signal);
+  padding:.05rem .35rem;border-radius:3px;white-space:nowrap}
+.lane{display:grid;gap:.5rem;margin-top:.6rem}
+.lanerow{display:grid;grid-template-columns:80px 1fr;gap:.6rem;align-items:start;font-size:.84rem}
+.lanerow .lbl{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding-top:.3rem}
+.chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.tk{font-family:var(--mono);font-size:.62rem;padding:.2rem .45rem;border-radius:4px;border:1px solid var(--rule);background:var(--paper-2);white-space:nowrap}
+.tk.c{background:var(--signal);color:#fff;border-color:var(--signal);font-weight:700}
+footer{border-top:2px solid var(--ink);padding-block:2.5rem 4rem;font-size:.82rem;color:var(--ink-3)}
+footer .wrap{display:grid;gap:1rem}
+@media(min-width:720px){footer .wrap{grid-template-columns:1fr auto;align-items:end}}
+@media(prefers-reduced-motion:no-preference){
+  .rv{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+  .rv.in{opacity:1;transform:none}
+}
+.mermaid{background:var(--paper-2);border:1px solid var(--rule);border-radius:6px;padding:1rem;overflow-x:auto}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="logo"><span class="dot"></span>SWARAM</div>
+    <span class="tag">Tech Plan v1.0</span>
+    <nav>
+      <a href="#findings">Findings</a>
+      <a href="#dag">DAG</a>
+      <a href="#data">Data</a>
+      <a href="#db">Database</a>
+      <a href="#resolve">Routing</a>
+      <a href="#ai">AI</a>
+      <a href="#phases">Phases</a>
+    </nav>
+    <button id="tocBtn" aria-expanded="false" aria-controls="toc">Contents</button>
+  </div>
+</header>
+
+<div id="toc" role="dialog" aria-label="Table of contents">
+  <div class="panel">
+    <div class="kicker" style="margin-bottom:.75rem">Contents</div>
+    <ol>
+      <li><a href="#findings">Three findings that reorder the build</a></li>
+      <li><a href="#inventory">Repo inventory — every file</a></li>
+      <li><a href="#dag">The build DAG</a></li>
+      <li><a href="#data">Data layer &amp; the geometry blocker</a></li>
+      <li><a href="#db">Database, schema &amp; RLS</a></li>
+      <li><a href="#resolve">Resolution chain</a></li>
+      <li><a href="#ai">AI pipeline</a></li>
+      <li><a href="#queue">Jobs, SLA &amp; notifications</a></li>
+      <li><a href="#phases">Build phases</a></li>
+      <li><a href="#risks">Risk register</a></li>
+      <li><a href="#next">Immediate next actions</a></li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrap cover">
+  <div class="kicker">Technical Implementation Plan</div>
+  <h1>Build order<em>.</em></h1>
+  <p class="sub">What to build, in what sequence, and the three things in this repo that change the order.</p>
+  <div class="meta-strip">
+    <div><span>Version</span><b>1.0 — 15 Aug 2026</b></div>
+    <div><span>Companion</span><b>product-requirements.html</b></div>
+    <div><span>Platform</span><b>Supabase · PG + PostGIS</b></div>
+    <div><span>DAG</span><b>39 nodes · 55 edges · acyclic</b></div>
+  </div>
+</div>
+
+<!-- ================= 01 FINDINGS ================= -->
+<section id="findings" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">01</span><h2>Three findings that reorder the build</h2></div>
+  <p class="lede">Read before planning sprints. Each of these moves a task from "later" to "first", and one of them is a live data bug.</p>
+
+  <div class="note crit" style="margin-top:1.5rem">
+    <b>Finding 1 · There is no geometry. Anywhere.</b>
+    Routing resolves a GPS pin → jurisdiction → department → officer by point-in-polygon. <b>The repo contains zero boundary data</b> — verified across all of <code>data/</code>, <code>schema/</code> and <code>scrapers/</code>: no polygons, no GeoJSON, not one lat/lng in any data file.
+    <br><br>
+    This is easy to miss because the artifacts look geo-ready: <code>ticket.schema.json</code> has <code>lat</code>/<code>lng</code>, and LGD covers 4,814 ULBs nationally. But <b>LGD is codes and names only.</b> There is nothing to test a point against. Worse, <b>no ward layer exists at any level</b> — LGD stops at local body, while a ward is the unit an officer actually owns (BBMP alone has 198).
+    <br><br>
+    <b style="display:inline">Consequence:</b> boundary acquisition (<span class="tid">D1</span>) is the single upstream blocker. Routing, officer assignment, SLA, the feed's distance filter and clustering's candidate radius all depend on it. It is task one, not a later data chore.
+  </div>
+
+  <div class="note warn" style="margin-top:1rem">
+    <b>Finding 2 · Jurisdiction coverage is national; reachable officers number ~380</b>
+    4,814 ULBs with 99.9% district matching, against 92 central + 88 appellate + 37 state + 163 district contacts — and the district contacts cover <b>7 states / 11 districts</b>, with only 68 of 163 rows carrying a department label. This is exactly why PRD §12's three routing tiers exist. <b>Most of India is Tier 3 on day one.</b> Build the tiering before the officer queue, or the queue will be empty and the UI will lie about it.
+  </div>
+
+  <div class="note crit" style="margin-top:1rem">
+    <b>Finding 3 · <code>state_agencies.csv</code> is column-shifted — a live bug</b>
+    Unquoted commas inside <code>water_authority_name</code> shift every later field one column right for <b>KARNATAKA</b> and <b>TELANGANA</b> — the two states a Bengaluru or Hyderabad demo needs most.
+    <pre style="margin-top:.6rem;font-size:.66rem">KARNATAKA, parsed by csv.DictReader:
+  water_authority_name  = 'Bangalore Water Supply and Sewerage Board (BWSSB'
+  water_authority_scope = ' Bengaluru only) / Karnataka Urban Water Supply…'
+  discom_names          = 'mixed'                     ← should be BESCOM;MESCOM;…
+  verified              = 'Karnataka Fire and Emergency Services'   ← should be FALSE</pre>
+    Any code reading <code>discom_names</code> gets the literal string <code>"mixed"</code>. Fix by quoting those two rows before <span class="tid">D3</span>. Also note <b>0 of 36 rows are verified</b>, so water and electricity must not auto-route at all until verification completes.
+  </div>
+</section>
+
+<!-- ================= 02 INVENTORY ================= -->
+<section id="inventory" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">02</span><h2>Repo inventory — every file, read</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Path</th><th>Size</th><th>What it is</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td><code>data/departments/ulb_directory.csv</code></td><td>4,814</td><td>Every ULB + district + type + LGD code. Town Panchayat 2,364 · Municipality 1,826 · Municipal Corp 248 · NAC 136 · TMC 120 · CMC 60 · MC 59 · NCT 1</td><td><span class="pill p-done">Use as-is</span> 5 rows lack a district</td></tr>
+        <tr><td><code>data/departments/taxonomy.json</code></td><td>13 cat<br>15 types</td><td>Category → <em>jurisdiction-generic</em> authority type, with ordered <code>resolution_order</code> + conditions. 5 categories have fallback chains. All 15 authority types are used; none orphaned</td><td><span class="pill p-done">Excellent</span> load unchanged</td></tr>
+        <tr><td><code>data/departments/nodal_officers_central.csv</code></td><td>92</td><td>CPGRAMS first-contact officer per central ministry</td><td><span class="pill p-done">100% email</span></td></tr>
+        <tr><td><code>data/departments/appeal_officers_central.csv</code></td><td>88</td><td>CPGRAMS <b>appellate</b> officer — a real second escalation rung</td><td><span class="pill p-done">100% email</span></td></tr>
+        <tr><td><code>data/departments/nodal_officers_state.csv</code></td><td>37</td><td>One grievance officer per state/UT</td><td><span class="pill p-done">100% email</span></td></tr>
+        <tr><td><code>data/departments/india_district_contacts.csv</code></td><td>163</td><td>Per-district department contacts scraped from NIC/S3WaaS district portals. KA 71 · MH 39 · BR 22 · MP 18 · TN 10 · UP 2 · GJ 1</td><td><span class="pill p-prog">66% email</span> 95 rows have no department label</td></tr>
+        <tr><td><code>data/departments/state_agencies.csv</code></td><td>36</td><td>Water board + DISCOM + fire per state/UT</td><td><span class="pill p-open">0 verified · 2 rows corrupt</span></td></tr>
+        <tr><td><code>data/departments/portals.json</code></td><td>5 cities</td><td>Portal registry with per-city scrape status + honest run notes</td><td><span class="pill p-open">None scraped</span></td></tr>
+        <tr><td><code>data/raw/lgd/municipal_directory.csv</code></td><td>22,912</td><td>Local body → district → subdistrict → village. 4,809 bodies, 700 districts, 12,805 villages</td><td><span class="pill p-prog">Name-matching only</span> no geometry</td></tr>
+        <tr><td><code>data/raw/lgd/{states,districts,urban_local_bodies}.csv</code></td><td>37 / 764 / 4,814</td><td>LGD reference tables</td><td><span class="pill p-done">Load</span></td></tr>
+        <tr><td><code>data/raw/portals/*.html</code></td><td>4 files</td><td>Cached portal HTML. Hyderabad 101KB + Chennai 34KB server-rendered · Delhi 672B React shell · Mumbai 1.8KB SAP rejection</td><td><span class="pill p-prog">2 scrapable</span></td></tr>
+        <tr><td><code>schema/ticket.schema.json</code></td><td>39 ln</td><td>Ticket contract. Has <code>transfer_chain</code> and <code>resolution_gps_distance_m</code></td><td><span class="pill p-prog">Conflicts with PRD</span> see §5.2</td></tr>
+        <tr><td><code>schema/department.schema.json</code></td><td>30 ln</td><td>Resolved-authority contract with a <code>confidence</code> field and a documented low-confidence fallback</td><td><span class="pill p-done">Adopt</span></td></tr>
+        <tr><td><code>scrapers/fetch_lgd_data.py</code></td><td>56 ln</td><td>Pulls LGD from a GitHub mirror; documents the data.gov.in API alternative</td><td><span class="pill p-done">Re-runnable</span></td></tr>
+        <tr><td><code>scrapers/build_ulb_directory.py</code></td><td>61 ln</td><td>Joins ULB + municipal directory on local body code</td><td><span class="pill p-done">Works</span></td></tr>
+        <tr><td><code>scrapers/scrape_nodal_officers.py</code></td><td>102 ln</td><td>Three CPGRAMS directories. Refuses to authenticate to reach the deeper tree — deliberate</td><td><span class="pill p-done">Good</span></td></tr>
+        <tr><td><code>scrapers/scrape_district_contacts.py</code></td><td>160 ln</td><td>NIC template scraper. Handles the quirk that a table's department heading comes <em>after</em> it in the DOM</td><td><span class="pill p-done">Extend for coverage</span></td></tr>
+        <tr><td><code>scrapers/scrape_portal.py</code></td><td>139 ln</td><td>Robots-aware fetch + SPA/blocked/server-rendered classifier. Never touches complainant PII</td><td><span class="pill p-done">Scaffold ready</span></td></tr>
+        <tr><td><code>scrapers/emailutil.py</code></td><td>24 ln</td><td>De-obfuscates <code>name[at]x[dot]y</code>; fixes a truncation bug on multi-label domains</td><td><span class="pill p-done">Reuse</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <div class="note" style="margin-top:1rem">
+    <b>What the data layer gets right</b>
+    <code>taxonomy.json</code> already implements the correct indirection — the AI names a <em>category</em>, and category × jurisdiction resolves to a concrete department. That means a municipal reorganisation is a row change, not a prompt change. <code>department.schema.json</code> carries a <code>confidence</code> field with an explicit "route to the ULB general grievance cell rather than guess" fallback. Both should survive into production unchanged.
+  </div>
+</section>
+
+<!-- ================= 03 DAG ================= -->
+<section id="dag" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">03</span><h2>The build DAG</h2></div>
+  <p class="lede">Nodes are tasks; an edge means <em>must finish before</em>. Verified acyclic — 39 nodes, 55 edges, longest chain 11. Orange nodes are the critical path.</p>
+
+  <pre class="mermaid" style="margin-top:1.5rem">
+graph TD
+    A0["A0 · Reconcile schema"]:::crit
+    A1["A1 · Supabase + extensions"]:::crit
+    A2["A2 · Core migrations"]:::crit
+    A3["A3 · RLS policies"]:::crit
+    A4["A4 · Storage + signed URLs"]
+
+    D1["D1 · Boundary geometry"]:::crit
+    D2["D2 · Load LGD reference"]
+    D3["D3 · Fix + verify state_agencies"]
+    D4["D4 · Contacts → authorities"]
+    D5["D5 · Load taxonomy"]
+
+    B1["B1 · Auth phone OTP"]
+    B2["B2 · Roster → officers"]
+    B3["B3 · Jurisdiction resolver"]:::crit
+    B4["B4 · Authority resolver + tier"]:::crit
+
+    C1["C1 · Media pipeline"]:::crit
+    C2["C2 · Intake agent"]:::crit
+    C3["C3 · Safety gate"]
+    C4["C4 · Embeddings + retrieval"]
+    C5["C5 · Clustering agent"]
+    C6["C6 · Verifier agent"]
+
+    E1["E1 · Job queue"]:::crit
+    E2["E2 · Ranking + pressure"]
+    E3["E3 · SLA engine"]
+    E4["E4 · Notifications"]
+    E5["E5 · Tier-2 email dispatch"]
+
+    F1["F1 · Citizen PWA shell"]:::crit
+    F2["F2 · Feed + filters"]:::crit
+    F3["F3 · Report flow"]:::crit
+    F4["F4 · Issue page"]:::crit
+    F5["F5 · My Issues + Alerts"]
+    F6["F6 · Verification UI"]
+
+    G1["G1 · Portal shell"]
+    G2["G2 · Queue + views"]
+    G3["G3 · Ticket detail"]
+    G4["G4 · Resolution submission"]
+    G5["G5 · Field mode"]
+
+    H1["H1 · Admin dashboard"]
+    H2["H2 · Moderation queue"]
+    H3["H3 · Civic intelligence"]
+
+    A0 --> A2
+    A1 --> A2
+    A2 --> A3
+    A2 --> A4
+    A1 --> E1
+    D1 --> B3
+    D2 --> B3
+    A2 --> B3
+    D2 --> D4
+    D3 --> D4
+    D4 --> B4
+    D5 --> B4
+    B3 --> B4
+    A3 --> B1
+    B1 --> B2
+    D4 --> B2
+    A4 --> C1
+    C1 --> C2
+    C2 --> C3
+    C2 --> C4
+    C4 --> C5
+    E1 --> C5
+    B4 --> C5
+    E1 --> C6
+    A2 --> E2
+    B4 --> E3
+    E3 --> E4
+    E1 --> E4
+    B4 --> E5
+    D4 --> E5
+    A3 --> F1
+    F1 --> F2
+    B3 --> F2
+    E2 --> F2
+    C1 --> F3
+    C2 --> F3
+    C3 --> F3
+    F1 --> F4
+    C5 --> F4
+    F4 --> F6
+    F1 --> F5
+    E4 --> F5
+    B2 --> G1
+    G1 --> G2
+    B4 --> G2
+    E3 --> G2
+    G2 --> G3
+    G3 --> G4
+    C6 --> G4
+    G3 --> G5
+    G4 --> F6
+    A3 --> H1
+    C3 --> H2
+    E2 --> H3
+    F6 --> H3
+
+    classDef crit fill:#C93F09,stroke:#7a2606,color:#fff,stroke-width:2px;
+  </pre>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3>Critical path</h3>
+      <div class="chips" style="margin-top:.5rem">
+        <span class="tk c">A0</span><span class="tk c">A1</span><span class="tk c">A2</span><span class="tk c">A3</span>
+        <span class="tk c">D1</span><span class="tk c">B3</span><span class="tk c">B4</span>
+        <span class="tk c">E1</span><span class="tk c">C1</span><span class="tk c">C2</span>
+        <span class="tk c">F1</span><span class="tk c">F2</span><span class="tk c">F3</span><span class="tk c">F4</span>
+      </div>
+      <ul class="req" style="margin-top:1rem">
+        <li><b>Two true roots block the most work:</b> <span class="tid">D1</span> geometry and <span class="tid">A0</span> schema reconciliation. Both are startable this minute — one is data acquisition, the other is a 30-minute decision.</li>
+        <li><b><span class="tid">B4</span> is the convergence point.</b> Five branches feed it (D3→D4, D5, D1→B3) and four depend on it (C5, E3, E5, G2). If B4 slips, everything slips.</li>
+        <li><b><span class="tid">E1</span> job queue is not optional.</b> Clustering, ASR and verification all exceed Edge Function timeouts. Building it late means rewriting every AI call site.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Parallel lanes</h3>
+      <div class="lane">
+        <div class="lanerow"><span class="lbl">Data</span><div><div class="chips"><span class="tk">D1</span><span class="tk">D2</span><span class="tk">D3</span><span class="tk">D4</span><span class="tk">D5</span></div><span class="small muted">Starts immediately, zero code deps. One person full-time until D1 lands.</span></div></div>
+        <div class="lanerow"><span class="lbl">Platform</span><div><div class="chips"><span class="tk">A0</span><span class="tk">A1</span><span class="tk">A2</span><span class="tk">A3</span><span class="tk">A4</span><span class="tk">E1</span></div><span class="small muted">Starts immediately. Backend lead.</span></div></div>
+        <div class="lanerow"><span class="lbl">Routing</span><div><div class="chips"><span class="tk">B3</span><span class="tk">B4</span><span class="tk">E3</span><span class="tk">E5</span></div><span class="small muted">After D1 + D2 + A2.</span></div></div>
+        <div class="lanerow"><span class="lbl">AI</span><div><div class="chips"><span class="tk">C1</span><span class="tk">C2</span><span class="tk">C3</span><span class="tk">C4</span><span class="tk">C5</span><span class="tk">C6</span></div><span class="small muted">C1/C2 after A4; C5 needs B4 + E1.</span></div></div>
+        <div class="lanerow"><span class="lbl">Citizen</span><div><div class="chips"><span class="tk">F1</span><span class="tk">F2</span><span class="tk">F3</span><span class="tk">F4</span><span class="tk">F5</span><span class="tk">F6</span></div><span class="small muted">F1 after A3. 1–2 people.</span></div></div>
+        <div class="lanerow"><span class="lbl">Gov</span><div><div class="chips"><span class="tk">G1</span><span class="tk">G2</span><span class="tk">G3</span><span class="tk">G4</span><span class="tk">G5</span></div><span class="small muted">Gated on B2 roster ingest.</span></div></div>
+        <div class="lanerow"><span class="lbl">Admin</span><div><div class="chips"><span class="tk">H1</span><span class="tk">H2</span><span class="tk">H3</span></div><span class="small muted">Last, lowest risk to cut.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 DATA ================= -->
+<section id="data" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">04</span><h2>Data layer &amp; the geometry blocker</h2></div>
+
+  <h3><span class="tid">D1</span> Boundary geometry — the blocker</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Layer</th><th>OSM admin_level</th><th>Source</th><th>Expectation</th></tr></thead>
+      <tbody>
+        <tr><td>State</td><td>4</td><td>OSM / DataMeet</td><td><span class="pill p-done">Complete</span></td></tr>
+        <tr><td>District</td><td>5–6</td><td>DataMeet India district GeoJSON</td><td><span class="pill p-done">Complete, well-tested</span></td></tr>
+        <tr><td>Municipal / ULB</td><td>7–8</td><td>OSM <code>boundary=administrative</code></td><td><span class="pill p-prog">Patchy outside metros</span></td></tr>
+        <tr><td>Ward</td><td>9–10</td><td>Per-city open data (BBMP, GHMC, MCGM)</td><td><span class="pill p-open">A handful of cities only</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre class="sql" style="margin-top:1rem">create extension if not exists postgis;
+
+create table jurisdictions (
+  id         bigserial primary key,
+  lgd_code   text unique,                  -- joins ulb_directory.csv
+  name       text not null,
+  level      text not null check (level in
+               ('STATE','DISTRICT','ULB','ZONE','WARD')),
+  parent_id  bigint references jurisdictions(id),
+  state_code int,
+  geometry   geometry(MultiPolygon, 4326),
+  centroid   geometry(Point, 4326),
+  source     text not null,                -- provenance is mandatory
+  created_at timestamptz default now()
+);
+create index on jurisdictions using gist (geometry);
+create index on jurisdictions (level);</pre>
+
+  <div class="note warn" style="margin-top:1rem">
+    <b>Fallback ladder when a pin hits no polygon</b>
+    1. <code>ST_Contains</code> at the most specific level available &nbsp;→&nbsp; 2. nearest district centroid within 25 km &nbsp;→&nbsp; 3. reverse-geocode to a district name, fuzzy-match the LGD name table &nbsp;→&nbsp; 4. <code>routing_tier = 'UNMAPPED'</code>, a valid outcome rather than an error.
+    <br><br>
+    <b style="display:inline">Never let steps 2–3 masquerade as a real match.</b> Store <code>jurisdiction_match_method</code> and surface anything below polygon-grade to the officer.
+  </div>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3><span class="tid">D3</span> Fix, then verify <code>state_agencies.csv</code></h3>
+      <ol class="steps" style="margin-top:.5rem">
+        <li>Quote the KARNATAKA and TELANGANA rows — they are column-shifted today (§1, Finding 3)</li>
+        <li>Add a CSV round-trip test so a malformed row fails CI rather than silently mis-routing</li>
+        <li>Cross-check all 36 rows against each agency's own site; flip <code>verified</code></li>
+        <li>Until a row is verified, its categories route to the ULB general grievance cell — <b>never to a guessed DISCOM</b></li>
+      </ol>
+    </div>
+    <div>
+      <h3><span class="tid">D4</span> Contacts → <code>authorities</code></h3>
+      <pre class="sql" style="margin-top:.5rem;font-size:.68rem">create table authorities (
+  id                  bigserial primary key,
+  name                text not null,
+  authority_type      text not null,   -- taxonomy.json
+  jurisdiction_id     bigint references jurisdictions(id),
+  level               text check (level in
+                        ('ULB','DISTRICT','STATE','NATIONAL')),
+  grievance_email     text,
+  appellate_email     text,            -- appeal_officers_central
+  officer_name        text,
+  verification_status text not null default 'DRAFT'
+                      check (verification_status in
+                        ('VERIFIED','SCRAPED_UNVERIFIED','DRAFT')),
+  source_url          text,
+  last_verified_at    timestamptz,
+  bounce_count        int default 0
+);</pre>
+      <p class="small muted" style="margin-top:.5rem">Only <code>VERIFIED</code> rows may be emailed automatically. Bounces increment <code>bounce_count</code>; three downgrades the status. The nodal → appellate pair already in the data gives a real two-rung escalation ladder — reuse it rather than inventing one.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.75rem"><span class="tid">D5</span> Load <code>taxonomy.json</code> unchanged</h3>
+  <pre class="sql" style="margin-top:.5rem">create table categories (
+  id           text primary key,          -- 'pothole_road_damage'
+  label        text not null,
+  is_sensitive boolean default false      -- forces CONFIDENTIAL visibility
+);
+create table category_authority_rules (
+  category_id    text references categories(id),
+  seq            int not null,            -- resolution_order index
+  authority_type text not null,
+  condition      text,                    -- 'on a national highway'
+  primary key (category_id, seq)
+);</pre>
+  <p class="small muted" style="margin-top:.5rem">13 categories, 15 authority types, 5 categories carrying multi-step fallback chains (<code>pothole_road_damage</code>, <code>water_supply</code>, <code>sewerage_drainage</code>, <code>traffic_signal_signage</code>, <code>encroachment</code>). Every declared authority type is referenced — nothing orphaned.</p>
+</section>
+
+<!-- ================= 05 DB ================= -->
+<section id="db" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">05</span><h2>Database, schema &amp; RLS</h2></div>
+
+  <h3>5.1 Extensions</h3>
+  <pre class="sql" style="margin-top:.5rem">create extension if not exists postgis;   -- D1, B3 point-in-polygon
+create extension if not exists vector;    -- C4 clustering retrieval
+create extension if not exists pg_cron;   -- E3 SLA sweeps
+create extension if not exists pgmq;      -- E1 job queue</pre>
+
+  <h3 style="margin-top:1.75rem">5.2 <span class="tid">A0</span> Status reconciliation — two enums exist today</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>PRD §03</th><th><code>ticket.schema.json</code></th><th>Resolution</th></tr></thead>
+      <tbody>
+        <tr><td>OPEN</td><td><code>open</code></td><td>Keep <code>OPEN</code></td></tr>
+        <tr><td>ASSIGNED</td><td>—</td><td>Keep — required by the Owner model</td></tr>
+        <tr><td>—</td><td><code>acknowledged</code></td><td><b>Adopt</b> — ack is measured separately in the SLA</td></tr>
+        <tr><td>IN_PROGRESS</td><td><code>in_progress</code></td><td>Keep</td></tr>
+        <tr><td>HELD</td><td>—</td><td>Keep — safety gate, feed-only</td></tr>
+        <tr><td>RESOLUTION_SUBMITTED</td><td>—</td><td>Keep</td></tr>
+        <tr><td>AWAITING_VERIFICATION</td><td>—</td><td>Keep</td></tr>
+        <tr><td>RESOLVED</td><td><code>resolved</code></td><td>Keep</td></tr>
+        <tr><td>—</td><td><code>disputed_closure</code></td><td><b>Map to</b> <code>REOPENED</code></td></tr>
+        <tr><td>—</td><td><code>escalated</code></td><td><b>Not a status</b> → <code>escalation_level</code> column</td></tr>
+        <tr><td>CLOSED / REJECTED / MERGED</td><td>—</td><td>Keep</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+
+  <div class="note ai" style="margin-top:1rem">
+    <b>Adopt <code>transfer_chain</code> from the teammate's schema</b>
+    A public log of every department hop is a better accountability primitive than anything in the PRD — it makes buck-passing visible. Promote it to a first-class table.
+    <pre class="sql" style="margin-top:.6rem;font-size:.68rem">create table issue_transfers (
+  id             bigserial primary key,
+  issue_id       uuid references issues(id),
+  from_authority bigint references authorities(id),
+  to_authority   bigint references authorities(id),
+  action         text check (action in
+                   ('received','forwarded','resolved','reopened')),
+  reason         text, actor_id uuid,
+  created_at     timestamptz default now()
+);</pre>
+  </div>
+
+  <h3 style="margin-top:1.75rem">5.3 Core tables — the non-obvious columns</h3>
+  <pre class="sql" style="margin-top:.5rem">create table issues (
+  id                        uuid primary key default gen_random_uuid(),
+  public_id                 text unique not null,      -- CIV-10234
+  title                     text,
+  category_id               text references categories(id),
+  location                  geography(Point, 4326) not null,
+  location_precision        text default 'POINT'
+                            check (location_precision in ('POINT','AREA','JURISDICTION')),
+  location_visibility       text default 'EXACT'
+                            check (location_visibility in ('EXACT','APPROXIMATE','PRIVATE')),
+  visibility                text default 'PUBLIC'
+                            check (visibility in ('PUBLIC','RESTRICTED','CONFIDENTIAL')),
+  severity                  text,
+  civic_pressure            numeric default 0,
+  estimated_people_affected int,
+  escalation_level          text default 'LOCAL',
+  routing_tier              text check (routing_tier in
+                              ('ONBOARDED','CONTACTABLE','UNMAPPED')),
+  jurisdiction_id           bigint references jurisdictions(id),
+  jurisdiction_match_method text,        -- POLYGON | CENTROID | GEOCODE
+  authority_id              bigint references authorities(id),
+  owner_officer_id          uuid,
+  status                    text not null default 'OPEN',
+  moderation_verdict        text,
+  published_at              timestamptz, -- null while HELD
+  sla_due_at                timestamptz,
+  satisfaction_score        numeric,
+  merged_into_id            uuid references issues(id),
+  report_count              int default 0,
+  follower_count            int default 0,
+  created_at                timestamptz default now()
+);
+create index on issues using gist (location);
+create index on issues (status, jurisdiction_id);
+
+create table reports (
+  id         uuid primary key default gen_random_uuid(),
+  issue_id   uuid references issues(id) on delete cascade,
+  user_id    uuid references auth.users(id),
+  transcript text,
+  audio_url  text,
+  media_url  text,
+  location   geography(Point, 4326),
+  embedding  vector(1536),               -- C4
+  created_at timestamptz default now()
+);
+create index on reports using ivfflat (embedding vector_cosine_ops);</pre>
+
+  <h3 style="margin-top:1.75rem">5.4 <span class="tid">A3</span> RLS is the entire security model</h3>
+  <div class="note crit" style="margin-top:.75rem">
+    <b>With a client talking directly to Postgres, RLS is the only line of defence</b>
+    Get these wrong and a CONFIDENTIAL harassment report reaches the public feed. No application-layer check can save you, because the client can call the database directly.
+  </div>
+  <pre class="sql" style="margin-top:1rem">alter table issues enable row level security;
+
+-- Public feed: PUBLIC only, and only after the safety gate publishes
+create policy issues_public_read on issues for select
+using (visibility = 'PUBLIC'
+   and published_at is not null
+   and status &lt;&gt; 'HELD');
+
+-- Reporters always see their own, whatever the class
+create policy issues_own_read on issues for select
+using (exists (select 1 from reports r
+               where r.issue_id = issues.id and r.user_id = auth.uid()));
+
+-- Government sees its jurisdiction, including CONFIDENTIAL
+create policy issues_gov_read on issues for select
+using (exists (select 1 from government_officers o
+               where o.user_id = auth.uid() and o.is_active
+                 and o.jurisdiction_id = issues.jurisdiction_id));</pre>
+
+  <div class="note warn" style="margin-top:1rem">
+    <b>The highest-value test in the codebase</b>
+    An RLS matrix asserting, for each of {anon, citizen, reporter, officer-in-jurisdiction, officer-out-of-jurisdiction, admin} × {PUBLIC, RESTRICTED, CONFIDENTIAL, HELD}, exactly which rows are visible — <b>24 assertions, run as a merge gate</b>. Internal comments need the same: <code>comments.visibility = 'INTERNAL'</code> must be invisible at the policy level, never by client-side filtering.
+  </div>
+</section>
+
+<!-- ================= 06 RESOLUTION ================= -->
+<section id="resolve" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">06</span><h2>Resolution chain <span class="tid">B3</span> <span class="tid">B4</span></h2></div>
+  <p class="lede">The agent tags a <b>category</b>. SQL finds the <b>authority</b>. No model participates in deciding who owns an issue.</p>
+
+  <pre class="sql" style="margin-top:1.5rem">create or replace function resolve_authority(
+  p_lat double precision, p_lng double precision, p_category text
+) returns table (jurisdiction_id bigint, authority_id bigint,
+                 routing_tier text, match_method text)
+language plpgsql as $$
+declare v_jur bigint; v_method text;
+begin
+  -- 1. most specific containing polygon
+  select id into v_jur from jurisdictions
+  where ST_Contains(geometry, ST_SetSRID(ST_Point(p_lng, p_lat), 4326))
+  order by case level when 'WARD' then 1 when 'ZONE' then 2
+                      when 'ULB' then 3 when 'DISTRICT' then 4 else 5 end
+  limit 1;
+  v_method := 'POLYGON';
+
+  -- 2. fallback: nearest district centroid within 25 km
+  if v_jur is null then
+    select id into v_jur from jurisdictions
+    where level = 'DISTRICT'
+      and ST_DWithin(centroid::geography,
+            ST_SetSRID(ST_Point(p_lng,p_lat),4326)::geography, 25000)
+    order by centroid &lt;-&gt; ST_SetSRID(ST_Point(p_lng,p_lat),4326)
+    limit 1;
+    v_method := 'CENTROID_FALLBACK';
+  end if;
+
+  -- 3. walk taxonomy resolution_order, first match wins
+  return query
+  select v_jur, a.id,
+    case
+      when exists (select 1 from government_officers o
+                   where o.jurisdiction_id = v_jur and o.is_active)
+        then 'ONBOARDED'
+      when a.grievance_email is not null
+       and a.verification_status = 'VERIFIED' then 'CONTACTABLE'
+      else 'UNMAPPED'
+    end,
+    coalesce(v_method,'NONE')
+  from category_authority_rules r
+  left join authorities a
+    on a.authority_type = r.authority_type
+   and a.jurisdiction_id = v_jur
+  where r.category_id = p_category
+  order by r.seq
+  limit 1;
+end $$;</pre>
+
+  <div class="note" style="margin-top:1rem">
+    <b>No officer found is a valid result</b>
+    It sets <code>routing_tier = 'UNMAPPED'</code> and the UI says so honestly — "Published · no authority contact yet". Never a fabricated assignee, never a fake SLA countdown against a department that has not heard of Swaram.
+  </div>
+</section>
+
+<!-- ================= 07 AI ================= -->
+<section id="ai" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">07</span><h2>AI pipeline</h2></div>
+
+  <h3><span class="tid">C1</span> Media normalisation — plumbing, not intelligence</h3>
+  <div class="tw" style="margin-top:.75rem">
+    <table>
+      <thead><tr><th>Input</th><th>Steps</th><th>Reaches the agent as</th></tr></thead>
+      <tbody>
+        <tr><td>Photo</td><td>Client compress ≤1600px / ~200KB; read EXIF GPS then strip it</td><td>image</td></tr>
+        <tr><td>Voice</td><td>ASR (kn/hi/te/en); retain original audio as evidence</td><td>transcript</td></tr>
+        <tr><td>Video</td><td>Extract 2–3 keyframes + audio track → ASR</td><td>frames + transcript</td></tr>
+        <tr><td>Text</td><td>Pass through</td><td>text</td></tr>
+        <tr><td>GPS</td><td>Reverse geocode</td><td>address + area context</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small muted" style="margin-top:.5rem">Agent input is <b>always</b> <code>text + image(s) + location context</code>, whatever was uploaded. That uniformity is exactly what makes one agent sufficient.</p>
+
+  <div class="grid g2" style="margin-top:1.5rem">
+    <div>
+      <h3><span class="tid">C2</span> Intake agent</h3>
+      <p class="small">One multimodal call. Structured output, schema-validated, retry on mismatch. Emits <code>category_id</code>, <code>subcategory</code>, <code>severity</code>, <code>title</code>, <code>estimated_people_affected</code>, <code>emergency_flag</code>, <code>visibility_class</code>, <code>safety_verdict</code>.</p>
+      <p class="small" style="margin-top:.5rem"><b>Emits a category, never a department</b> — so a municipal reorganisation is a row change in <code>category_authority_rules</code>, not a prompt change.</p>
+      <h3 style="margin-top:1.25rem"><span class="tid">C3</span> Safety gate</h3>
+      <p class="small">Five verdicts: clear / redact / hold / emergency / reject. The issue is <b>always created, classified, routed and given an SLA</b>; only publication is gated. <code>published_at</code> stays null while HELD. Fails open for the department, closed for the feed.</p>
+    </div>
+    <div>
+      <h3><span class="tid">C4</span> <span class="tid">C5</span> Clustering — retrieval then judgment</h3>
+      <pre class="sql" style="margin-top:.5rem;font-size:.68rem">select i.id, i.public_id,
+       ST_Distance(i.location, $1::geography) as metres,
+       1 - (r.embedding &lt;=&gt; $2) as text_sim
+from issues i join reports r on r.issue_id = i.id
+where i.category_id = $3
+  and i.status not in ('CLOSED','MERGED')
+  and ST_DWithin(i.location, $1::geography, $4)
+order by text_sim desc
+limit 10;</pre>
+      <p class="small" style="margin-top:.5rem">SQL narrows candidates cheaply; the agent then judges <b>location + image + description together</b>. Merge policy: ≥0.90 auto · 0.75–0.90 officer confirms · &lt;0.75 nothing. Older issue survives and keeps its <code>public_id</code>; the younger redirects.</p>
+      <p class="small" style="margin-top:.5rem"><b>Runs async on the job queue</b> — never in the request path.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 08 QUEUE ================= -->
+<section id="queue" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">08</span><h2>Jobs, SLA &amp; notifications</h2></div>
+  <div class="grid g3">
+    <div class="card">
+      <h4><span class="tid">E1</span> Job queue — required</h4>
+      <p class="small">Edge Functions time out; clustering, ASR and verification are long-running. <code>pgmq</code> + a worker. Queues: <code>intake</code>, <code>cluster</code>, <code>verify</code>, <code>email_dispatch</code>, <code>notify</code>.</p>
+      <p class="small" style="margin-top:.4rem"><b>Build it first</b> — retrofitting means rewriting every AI call site.</p>
+    </div>
+    <div class="card">
+      <h4><span class="tid">E3</span> SLA engine</h4>
+      <p class="small"><code>pg_cron</code> sweep on <code>sla_due_at</code>. Breach escalates on a timer without anyone filing a complaint. Only Tier 1 issues get a real SLA clock — Tier 2 and 3 show dispatch state instead.</p>
+    </div>
+    <div class="card">
+      <h4><span class="tid">E5</span> Tier-2 dispatch</h4>
+      <p class="small">Formatted grievance email to a <code>VERIFIED</code> authority. Track delivery and bounces; three bounces downgrade the registry row. UI shows "Sent · awaiting response", never a countdown.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 09 PHASES ================= -->
+<section id="phases" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">09</span><h2>Build phases</h2></div>
+
+  <div class="note warn">
+    <b>Phase 0 scope decision</b>
+    Scope the demo to <b>one city where ward GeoJSON actually exists</b> — Bengaluru (BBMP, 198 wards). This makes routing genuinely real without waiting on national geometry, and it is the difference between a demo that resolves to a ward and one that resolves to a district.
+  </div>
+
+  <div class="grid g3" style="margin-top:1.25rem">
+    <div class="card" style="border-left:3px solid var(--signal)">
+      <span class="kicker">Phase 0 · Demo</span>
+      <h4 style="margin-top:.4rem">The three-minute story</h4>
+      <div class="chips" style="margin:.5rem 0"><span class="tk">D1 (BLR only)</span><span class="tk">A0–A4</span><span class="tk">E1</span><span class="tk">B3</span><span class="tk">B4</span><span class="tk">C1 photo+text</span><span class="tk">C2</span><span class="tk">C4</span><span class="tk">C5</span><span class="tk">F1–F4</span><span class="tk">G1–G3</span></div>
+      <p class="small"><b>The beat:</b> post two issues independently → the clustering agent merges them live with its three signal scores on screen → the crowd count ticks 26 → 27.</p>
+      <p class="small muted" style="margin-top:.4rem">Cut: voice, video, verification, notifications, admin.</p>
+    </div>
+    <div class="card">
+      <span class="kicker">Phase 1 · V1</span>
+      <h4 style="margin-top:.4rem">One ward, for real</h4>
+      <div class="chips" style="margin:.5rem 0"><span class="tk">B1</span><span class="tk">B2</span><span class="tk">C3</span><span class="tk">C6</span><span class="tk">E3</span><span class="tk">E4</span><span class="tk">E5</span><span class="tk">F5</span><span class="tk">F6</span><span class="tk">G4</span><span class="tk">G5</span><span class="tk">H1</span><span class="tk">H2</span></div>
+      <p class="small">Roster onboarding, safety gate, SLA + escalation, resolution submissions and community verification, Tier-2 email, notifications, field mode, PWA offline queue.</p>
+    </div>
+    <div class="card">
+      <span class="kicker">Phase 2 · Scale</span>
+      <h4 style="margin-top:.4rem">National</h4>
+      <div class="chips" style="margin:.5rem 0"><span class="tk">D1 national</span><span class="tk">H3</span></div>
+      <p class="small">National geometry, civic intelligence (weekly newspaper, public map, performance index), learned ranking, contractor accounts, WhatsApp intake, multi-city tenancy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 10 RISKS ================= -->
+<section id="risks" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Risk register</h2></div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td><b>Ward polygons don't exist outside metros</b></td><td>Routing degrades to district — too coarse for an officer to act on</td><td>Scope Phase 0 to a city with published wards; design the tier fallback from day one</td></tr>
+        <tr><td><b>RLS misconfiguration leaks CONFIDENTIAL</b></td><td>Catastrophic and irreversible — a harassment report goes public</td><td>24-assertion RLS matrix as a merge gate</td></tr>
+        <tr><td>False merge closes a real problem</td><td>Twelve people told it's fixed when it isn't</td><td>Image similarity mandatory for auto-merge; officer split action; tune to under-merge</td></tr>
+        <tr><td><code>state_agencies.csv</code> corrupt + unverified</td><td>Reports emailed to wrong or dead addresses</td><td>Fix the two shifted rows; block water/electricity auto-routing until D3 completes</td></tr>
+        <tr><td>Rosters lack personal mobiles</td><td>Officer onboarding path collapses</td><td>Grep the scraped CSVs <b>before</b> building B2; treat the claim flow as the likely main road</td></tr>
+        <tr><td>Edge Function timeouts on AI work</td><td>Silent report loss</td><td>Job queue from the start, never request-scoped</td></tr>
+        <tr><td>Name conflict Swaram / Sanchari</td><td>Rework across schema, domain and copy</td><td><b>Decide today</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="scroll-hint">← scroll table →</p>
+</section>
+
+<!-- ================= 11 NEXT ================= -->
+<section id="next" class="wrap rv">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Immediate next actions</h2></div>
+  <ol class="steps" style="margin-top:.5rem">
+    <li><b>Decide the name.</b> Swaram or Sanchari — <code>swaram_ideas.md</code> says one, everything else says the other. One person, five minutes.</li>
+    <li><b>Start <span class="tid">D1</span>.</b> Pull OSM admin boundaries for Karnataka plus BBMP ward GeoJSON. Nothing routes until this exists.</li>
+    <li><b>Do <span class="tid">A0</span>.</b> Adopt §5.2's merged status enum and <code>transfer_chain</code>, then freeze it before the first migration.</li>
+    <li><b>Fix the two corrupt rows</b> in <code>state_agencies.csv</code> and add a CSV round-trip test.</li>
+    <li><b>Answer the roster question.</b> Grep the scraped CSVs for mobile-number patterns — it decides whether <span class="tid">B2</span> is roster matching or a claim flow.</li>
+    <li><b>Stand up <span class="tid">A1</span></b> with PostGIS, pgvector, pg_cron and pgmq enabled.</li>
+  </ol>
+  <div class="note" style="margin-top:1.25rem">
+    <b>Note</b>
+    Items 1–5 are decisions and data fixes, not code. All five are cheap now and expensive after the first migration ships.
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="logo" style="margin-bottom:.5rem"><span class="dot"></span>SWARAM</div>
+      <p class="small" style="max-width:52ch">Technical Implementation Plan v1.0 — build order, dependencies and the constraints this repo actually imposes. Companion to the Product Requirements Document.</p>
+    </div>
+    <div class="small mono" style="text-align:left">
+      15 Aug 2026<br>
+      39 nodes · 55 edges · acyclic
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+(function(){
+  var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (window.mermaid) {
+    mermaid.initialize({
+      startOnLoad:true,
+      theme: dark ? 'dark' : 'neutral',
+      themeVariables:{ fontFamily:"'JetBrains Mono', monospace", fontSize:'13px' }
+    });
+  }
+  var btn=document.getElementById('tocBtn'), toc=document.getElementById('toc');
+  function close(){toc.removeAttribute('open-drawer');btn.setAttribute('aria-expanded','false');}
+  btn.addEventListener('click',function(){
+    if(toc.hasAttribute('open-drawer')){close();}
+    else{toc.setAttribute('open-drawer','');btn.setAttribute('aria-expanded','true');}
+  });
+  toc.addEventListener('click',function(e){ if(e.target===toc||e.target.closest('a')) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
+
+  if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');});
+  } else {
+    var io=new IntersectionObserver(function(en){
+      en.forEach(function(x){ if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);} });
+    },{rootMargin:'0px 0px -8% 0px',threshold:.04});
+    document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+  }
+})();
+</script>
+</body>
+</html>
