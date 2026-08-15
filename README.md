@@ -89,14 +89,42 @@ Full table (all 88): `data/departments/appeal_officers_central.csv`
 
 **Limitations of the three tables above:** they're ministry-level and
 state-level — one row per department, one row per state, not one row per
-department per district. A true per-district directory (e.g. "BBMP Solid Waste
-Dept, Bengaluru Urban, email X") doesn't exist as a single national source;
-each district publishes its own contact page with no shared format, so that
-layer would need to be built one state at a time. There's also a deeper CPGRAMS
-layer — the full ministry → department → organization tree used to route a
-grievance to a specific sub-office/PSU when filing one — but it's only exposed
-behind a logged-in citizen account on the Lodge Grievance form, so it isn't
-included here.
+department per district (that gap is what the next section starts to fill).
+There's also a deeper CPGRAMS layer — the full ministry → department →
+organization tree used to route a grievance to a specific sub-office/PSU when
+filing one — but it's only exposed behind a logged-in citizen account on the
+Lodge Grievance form, so it isn't included here.
+
+## District-level department contacts — Karnataka pilot, 5 districts
+
+Most Indian districts run the same government (NIC) website template, which
+publishes a per-department contact directory: police, water board, development
+authority, municipal corporation, zilla panchayat, revenue officers — each with
+a name, designation, and often an email. This is the layer CPGRAMS doesn't
+have. Piloted on 5 Karnataka districts so far — **72 contacts, 46 with an
+email**:
+
+| District | Department | Name | Designation | Email |
+|---|---|---|---|---|
+| BENGALURU URBAN | Bangalore Water Supply and Sewerage Board | (Chairman) | Chairman | chairman@bwssb.gov.in |
+| BENGALURU URBAN | Bruhat Bengaluru Mahanagara Palike | Addl. Commissioner (Administration) | Additional Commissioner | addcomm.ad@gmail.com |
+| BENGALURU URBAN | Bangalore Development Authority | Commissioner | Commissioner | com@bdabangalore.org |
+| BENGALURU URBAN | Police Department | DCP Central | DCP | acpcentraltrafficbcp@ksp.gov.in |
+| MYSURU | — (DC office) | Shri.Lakshmikanth Reddy.G, I.A.S | Deputy Commissioner & District Magistrate | dcmys-ka@nic.in |
+| MYSURU | Tahasildar Mysuru | Mohana kumari | TAHASILDAR – SARGURU | mohana.kumari1980@ka.gov.in |
+| MYSURU | Zilla Panchayath Mysuru | Shri. S UKESH KUMAR, I.A.S | Chief Executive Officer | ceo_zp_mys@nic.in |
+| TUMAKURU | — (DC office) | Smt. Subha Kalyan, I.A.S | Deputy Commissioner & District Magistrate | dctumkur-ka@nic.in |
+
+Full table: `data/departments/karnataka_district_contacts.csv`
+
+**Coverage and caveats, honestly:** 5 of Karnataka's 31 districts, not all 31 —
+each remaining district's site hostname has to be found individually (no
+central lookup table for them). Belagavi's page had almost nothing usable
+(1 row) and even had a literal "Sample Department" placeholder left in by
+whoever built that page — a data-quality issue on the government's own site,
+left as-is rather than papered over. This same NIC template is used well
+beyond Karnataka — likely the biggest lever for scaling this table to the rest
+of India, one state's district hostnames at a time.
 
 ## State utility boards — water + electricity, all 36 states/UTs
 

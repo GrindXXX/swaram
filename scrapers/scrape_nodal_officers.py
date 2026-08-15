@@ -35,10 +35,11 @@ data/departments/appeal_officers_central.csv.
 
 import csv
 import pathlib
-import re
 
 import requests
 from bs4 import BeautifulSoup
+
+from emailutil import deobfuscate_email
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "data" / "departments"
@@ -49,15 +50,6 @@ SOURCES = {
     "nodal_officers_state.csv": "https://pmopg.gov.in/CitizenReforms/Home/NodalPgOfficersState",
     "appeal_officers_central.csv": "https://pgportal.gov.in/Home/NodalAuthorityForAppeal",
 }
-
-EMAIL_OBFUSCATED = re.compile(r"([\w.+-]+)\[at\]([\w.-]+)\[dot\]([\w.-]+)", re.IGNORECASE)
-
-
-def deobfuscate_email(text: str) -> str | None:
-    m = EMAIL_OBFUSCATED.search(text)
-    if not m:
-        return None
-    return f"{m.group(1)}@{m.group(2)}.{m.group(3)}"
 
 
 def scrape(url: str) -> list[dict]:
@@ -88,7 +80,7 @@ def scrape(url: str) -> list[dict]:
                 "officer_name_designation": officer,
                 "address": address,
                 "phone_fax_raw": contact,
-                "email": deobfuscate_email(contact) or "",
+                "email": deobfuscate_email(contact),
                 "source_url": url,
             }
         )
